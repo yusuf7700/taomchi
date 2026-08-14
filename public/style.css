@@ -127,6 +127,15 @@ button {
 
 .icon-btn svg { width: 20px; height: 20px; }
 
+.icon-btn.active {
+  background: var(--orange);
+  border-color: var(--orange);
+}
+.icon-btn.active svg {
+  color: var(--white);
+  fill: var(--white);
+}
+
 /* ===== Main ===== */
 .main {
   padding: 0 18px;
@@ -459,6 +468,137 @@ button {
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
+}
+
+/* ===== Profil sahifasi ===== */
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 18px;
+}
+
+.profile-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  color: var(--cream);
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.profile-username {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ===== Premium banner ===== */
+.premium-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--green-dark), var(--green));
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+
+.premium-banner-icon { font-size: 26px; flex-shrink: 0; }
+
+.premium-banner-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--cream);
+}
+
+.premium-banner-subtitle {
+  font-size: 12px;
+  color: #C9DDC9;
+  margin-top: 2px;
+}
+
+/* ===== Sozlamalar ro'yxati ===== */
+.settings-list {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 52px;
+  width: 100%;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-dark);
+}
+.settings-row:last-child { border-bottom: none; }
+
+.settings-row-icon { font-size: 18px; }
+
+.settings-row-label {
+  flex: 1;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.settings-row-value {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border-soft);
+  border-radius: 20px;
+  transition: 0.2s;
+  cursor: pointer;
+}
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  background: var(--white);
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.switch input:checked + .switch-slider { background: var(--green-dark); }
+.switch input:checked + .switch-slider::before { transform: translateX(20px); }
+
+.app-version {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 24px;
 }
 
 /* ===== Bottom navigation ===== */
