@@ -89,13 +89,8 @@ if (catFromUrl) {
   }
 }
 
-// Firestore'dan retseptlarni yuklash
-db.collection("recipes").get()
-  .then(snapshot => {
-    allRecipes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    applyFilters();
-  })
-  .catch(err => {
-    console.error("Retseptlarni yuklashda xato:", err);
-    recipeListEl.innerHTML = `<p class="empty-text">Xatolik yuz berdi. Qayta urinib ko'ring.</p>`;
-  });
+// Firestore'dan retseptlarni yuklash (kesh orqali — tezroq)
+loadRecipesWithCache((recipes) => {
+  allRecipes = recipes;
+  applyFilters();
+});
