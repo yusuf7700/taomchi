@@ -4,17 +4,13 @@
 const ROUTES = {
   home: "index.html",
   recipes: "recipes.html",
-  favorites: "favorites.html",   // hali qurilmagan
-  profile: "profile.html"        // hali qurilmagan
+  favorites: "favorites.html",
+  profile: "profile.html"
 };
 
 document.querySelectorAll(".nav-item").forEach(item => {
   item.addEventListener("click", () => {
     const page = item.getAttribute("data-page");
-    if (page === "favorites" || page === "profile") {
-      console.log("Bu sahifa hali tayyor emas:", page);
-      return; // keyingi bosqichda quriladi
-    }
     if (ROUTES[page]) window.location.href = ROUTES[page];
   });
 });
