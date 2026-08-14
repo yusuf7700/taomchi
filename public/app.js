@@ -8,12 +8,19 @@ if (tg) {
   // Telegram interfeysiga moslashtirish (headerBackgroundColor va h.k. keyinroq)
 }
 
-// --- Splash screen (1.1 soniyadan keyin yopiladi) ---
+// --- Splash screen (1.8 soniyadan keyin yopiladi, faqat birinchi marta) ---
 window.addEventListener("load", () => {
+  const splash = document.getElementById("splash");
+  if (!splash) return;
+
+  if (sessionStorage.getItem("taomchi_splash_shown")) {
+    return; // allaqachon inline script orqali yashirilgan
+  }
+
   setTimeout(() => {
-    const splash = document.getElementById("splash");
-    if (splash) splash.classList.add("hidden");
-  }, 1100);
+    splash.classList.add("hidden");
+    sessionStorage.setItem("taomchi_splash_shown", "1");
+  }, 1800);
 });
 
 // --- 3 ta asosiy tugma (Uyda bor / AI / Haftalik menyu) ---
