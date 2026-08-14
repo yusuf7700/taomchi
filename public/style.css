@@ -1,352 +1,346 @@
 /* ===== Taomchi — asosiy uslublar ===== */
 
 :root {
-    --green-dark: #1F4A2C;
-    --green: #2F6B40;
-    --cream: #FBF0DD;
-    --cream-soft: #F5E6C8;
-    --orange: #E8752F;
-    --white: #FFFFFF;
-    --text-dark: #2C2C2A;
-    --text-muted: #6B6B60;
-    --border-soft: #E3D8C2;
-  
-    --radius-lg: 20px;
-    --radius-md: 14px;
-    --radius-sm: 10px;
-  }
-  
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  
+  --green-dark: #1F4A2C;
+  --green: #2F6B40;
+  --cream: #FBF0DD;
+  --cream-soft: #F5E6C8;
+  --orange: #E8752F;
+  --white: #FFFFFF;
+  --text-dark: #2C2C2A;
+  --text-muted: #6B6B60;
+  --border-soft: #E3D8C2;
+
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--cream);
+  color: var(--text-dark);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-bottom: 90px; /* bottom nav uchun joy */
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* ===== Splash screen ===== */
+.splash {
+  position: fixed;
+  inset: 0;
+  background: var(--green-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px;
+  z-index: 100;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.splash.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 28px;
+  margin-bottom: 18px;
+  object-fit: cover;
+}
+
+.splash-tagline {
+  font-size: 14px;
+  color: #C9DDC9;
+  text-align: center;
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+/* ===== Header ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lang-toggle {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green-dark);
+  min-height: 40px;
+  min-width: 44px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 50%;
+  color: var(--green-dark);
+}
+
+.icon-btn svg { width: 20px; height: 20px; }
+
+/* ===== Main ===== */
+.main {
+  padding: 0 18px;
+}
+
+.section { margin-top: 26px; }
+
+.section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+}
+
+/* ===== Hero ===== */
+.hero {
+  background: var(--green-dark);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  margin-top: 4px;
+}
+
+.hero h1 {
+  color: var(--cream);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.hero p {
+  color: #C9DDC9;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.search-box {
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-box svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.search-box input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 15px;
+  color: var(--text-dark);
+  width: 100%;
+}
+
+.search-box input::placeholder { color: var(--text-muted); }
+
+/* ===== Quick actions (3 ta katta tugma) ===== */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.action-card {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 16px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 84px;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.action-card:active {
+  transform: scale(0.96);
+  background: var(--cream-soft);
+}
+
+.action-icon { font-size: 26px; }
+
+.action-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: center;
+  line-height: 1.25;
+}
+
+/* ===== Retsept kartasi ===== */
+.recipe-card {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 72px;
+}
+
+.recipe-card:active { background: var(--cream-soft); }
+
+.recipe-thumb {
+  width: 56px;
+  height: 56px;
+  background: var(--orange);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.recipe-info { flex: 1; }
+
+.recipe-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.recipe-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+}
+
+.chevron {
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ===== Kategoriyalar ===== */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.category-card {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  min-height: 52px;
+}
+
+.category-card:active { background: var(--cream-soft); }
+
+.cat-icon { font-size: 20px; }
+
+/* ===== Bottom navigation ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1.5px solid var(--border-soft);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  min-width: 60px;
+  min-height: 48px;
+  padding: 4px;
+}
+
+.nav-item svg {
+  width: 22px;
+  height: 22px;
+}
+
+.nav-item span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.nav-item.active { color: var(--green-dark); }
+
+/* ===== Katta ekranlar uchun konteyner (test qilishda foydali) ===== */
+@media (min-width: 480px) {
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--cream);
-    color: var(--text-dark);
-    font-size: 16px;
-    line-height: 1.5;
-    padding-bottom: 90px; /* bottom nav uchun joy */
-    -webkit-tap-highlight-color: transparent;
+    max-width: 480px;
+    margin: 0 auto;
+    box-shadow: 0 0 40px rgba(0,0,0,0.06);
+    min-height: 100vh;
   }
-  
-  button {
-    font-family: inherit;
-    border: none;
-    background: none;
-    cursor: pointer;
-  }
-  
-  /* ===== Splash screen ===== */
-  .splash {
-    position: fixed;
-    inset: 0;
-    background: var(--green-dark);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0 40px;
-    z-index: 100;
-    transition: opacity 0.4s ease, visibility 0.4s ease;
-  }
-  
-  .splash.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-  }
-  
-  .splash-icon {
-    font-size: 56px;
-    margin-bottom: 10px;
-  }
-  
-  .splash-title {
-    font-size: 30px;
-    font-weight: 700;
-    color: var(--cream);
-    margin-bottom: 14px;
-  }
-  
-  .splash-tagline {
-    font-size: 14px;
-    color: #C9DDC9;
-    text-align: center;
-    line-height: 1.6;
-    max-width: 280px;
-  }
-  
-  /* ===== Header ===== */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 18px;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .logo-icon { font-size: 26px; }
-  
-  .logo-text {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--green-dark);
-  }
-  
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .lang-toggle {
-    background: var(--white);
-    border: 1.5px solid var(--border-soft);
-    border-radius: var(--radius-sm);
-    padding: 8px 12px;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--green-dark);
-    min-height: 40px;
-    min-width: 44px;
-  }
-  
-  .icon-btn {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--white);
-    border: 1.5px solid var(--border-soft);
-    border-radius: 50%;
-    color: var(--green-dark);
-  }
-  
-  .icon-btn svg { width: 20px; height: 20px; }
-  
-  /* ===== Main ===== */
-  .main {
-    padding: 0 18px;
-  }
-  
-  .section { margin-top: 26px; }
-  
-  .section h2 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--green-dark);
-    margin-bottom: 12px;
-  }
-  
-  /* ===== Hero ===== */
-  .hero {
-    background: var(--green-dark);
-    border-radius: var(--radius-lg);
-    padding: 22px 20px;
-    margin-top: 4px;
-  }
-  
-  .hero h1 {
-    color: var(--cream);
-    font-size: 20px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  
-  .hero p {
-    color: #C9DDC9;
-    font-size: 14px;
-    margin-bottom: 16px;
-  }
-  
-  .search-box {
-    background: var(--cream);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .search-box svg {
-    width: 18px;
-    height: 18px;
-    color: var(--text-muted);
-    flex-shrink: 0;
-  }
-  
-  .search-box input {
-    border: none;
-    background: none;
-    outline: none;
-    font-size: 15px;
-    color: var(--text-dark);
-    width: 100%;
-  }
-  
-  .search-box input::placeholder { color: var(--text-muted); }
-  
-  /* ===== Quick actions (3 ta katta tugma) ===== */
-  .quick-actions {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 16px;
-  }
-  
-  .action-card {
-    background: var(--white);
-    border: 1.5px solid var(--border-soft);
-    border-radius: var(--radius-md);
-    padding: 16px 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    min-height: 84px;
-    transition: transform 0.1s ease, background 0.15s ease;
-  }
-  
-  .action-card:active {
-    transform: scale(0.96);
-    background: var(--cream-soft);
-  }
-  
-  .action-icon { font-size: 26px; }
-  
-  .action-label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--text-dark);
-    text-align: center;
-    line-height: 1.25;
-  }
-  
-  /* ===== Retsept kartasi ===== */
-  .recipe-card {
-    background: var(--white);
-    border: 1.5px solid var(--border-soft);
-    border-radius: var(--radius-md);
-    padding: 14px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-height: 72px;
-  }
-  
-  .recipe-card:active { background: var(--cream-soft); }
-  
-  .recipe-thumb {
-    width: 56px;
-    height: 56px;
-    background: var(--orange);
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    flex-shrink: 0;
-  }
-  
-  .recipe-info { flex: 1; }
-  
-  .recipe-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  
-  .recipe-meta {
-    font-size: 13px;
-    color: var(--text-muted);
-    display: flex;
-    gap: 12px;
-  }
-  
-  .chevron {
-    width: 20px;
-    height: 20px;
-    color: var(--text-muted);
-    flex-shrink: 0;
-  }
-  
-  /* ===== Kategoriyalar ===== */
-  .category-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-  
-  .category-card {
-    background: var(--white);
-    border: 1.5px solid var(--border-soft);
-    border-radius: var(--radius-sm);
-    padding: 14px 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-dark);
-    min-height: 52px;
-  }
-  
-  .category-card:active { background: var(--cream-soft); }
-  
-  .cat-icon { font-size: 20px; }
-  
-  /* ===== Bottom navigation ===== */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: var(--white);
-    border-top: 1.5px solid var(--border-soft);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
-    z-index: 10;
-  }
-  
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: var(--text-muted);
-    min-width: 60px;
-    min-height: 48px;
-    padding: 4px;
-  }
-  
-  .nav-item svg {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .nav-item span {
-    font-size: 11px;
-    font-weight: 600;
-  }
-  
-  .nav-item.active { color: var(--green-dark); }
-  
-  /* ===== Katta ekranlar uchun konteyner (test qilishda foydali) ===== */
-  @media (min-width: 480px) {
-    body {
-      max-width: 480px;
-      margin: 0 auto;
-      box-shadow: 0 0 40px rgba(0,0,0,0.06);
-      min-height: 100vh;
-    }
-  }
+}
