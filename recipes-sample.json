@@ -1,0 +1,109 @@
+[
+    {
+      "title": "Osh",
+      "category": "main",
+      "ingredients": [
+        { "name": "Guruch", "amount": "1 kg" },
+        { "name": "Go'sht", "amount": "500 g" },
+        { "name": "Sabzi", "amount": "1 kg" },
+        { "name": "Piyoz", "amount": "3 dona" },
+        { "name": "Yog'", "amount": "300 ml" },
+        { "name": "Tuz, zira", "amount": "ta'bga qarab" }
+      ],
+      "steps": [
+        "Yog'ni qizdirib, mayda to'g'ralgan piyozni qizartiring.",
+        "Go'shtni qo'shib, o'rtacha olovda qovuring.",
+        "To'g'ralgan sabzini solib, 10 daqiqa dimlang.",
+        "Suv quyib, tuz va ziravorlar soling, 30 daqiqa qayting.",
+        "Yuvilgan guruchni tekis yoying, suv qo'shing va yopib toblang."
+      ],
+      "cookTime": 90,
+      "rating": 4.9,
+      "imageUrl": "",
+      "isPremium": false,
+      "tags": ["milliy", "go'shtli", "to'yona"]
+    },
+    {
+      "title": "Mastava",
+      "category": "soup",
+      "ingredients": [
+        { "name": "Guruch", "amount": "150 g" },
+        { "name": "Go'sht", "amount": "300 g" },
+        { "name": "Kartoshka", "amount": "3 dona" },
+        { "name": "Sabzi", "amount": "1 dona" },
+        { "name": "Pomidor", "amount": "2 dona" },
+        { "name": "Piyoz", "amount": "1 dona" }
+      ],
+      "steps": [
+        "Go'shtni mayda to'g'rab qovuring.",
+        "Piyoz, sabzi va pomidorni qo'shib qovurishni davom eting.",
+        "Suv quyib qaynatib, kartoshkani soling.",
+        "Guruchni qo'shib, 20 daqiqa pishiring.",
+        "Ko'katlar bilan bezab dasturxonga tortiladi."
+      ],
+      "cookTime": 45,
+      "rating": 4.7,
+      "imageUrl": "",
+      "isPremium": false,
+      "tags": ["sho'rva", "issiq", "oilaviy"]
+    },
+    {
+      "title": "Achichuk salat",
+      "category": "salad",
+      "ingredients": [
+        { "name": "Pomidor", "amount": "3 dona" },
+        { "name": "Piyoz", "amount": "1 dona" },
+        { "name": "Ko'katlar", "amount": "bir dasta" },
+        { "name": "Tuz", "amount": "ta'bga qarab" }
+      ],
+      "steps": [
+        "Pomidorni yarim halqa qilib to'g'rang.",
+        "Piyozni yupqa halqalab, tuz bilan ishqalang.",
+        "Ikkalasini aralashtirib, ko'katlar bilan bezang."
+      ],
+      "cookTime": 10,
+      "rating": 4.8,
+      "imageUrl": "",
+      "isPremium": false,
+      "tags": ["yengil", "vegetarian", "tezkor"]
+    },
+    {
+      "title": "Ovqatlik omlet",
+      "category": "breakfast",
+      "ingredients": [
+        { "name": "Tuxum", "amount": "4 dona" },
+        { "name": "Sut", "amount": "50 ml" },
+        { "name": "Pomidor", "amount": "1 dona" },
+        { "name": "Ko'katlar", "amount": "ozgina" }
+      ],
+      "steps": [
+        "Tuxumlarni sut bilan chalkashtiring.",
+        "Mayda to'g'ralgan pomidorni qo'shing.",
+        "Yog'langan tovada 5-7 daqiqa yopib toblang."
+      ],
+      "cookTime": 15,
+      "rating": 4.6,
+      "imageUrl": "",
+      "isPremium": false,
+      "tags": ["nonushta", "tezkor", "oddiy"]
+    },
+    {
+      "title": "Sut kompot",
+      "category": "drinks",
+      "ingredients": [
+        { "name": "Quritilgan mevalar", "amount": "300 g" },
+        { "name": "Suv", "amount": "2 l" },
+        { "name": "Shakar", "amount": "ta'bga qarab" }
+      ],
+      "steps": [
+        "Quritilgan mevalarni yuving.",
+        "Suvga solib qaynatgach, o'rtacha olovda 20 daqiqa qayting.",
+        "Shakar solib, sovutib xizmat qiling."
+      ],
+      "cookTime": 30,
+      "rating": 4.5,
+      "imageUrl": "",
+      "isPremium": false,
+      "tags": ["ichimlik", "shirin", "sog'lom"]
+    }
+  ]
