@@ -5,10 +5,26 @@ if (tg) { tg.ready(); tg.expand(); }
 
 const detailContent = document.getElementById("detailContent");
 const backBtn = document.getElementById("backBtn");
+const favBtn = document.getElementById("favBtn");
 
 if (backBtn) {
   backBtn.addEventListener("click", () => {
     window.history.back();
+  });
+}
+
+let currentRecipeId = null;
+
+function updateFavBtnState() {
+  if (!favBtn || !currentRecipeId) return;
+  favBtn.classList.toggle("active", isFavorite(currentRecipeId));
+}
+
+if (favBtn) {
+  favBtn.addEventListener("click", () => {
+    if (!currentRecipeId) return;
+    toggleFavorite(currentRecipeId);
+    updateFavBtnState();
   });
 }
 
@@ -46,20 +62,31 @@ function renderRecipe(r) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const recipeId = urlParams.get("id");
+currentRecipeId = recipeId;
 
 if (!recipeId) {
   detailContent.innerHTML = `<p class="empty-text">Retsept topilmadi.</p>`;
 } else {
-  db.collection("recipes").doc(recipeId).get()
-    .then(doc => {
-      if (!doc.exists) {
-        detailContent.innerHTML = `<p class="empty-text">Retsept topilmadi.</p>`;
-        return;
-      }
-      renderRecipe(doc.data());
-    })
-    .catch(err => {
-      console.error("Retseptni yuklashda xato:", err);
-      detailContent.innerHTML = `<p class="empty-text">Xatolik yuz berdi.</p>`;
-    });
+  // Avval keshdan tekshiramiz — bor bo'lsa, Firestore'ga so'rov shart emas
+  const cached = getCachedRecipes();
+  const cachedRecipe = cached?.data.find(r => r.id === recipeId);
+
+  if (cachedRecipe) {
+    renderRecipe(cachedRecipe);
+    updateFavBtnState();
+  } else {
+    db.collection("recipes").doc(recipeId).get()
+      .then(doc => {
+        if (!doc.exists) {
+          detailContent.innerHTML = `<p class="empty-text">Retsept topilmadi.</p>`;
+          return;
+        }
+        renderRecipe(doc.data());
+        updateFavBtnState();
+      })
+      .catch(err => {
+        console.error("Retseptni yuklashda xato:", err);
+        detailContent.innerHTML = `<p class="empty-text">Xatolik yuz berdi.</p>`;
+      });
+  }
 }
