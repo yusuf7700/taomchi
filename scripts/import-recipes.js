@@ -13,15 +13,16 @@
 // 3. recipes-sample.json ichidagi retseptlarni to'ldirib/ko'paytirib,
 //    shu skriptni istalgancha marta qayta ishga tushirishingiz mumkin.
 
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
+const { getFirestore } = require("firebase-admin/firestore");
 const recipes = require("./recipes-sample.json");
 const serviceAccount = require("./serviceAccountKey.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+initializeApp({
+  credential: cert(serviceAccount)
 });
 
-const db = admin.firestore();
+const db = getFirestore();
 
 async function importRecipes() {
   const batch = db.batch();
