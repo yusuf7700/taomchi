@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Taomchi</title>
 <link rel="stylesheet" href="style.css">
+<script>
+  // Splash faqat SHU SEANSDA birinchi marta ochilganda ko'rsatiladi —
+  // orqaga qaytilganda yoki qayta kirilganda qayta chiqmasin uchun.
+  if (sessionStorage.getItem("taomchi_splash_shown")) {
+    document.documentElement.classList.add("no-splash");
+  }
+</script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
