@@ -54,8 +54,8 @@ function getSecret() {
 }
 
 function showPanel() {
-  loginScreen.style.display = "none";
-  adminPanel.style.display = "block";
+  loginScreen.classList.add("screen-hidden");
+  adminPanel.classList.remove("screen-hidden");
   loadRecipes();
 }
 
@@ -296,6 +296,11 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
   const q = e.target.value.trim().toLowerCase();
   const filtered = allAdminRecipes.filter(r =>
     (r.title || "").toLowerCase().includes(q) ||
+    (r.category || "").toLowerCase().includes(q)
+  );
+  renderAdminList(filtered);
+});
+(q) ||
     (r.category || "").toLowerCase().includes(q)
   );
   renderAdminList(filtered);
