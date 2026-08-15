@@ -1,0 +1,208 @@
+/* ===== Taomchi Admin — uslublar ===== */
+
+.admin-body {
+  padding-bottom: 40px;
+}
+
+/* ===== Login ekrani ===== */
+.admin-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.admin-login-box {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 28px 22px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.admin-login-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--green-dark);
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.admin-error {
+  color: #C0392B;
+  font-size: 13px;
+  margin-top: 8px;
+  text-align: center;
+  min-height: 16px;
+}
+
+/* ===== Admin panel umumiy ===== */
+.admin-panel {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 18px 40px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.admin-header-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.admin-card {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-card-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 14px;
+}
+
+/* ===== Forma elementlari ===== */
+.admin-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 12px 0 6px;
+}
+
+.admin-hint-inline {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.admin-input, .admin-textarea {
+  width: 100%;
+  background: var(--cream);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-dark);
+}
+
+.admin-textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.admin-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.admin-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.admin-image-preview {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-top: 8px;
+}
+
+/* ===== Tugmalar ===== */
+.admin-btn-primary {
+  width: 100%;
+  background: var(--green-dark);
+  color: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  font-size: 14.5px;
+  font-weight: 700;
+  min-height: 46px;
+}
+
+.admin-btn-secondary {
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-dark);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+/* ===== Retseptlar ro'yxati (admin) ===== */
+.admin-recipe-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-recipe-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.admin-recipe-item-info { flex: 1; min-width: 0; }
+
+.admin-recipe-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-recipe-item-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.admin-recipe-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.admin-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  }
