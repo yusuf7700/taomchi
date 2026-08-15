@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taomchi — Admin</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- ===== LOGIN EKRANI ===== -->
+  <div id="loginScreen" class="admin-login">
+    <div class="admin-login-box">
+      <p class="admin-login-title">🍲 Taomchi Admin</p>
+      <input type="password" id="passwordInput" placeholder="Parolni kiriting" class="admin-input">
+      <button id="loginBtn" class="admin-btn-primary">Kirish</button>
+      <p id="loginError" class="admin-error"></p>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN PANEL ===== -->
+  <div id="adminPanel" class="admin-panel" style="display:none;">
+
+    <header class="admin-header">
+      <span class="admin-header-title">🍲 Taomchi Admin</span>
+      <button id="logoutBtn" class="admin-btn-secondary">Chiqish</button>
+    </header>
+
+    <!-- Forma -->
+    <section class="admin-card">
+      <p class="admin-card-title" id="formTitle">➕ Retsept qo'shish</p>
+
+      <label class="admin-label">🍲 Taom nomi</label>
+      <input type="text" id="fTitle" class="admin-input" placeholder="Masalan: Osh">
+
+      <label class="admin-label">📸 Rasm</label>
+      <input type="file" id="fImageFile" accept="image/*" class="admin-input">
+      <p class="admin-hint" id="uploadStatus"></p>
+      <input type="hidden" id="fImageUrl">
+      <img id="imagePreview" class="admin-image-preview" style="display:none;">
+
+      <label class="admin-label">🧺 Ingredientlar <span class="admin-hint-inline">(har qatorda: Nomi - Miqdori)</span></label>
+      <textarea id="fIngredients" class="admin-textarea" rows="5" placeholder="Guruch - 1 kg&#10;Go'sht - 500 g&#10;Piyoz - 2 dona"></textarea>
+
+      <label class="admin-label">👩‍🍳 Tayyorlash bosqichlari <span class="admin-hint-inline">(har qator — bitta qadam)</span></label>
+      <textarea id="fSteps" class="admin-textarea" rows="5" placeholder="Piyozni qovuring&#10;Go'shtni qo'shing&#10;..."></textarea>
+
+      <div class="admin-row-2">
+        <div>
+          <label class="admin-label">⏱ Vaqt (daqiqa)</label>
+          <input type="number" id="fCookTime" class="admin-input" placeholder="60">
+        </div>
+        <div>
+          <label class="admin-label">👨‍👩‍👧 Porsiya</label>
+          <input type="number" id="fServings" class="admin-input" placeholder="4">
+        </div>
+      </div>
+
+      <div class="admin-row-2">
+        <div>
+          <label class="admin-label">🏷 Kategoriya</label>
+          <select id="fCategory" class="admin-input">
+            <option value="main">Asosiy taomlar</option>
+            <option value="soup">Sho'rvalar</option>
+            <option value="salad">Salatlar</option>
+            <option value="breakfast">Nonushta</option>
+            <option value="dessert">Shirinliklar</option>
+            <option value="pastry">Yeguliklar</option>
+            <option value="drinks">Ichimliklar</option>
+          </select>
+        </div>
+        <div>
+          <label class="admin-label">⭐ Qiyinlik</label>
+          <select id="fDifficulty" class="admin-input">
+            <option value="oson">Oson</option>
+            <option value="orta">O'rta</option>
+            <option value="qiyin">Qiyin</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="admin-label">👩‍🍳 Muallif / manba</label>
+      <input type="text" id="fAuthor" class="admin-input" placeholder="Masalan: @kanal_nomi">
+
+      <label class="admin-label">🔗 Original post havolasi <span class="admin-hint-inline">(ixtiyoriy)</span></label>
+      <input type="text" id="fSourceUrl" class="admin-input" placeholder="https://...">
+
+      <label class="admin-checkbox-row">
+        <input type="checkbox" id="fPremium">
+        <span>Premium retsept</span>
+      </label>
+
+      <input type="hidden" id="fEditId">
+      <button id="submitBtn" class="admin-btn-primary" style="margin-top: 14px;">➕ Retseptni qo'shish</button>
+      <button id="cancelEditBtn" class="admin-btn-secondary" style="display:none; margin-top: 8px;">Bekor qilish</button>
+      <p id="formStatus" class="admin-hint"></p>
+    </section>
+
+    <!-- Ro'yxat -->
+    <section class="admin-card">
+      <p class="admin-card-title">📋 Barcha retseptlar</p>
+      <input type="text" id="searchInput" class="admin-input" placeholder="🔎 Nomi yoki kategoriya bo'yicha qidirish...">
+      <div id="adminRecipeList" class="admin-recipe-list">
+        <p class="admin-hint">Yuklanmoqda...</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+            </html>
+            
