@@ -159,6 +159,7 @@ function collectFormData() {
     difficulty: document.getElementById("fDifficulty").value,
     author: document.getElementById("fAuthor").value.trim(),
     sourceUrl: document.getElementById("fSourceUrl").value.trim(),
+    videoPlatform: document.getElementById("fVideoPlatform").value,
     isPremium: document.getElementById("fPremium").checked,
     rating: 0
   };
@@ -180,6 +181,7 @@ function clearForm() {
   document.getElementById("fDifficulty").value = "oson";
   document.getElementById("fAuthor").value = "";
   document.getElementById("fSourceUrl").value = "";
+  document.getElementById("fVideoPlatform").value = "telegram";
   document.getElementById("fPremium").checked = false;
   document.getElementById("fEditId").value = "";
   document.getElementById("formTitle").textContent = "➕ Retsept qo'shish";
@@ -292,6 +294,7 @@ function startEdit(id) {
   document.getElementById("fDifficulty").value = r.difficulty || "oson";
   document.getElementById("fAuthor").value = r.author || "";
   document.getElementById("fSourceUrl").value = r.sourceUrl || "";
+  document.getElementById("fVideoPlatform").value = r.videoPlatform || "telegram";
   document.getElementById("fPremium").checked = !!r.isPremium;
   document.getElementById("fEditId").value = r.id;
 
@@ -329,4 +332,4 @@ document.getElementById("searchInput").addEventListener("input", (e) => {
   );
   renderAdminList(filtered);
 });
-                              
+
