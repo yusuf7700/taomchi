@@ -86,11 +86,18 @@
         </div>
       </div>
 
-      <label class="admin-label">👩‍🍳 Muallif / manba</label>
+      <label class="admin-label">📡 Manba turi</label>
+      <select id="fVideoPlatform" class="admin-input">
+        <option value="telegram">Telegram</option>
+        <option value="instagram">Instagram</option>
+      </select>
+
+      <label class="admin-label">👩‍🍳 Muallif / manba (kanal) <span class="admin-hint-inline">(masalan: @kanal_nomi)</span></label>
       <input type="text" id="fAuthor" class="admin-input" placeholder="Masalan: @kanal_nomi">
 
-      <label class="admin-label">🔗 Original post havolasi <span class="admin-hint-inline">(ixtiyoriy)</span></label>
-      <input type="text" id="fSourceUrl" class="admin-input" placeholder="https://...">
+      <label class="admin-label">🔗 Video post havolasi <span class="admin-hint-inline">(ixtiyoriy)</span></label>
+      <input type="text" id="fSourceUrl" class="admin-input" placeholder="https://t.me/kanal/123 yoki https://instagram.com/reel/...">
+      <p class="admin-hint">Telegram uchun to'liq post havolasi, Instagram uchun Reels havolasi kiriting.</p>
 
       <label class="admin-checkbox-row">
         <input type="checkbox" id="fPremium">
@@ -118,4 +125,5 @@
   <script src="admin.js"></script>
 </body>
   </html>
+
   
