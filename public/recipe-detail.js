@@ -28,6 +28,46 @@ if (favBtn) {
   });
 }
 
+function getChannelLink(r) {
+  if (!r.author) return null;
+  const handle = r.author.replace(/^@/, "").trim();
+  if (!handle) return null;
+  return r.videoPlatform === "instagram"
+    ? `https://instagram.com/${handle}`
+    : `https://t.me/${handle}`;
+}
+
+function buildVideoEmbedHtml(r) {
+  if (!r.sourceUrl) return "";
+  if (r.videoPlatform === "instagram") {
+    return `<blockquote class="instagram-media" data-instgrm-permalink="${r.sourceUrl}" data-instgrm-version="14"></blockquote>`;
+  }
+  // Telegram: rasmiy iframe embed (?embed=1) — skript kerak emas, ishonchli ishlaydi
+  return `<div class="video-embed-wrap"><iframe src="${r.sourceUrl}?embed=1" width="100%" height="420" frameborder="0" scrolling="no" allowfullscreen></iframe></div>`;
+}
+
+function loadScriptOnce(src, id) {
+  return new Promise((resolve) => {
+    if (document.getElementById(id)) return resolve();
+    const s = document.createElement("script");
+    s.src = src;
+    s.id = id;
+    s.async = true;
+    s.onload = () => resolve();
+    s.onerror = () => resolve();
+    document.body.appendChild(s);
+  });
+}
+
+async function processVideoEmbed(r) {
+  if (!r.sourceUrl) return;
+  if (r.videoPlatform === "instagram") {
+    await loadScriptOnce("https://www.instagram.com/embed.js", "ig-embed-script");
+    if (window.instgrm) window.instgrm.Embeds.process();
+  }
+  // Telegram iframe hech qanday qo'shimcha skriptsiz ishlaydi
+}
+
 function renderRecipe(r) {
   const lang = getCurrentLang();
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
@@ -57,12 +97,18 @@ function renderRecipe(r) {
     <ol class="step-list">${stepsHtml}</ol>
 
     ${r.sourceUrl ? `
+    <h2 class="detail-section-title">🎬 Video retsept</h2>
+    <div class="detail-video">${buildVideoEmbedHtml(r)}</div>
+    ` : ""}
+
+    ${getChannelLink(r) ? `
     <p class="detail-source">
-      <a href="${r.sourceUrl}" target="_blank" rel="noopener noreferrer">🔗 Manba havolasi</a>
+      📡 Manba: <a href="${getChannelLink(r)}" target="_blank" rel="noopener noreferrer">${r.author}</a>
     </p>` : ""}
   `;
 
   applyTranslations(lang);
+  processVideoEmbed(r);
 }
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -95,4 +141,3 @@ if (!recipeId) {
       });
   }
 }
-  
