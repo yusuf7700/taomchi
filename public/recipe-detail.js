@@ -55,6 +55,11 @@ function renderRecipe(r) {
 
     <h2 class="detail-section-title" data-i18n="steps_title">Tayyorlash tartibi</h2>
     <ol class="step-list">${stepsHtml}</ol>
+
+    ${r.sourceUrl ? `
+    <p class="detail-source">
+      <a href="${r.sourceUrl}" target="_blank" rel="noopener noreferrer">🔗 Manba havolasi</a>
+    </p>` : ""}
   `;
 
   applyTranslations(lang);
@@ -90,3 +95,4 @@ if (!recipeId) {
       });
   }
 }
+  
