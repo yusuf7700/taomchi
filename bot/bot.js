@@ -10,7 +10,7 @@ const BOT_TEXT = {
   uz: {
     welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Taomchini ochish",
-    quickCommands: "Tezkor buyruqlar:\n🎲 Tasodifiy taom — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)",
+    quickCommands: "Tezkor buyruqlar:\n🎲 Tasodifiy taom — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🎲 Tasodifiy taom",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
@@ -23,7 +23,7 @@ const BOT_TEXT = {
   uzk: {
     welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Taomchini очиш",
-    quickCommands: "Тезкор буйруқлар:\n🎲 Тасодифий таом — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)",
+    quickCommands: "Тезкор буйруқлар:\n🎲 Тасодифий таом — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🎲 Тасодифий таом",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
@@ -87,6 +87,17 @@ async function sendWelcome(ctx, lang) {
   });
 }
 
+function langSelectMarkup() {
+  return {
+    reply_markup: {
+      inline_keyboard: [[
+        { text: "🇺🇿 Lotin", callback_data: "lang_uz" },
+        { text: "🇺🇿 Кирилл", callback_data: "lang_uzk" }
+      ]]
+    }
+  };
+}
+
 // ===== /start =====
 bot.start(async (ctx) => {
   let language = null;
@@ -98,17 +109,15 @@ bot.start(async (ctx) => {
   }
 
   if (!language) {
-    return ctx.reply("Tilni tanlang / Тилни танланг:", {
-      reply_markup: {
-        inline_keyboard: [[
-          { text: "🇺🇿 Lotin", callback_data: "lang_uz" },
-          { text: "Кирилл", callback_data: "lang_uzk" }
-        ]]
-      }
-    });
+    return ctx.reply("Tilni tanlang / Тилни танланг:", langSelectMarkup());
   }
 
   await sendWelcome(ctx, language);
+});
+
+// ===== /til — istalgan payt tilni almashtirish =====
+bot.command("til", async (ctx) => {
+  await ctx.reply("Tilni tanlang / Тилни танланг:", langSelectMarkup());
 });
 
 // ===== Til tanlash tugmasi bosilganda =====
@@ -206,4 +215,4 @@ bot.command("qidir", async (ctx) => {
 });
 
 module.exports = bot;
-      
+            
