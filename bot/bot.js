@@ -5,6 +5,13 @@ const { getDb } = require("../lib/firebaseAdmin");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+// Telegram'da "/" bosilganda buyruqlar ro'yxati avtomatik chiqishi uchun
+bot.telegram.setMyCommands([
+  { command: "start", description: "Botni ishga tushirish" },
+  { command: "qidir", description: "Taom qidirish (masalan: /qidir osh)" },
+  { command: "til", description: "Tilni almashtirish" }
+]).catch(err => console.error("setMyCommands xatosi:", err));
+
 // ===== Bot matnlari (Lotin / Kirill) =====
 const BOT_TEXT = {
   uz: {
@@ -215,4 +222,4 @@ bot.command("qidir", async (ctx) => {
 });
 
 module.exports = bot;
-            
+  
