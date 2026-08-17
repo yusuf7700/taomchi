@@ -1,5 +1,32 @@
 // ===== Taomchi — Admin panel logikasi =====
 
+const CATEGORY_LABELS = {
+  main: "🍲 Asosiy taomlar",
+  soup: "🍜 Sho'rvalar",
+  salad: "🥗 Salatlar",
+  breakfast: "🍳 Nonushta",
+  dessert: "🍰 Shirinliklar",
+  pastry: "🥟 Yeguliklar",
+  drinks: "🥤 Ichimliklar"
+};
+
+// ===== Tab navigatsiya =====
+const tabBtnAdd = document.getElementById("tabBtnAdd");
+const tabBtnList = document.getElementById("tabBtnList");
+const tabPanelAdd = document.getElementById("tabPanelAdd");
+const tabPanelList = document.getElementById("tabPanelList");
+
+function showTab(tab) {
+  const isAdd = tab === "add";
+  tabPanelAdd.classList.toggle("screen-hidden", !isAdd);
+  tabPanelList.classList.toggle("screen-hidden", isAdd);
+  tabBtnAdd.classList.toggle("active", isAdd);
+  tabBtnList.classList.toggle("active", !isAdd);
+}
+
+tabBtnAdd.addEventListener("click", () => showTab("add"));
+tabBtnList.addEventListener("click", () => showTab("list"));
+
 // ⚠️ imgbb sozlamasi — quyidagi qatorni o'zingizning
 // bepul API kalitingizga almashtiring (api.imgbb.com'dan olinadi):
 const IMGBB_API_KEY = "1a168f2d64ca81fc96a55a6223ec5347";
@@ -219,6 +246,7 @@ submitBtn.addEventListener("click", async () => {
     formStatus.textContent = "✅ Saqlandi!";
     clearForm();
     loadRecipes();
+    showTab("list");
   } catch (err) {
     formStatus.textContent = "❌ Xatolik: " + err.message;
   } finally {
@@ -230,6 +258,7 @@ document.getElementById("cancelEditBtn").addEventListener("click", clearForm);
 
 // ===== Ro'yxat: yuklash va chizish =====
 let allAdminRecipes = [];
+let activeCategory = "all";
 
 async function loadRecipes() {
   const listEl = document.getElementById("adminRecipeList");
@@ -240,24 +269,61 @@ async function loadRecipes() {
       headers: { "x-admin-secret": getSecret() }
     });
     allAdminRecipes = await res.json();
-    renderAdminList(allAdminRecipes);
+    renderCategoryFilters();
+    applyFilters();
   } catch (err) {
     listEl.innerHTML = `<p class="admin-hint">Xatolik: ${err.message}</p>`;
   }
 }
 
+function renderCategoryFilters() {
+  const wrap = document.getElementById("categoryFilters");
+  const counts = {};
+  allAdminRecipes.forEach(r => {
+    counts[r.category] = (counts[r.category] || 0) + 1;
+  });
+
+  const chips = [`<button class="admin-chip ${activeCategory === "all" ? "active" : ""}" data-cat="all">Barchasi <span class="admin-chip-count">${allAdminRecipes.length}</span></button>`];
+  Object.keys(CATEGORY_LABELS).forEach(cat => {
+    if (!counts[cat]) return; // faqat retsepti bor kategoriyalarni ko'rsatamiz
+    chips.push(`<button class="admin-chip ${activeCategory === cat ? "active" : ""}" data-cat="${cat}">${CATEGORY_LABELS[cat]} <span class="admin-chip-count">${counts[cat]}</span></button>`);
+  });
+  wrap.innerHTML = chips.join("");
+
+  wrap.querySelectorAll("[data-cat]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.getAttribute("data-cat");
+      renderCategoryFilters();
+      applyFilters();
+    });
+  });
+}
+
+function applyFilters() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = allAdminRecipes.filter(r => {
+    const matchesCategory = activeCategory === "all" || r.category === activeCategory;
+    const matchesSearch = !q || (r.title || "").toLowerCase().includes(q) || (r.category || "").toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
+  renderAdminList(filtered);
+}
+
 function renderAdminList(recipes) {
   const listEl = document.getElementById("adminRecipeList");
+  document.getElementById("tabListCount").textContent = allAdminRecipes.length ? `(${allAdminRecipes.length})` : "";
+
   if (recipes.length === 0) {
-    listEl.innerHTML = `<p class="admin-hint">Hozircha retsept yo'q.</p>`;
+    listEl.innerHTML = `<p class="admin-hint">Hech narsa topilmadi.</p>`;
     return;
   }
 
   listEl.innerHTML = recipes.map(r => `
     <div class="admin-recipe-item">
+      ${r.imageUrl ? `<img src="${r.imageUrl}" class="admin-recipe-item-thumb">` : `<div class="admin-recipe-item-thumb admin-recipe-item-thumb--placeholder">🍽️</div>`}
       <div class="admin-recipe-item-info">
         <p class="admin-recipe-item-title">${r.title || "(nomsiz)"}</p>
-        <p class="admin-recipe-item-meta">${r.category || "-"} · ⏱ ${r.cookTime || "-"} daq</p>
+        <p class="admin-recipe-item-meta">${CATEGORY_LABELS[r.category] || r.category || "-"} · ⏱ ${r.cookTime || "-"} daq</p>
       </div>
       <div class="admin-recipe-item-actions">
         <button class="admin-icon-btn" data-edit="${r.id}">✏️</button>
@@ -302,6 +368,7 @@ function startEdit(id) {
   document.getElementById("submitBtn").textContent = "💾 Yangilash";
   document.getElementById("cancelEditBtn").style.display = "block";
 
+  showTab("add");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -324,12 +391,5 @@ async function deleteRecipe(id) {
 }
 
 // ===== Qidiruv =====
-document.getElementById("searchInput").addEventListener("input", (e) => {
-  const q = e.target.value.trim().toLowerCase();
-  const filtered = allAdminRecipes.filter(r =>
-    (r.title || "").toLowerCase().includes(q) ||
-    (r.category || "").toLowerCase().includes(q)
-  );
-  renderAdminList(filtered);
-});
+document.getElementById("searchInput").addEventListener("input", applyFilters);
 
