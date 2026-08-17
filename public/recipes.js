@@ -31,7 +31,6 @@ function renderRecipes(list) {
     <div class="recipe-card" data-id="${r.id}">
       <div class="recipe-thumb">
         ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}">` : "🍽️"}
-        <button class="card-fav-btn" data-fav-id="${r.id}">${isFavorite(r.id) ? "❤️" : "🤍"}</button>
       </div>
       <div class="recipe-info">
         <p class="recipe-title">${displayTitle(r)}</p>
@@ -48,15 +47,6 @@ function renderRecipes(list) {
   document.querySelectorAll(".recipe-card").forEach(card => {
     card.addEventListener("click", () => {
       window.location.href = `recipe-detail.html?id=${card.getAttribute("data-id")}`;
-    });
-  });
-
-  document.querySelectorAll(".card-fav-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const id = btn.getAttribute("data-fav-id");
-      const nowFav = toggleFavorite(id);
-      btn.textContent = nowFav ? "❤️" : "🤍";
     });
   });
 }
@@ -112,4 +102,4 @@ loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
   applyFilters();
 });
-                               
+
