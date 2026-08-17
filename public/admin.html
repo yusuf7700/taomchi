@@ -30,8 +30,14 @@
       <button id="logoutBtn" class="admin-btn-secondary">Chiqish</button>
     </header>
 
+    <!-- Tab navigatsiya -->
+    <div class="admin-tabs">
+      <button class="admin-tab-btn active" id="tabBtnAdd" data-tab="add">➕ Qo'shish</button>
+      <button class="admin-tab-btn" id="tabBtnList">📋 Ro'yxat <span id="tabListCount" class="admin-tab-count"></span></button>
+    </div>
+
     <!-- Forma -->
-    <section class="admin-card">
+    <section class="admin-card admin-tab-panel" id="tabPanelAdd">
       <p class="admin-card-title" id="formTitle">➕ Retsept qo'shish</p>
 
       <label class="admin-label">🍲 Taom nomi</label>
@@ -111,9 +117,10 @@
     </section>
 
     <!-- Ro'yxat -->
-    <section class="admin-card">
+    <section class="admin-card admin-tab-panel screen-hidden" id="tabPanelList">
       <p class="admin-card-title">📋 Barcha retseptlar</p>
       <input type="text" id="searchInput" class="admin-input" placeholder="🔎 Nomi yoki kategoriya bo'yicha qidirish...">
+      <div id="categoryFilters" class="admin-chip-row"></div>
       <div id="adminRecipeList" class="admin-recipe-list">
         <p class="admin-hint">Yuklanmoqda...</p>
       </div>
@@ -126,4 +133,4 @@
 </body>
   </html>
 
-  
+          
