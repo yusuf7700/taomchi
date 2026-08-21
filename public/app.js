@@ -1,200 +1,173 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Taomchi</title>
-<link rel="stylesheet" href="style.css">
-<script>
-  // Splash faqat SHU SEANSDA birinchi marta ochilganda ko'rsatiladi —
-  // orqaga qaytilganda yoki qayta kirilganda qayta chiqmasin uchun.
+// ===== Taomchi — asosiy logika =====
+
+// --- Telegram WebApp ulanishi ---
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  // Telegram interfeysiga moslashtirish (headerBackgroundColor va h.k. keyinroq)
+}
+
+// --- Splash screen (1.8 soniyadan keyin yopiladi, faqat birinchi marta) ---
+window.addEventListener("load", () => {
+  const splash = document.getElementById("splash");
+  if (!splash) return;
+
   if (sessionStorage.getItem("taomchi_splash_shown")) {
-    document.documentElement.classList.add("no-splash");
+    maybeShowOnboarding();
+    return; // allaqachon inline script orqali yashirilgan
   }
-</script>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
-</head>
-<body>
 
-  <!-- ===== SPLASH SCREEN ===== -->
-  <div class="splash" id="splash">
-    <img src="images/logo.jpg" alt="Taomchi" class="splash-logo">
-    <p class="splash-tagline" data-i18n="splash_tagline">Har bir taom — yaqinlarga quvonch, yaxshiliklarga quvvat</p>
-  </div>
+  setTimeout(() => {
+    splash.classList.add("hidden");
+    sessionStorage.setItem("taomchi_splash_shown", "1");
+    maybeShowOnboarding();
+  }, 1800);
+});
 
-  <!-- ===== XUSH KELIBSIZ (faqat birinchi marta, umuman) ===== -->
-  <div class="onboarding" id="onboarding" style="display:none;">
-    <div class="onboarding-box">
-      <p class="onboarding-emoji">🎉</p>
-      <h2 data-i18n="onboarding_title">Taomchi'ga xush kelibsiz!</h2>
-      <p data-i18n="onboarding_subtitle">Siz uchun 7 kunlik Premium sovg'a qilamiz. Barcha imkoniyatlarni sinab ko'ring.</p>
-      <ul class="onboarding-features">
-        <li>🤖 <span data-i18n="onboarding_f1">AI'dan so'rash — cheksiz savol-javob</span></li>
-        <li>📅 <span data-i18n="onboarding_f2">Haftalik menyu — AI yordamida</span></li>
-        <li>⭐ <span data-i18n="onboarding_f3">Premium retseptlar</span></li>
-      </ul>
-      <button class="onboarding-btn-primary" id="startTrialBtn" data-i18n="onboarding_start">Premiumdan foydalanishni boshlash</button>
-      <button class="onboarding-btn-secondary" id="skipTrialBtn" data-i18n="onboarding_skip">Keyinroq</button>
-    </div>
-  </div>
+// --- Xush kelibsiz ekrani (faqat umuman birinchi marta) ---
+const ONBOARDING_SEEN_KEY = "taomchi_onboarding_seen";
 
-  <!-- ===== TASODIFIY TAOM NATIJASI ===== -->
-  <div class="random-modal" id="randomModal" style="display:none;">
-    <div class="random-modal-box" id="randomModalBox">
-      <button class="random-modal-close" id="randomModalClose" aria-label="Yopish">✕</button>
-      <div class="random-modal-thumb" id="randomModalThumb">🍽️</div>
-      <p class="random-modal-title" id="randomModalTitle">—</p>
-      <p class="random-modal-meta" id="randomModalMeta"></p>
-      <button class="onboarding-btn-primary" id="randomModalView">🍲 Retseptni ko'rish</button>
-      <button class="onboarding-btn-secondary" id="randomModalAgain">🔁 Yana tasodifiy</button>
-    </div>
-  </div>
+function maybeShowOnboarding() {
+  if (localStorage.getItem(ONBOARDING_SEEN_KEY)) return;
+  const el = document.getElementById("onboarding");
+  if (el) el.style.display = "flex";
+}
 
-  <!-- ===== HEADER ===== -->
-  <header class="header">
-    <div class="logo">
-      <img src="images/logo.jpg" alt="Taomchi" class="logo-img">
-    </div>
-    <div class="header-actions">
-      <button class="lang-toggle" id="langToggle" aria-label="Tilni almashtirish">UZ</button>
-      <button class="icon-btn" aria-label="Bildirishnomalar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-      </button>
-    </div>
-  </header>
+function closeOnboarding() {
+  localStorage.setItem(ONBOARDING_SEEN_KEY, "1");
+  const el = document.getElementById("onboarding");
+  if (el) el.style.display = "none";
+}
 
-  <!-- ===== MAIN ===== -->
-  <main class="main">
+document.getElementById("startTrialBtn")?.addEventListener("click", () => {
+  startPremiumTrial();
+  closeOnboarding();
+});
+document.getElementById("skipTrialBtn")?.addEventListener("click", closeOnboarding);
 
-    <!-- Hero: Bugun nima pishiramiz -->
-    <section class="hero">
-      <svg class="hero-decor" viewBox="0 0 200 200" fill="none">
-        <path d="M100 20 C120 40 130 70 110 100 C140 90 160 100 170 130 C150 120 130 130 120 150" stroke="#FBF0DD" stroke-width="3" stroke-linecap="round"/>
-        <ellipse cx="115" cy="55" rx="14" ry="8" fill="#FBF0DD" transform="rotate(30 115 55)"/>
-        <ellipse cx="145" cy="95" rx="16" ry="9" fill="#FBF0DD" transform="rotate(-15 145 95)"/>
-        <ellipse cx="150" cy="140" rx="12" ry="7" fill="#FBF0DD" transform="rotate(50 150 140)"/>
-        <ellipse cx="95" cy="90" rx="11" ry="6" fill="#FBF0DD" transform="rotate(-30 95 90)"/>
-      </svg>
-      <div class="hero-content">
-        <h1 data-i18n="hero_title">Bugun nima pishiramiz?</h1>
-        <p data-i18n="hero_subtitle">Sizga mos taomni topamiz 👩‍🍳</p>
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="homeSearchInput" data-i18n-placeholder="search_placeholder" placeholder="Taom yoki mahsulot qidiring...">
-        </div>
-        <button class="random-card" id="randomBtn">
-          <span class="random-icon">🍽️</span>
-          <span class="random-text">
-            <span class="random-title" data-i18n="random_title">Tasodifiy taom</span>
-            <span class="random-subtitle" data-i18n="random_subtitle">Bugun nima pishirishni bilmayapsizmi? Biz tanlaymiz!</span>
-          </span>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
-      </div>
-    </section>
+// --- Bosh sahifadagi qidiruv (Enter bosilsa, Retseptlar sahifasiga o'tkazadi) ---
+const homeSearchInput = document.getElementById("homeSearchInput");
+if (homeSearchInput) {
+  homeSearchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && homeSearchInput.value.trim()) {
+      window.location.href = `recipes.html?q=${encodeURIComponent(homeSearchInput.value.trim())}`;
+    }
+  });
+}
 
-    <!-- 3 asosiy tugma -->
-    <section class="quick-actions">
-      <button class="action-card" data-action="pantry">
-        <span class="action-icon-badge badge-orange">🧺</span>
-        <span class="action-label" data-i18n="action_pantry">Uyda nima bor?</span>
-      </button>
-      <button class="action-card" data-action="ai">
-        <span class="action-icon-badge badge-green">🤖</span>
-        <span class="action-label" data-i18n="action_ai">AI'dan so'rash</span>
-      </button>
-      <button class="action-card" data-action="weekly">
-        <span class="action-icon-badge badge-red">📅</span>
-        <span class="action-label" data-i18n="action_weekly">Haftalik menyu</span>
-      </button>
-    </section>
+// --- Tasodifiy taom (bosh sahifada kichik karta bilan, faqat asosiy+sho'rva) ---
+const RANDOM_POOL_CATEGORIES = ["main", "soup"];
+let currentRandomRecipe = null;
 
-    <!-- Bugungi tavsiya -->
-    <section class="section">
-      <div class="section-header-row">
-        <h2 data-i18n="today_recommend">Bugungi tavsiya</h2>
-        <a href="recipes.html" class="section-link" data-i18n="see_all">Barchasi ›</a>
-      </div>
-      <div class="recipe-card featured" id="dailyRecipe">
-        <div class="recipe-thumb">🍽️</div>
-        <div class="recipe-info">
-          <p class="recipe-title">Yuklanmoqda...</p>
-          <p class="recipe-meta"></p>
-        </div>
-        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
-      </div>
-    </section>
+function pickRandomRecipe(list) {
+  const pool = list.filter(r => RANDOM_POOL_CATEGORIES.includes(r.category));
+  const source = pool.length > 0 ? pool : list;
+  return source[Math.floor(Math.random() * source.length)];
+}
 
-    <!-- Kategoriyalar -->
-    <section class="section">
-      <div class="section-header-row">
-        <h2 data-i18n="categories">Kategoriyalar</h2>
-        <a href="recipes.html" class="section-link" data-i18n="see_all">Barchasi ›</a>
-      </div>
-      <div class="category-grid">
-        <button class="category-card" data-cat="main">
-          <span class="cat-icon-badge badge-orange">🍛</span>
-          <span data-i18n="cat_main">Asosiy taomlar</span>
-        </button>
-        <button class="category-card" data-cat="soup">
-          <span class="cat-icon-badge badge-red">🍲</span>
-          <span data-i18n="cat_soup">Sho'rvalar</span>
-        </button>
-        <button class="category-card" data-cat="salad">
-          <span class="cat-icon-badge badge-green">🥗</span>
-          <span data-i18n="cat_salad">Salatlar</span>
-        </button>
-        <button class="category-card" data-cat="breakfast">
-          <span class="cat-icon-badge badge-yellow">🍳</span>
-          <span data-i18n="cat_breakfast">Nonushta</span>
-        </button>
-        <button class="category-card" data-cat="dessert">
-          <span class="cat-icon-badge badge-pink">🍰</span>
-          <span data-i18n="cat_dessert">Shirinliklar</span>
-        </button>
-        <button class="category-card" data-cat="pastry">
-          <span class="cat-icon-badge badge-tan">🥐</span>
-          <span data-i18n="cat_pastry">Yeguliklar</span>
-        </button>
-        <button class="category-card" data-cat="drinks">
-          <span class="cat-icon-badge badge-blue">🥤</span>
-          <span data-i18n="cat_drinks">Ichimliklar</span>
-        </button>
-      </div>
-    </section>
+function showRandomModal(r) {
+  currentRandomRecipe = r;
+  const dict = TRANSLATIONS[getCurrentLang()] || TRANSLATIONS.uz;
 
-  </main>
+  document.getElementById("randomModalThumb").innerHTML = r.imageUrl
+    ? `<img src="${r.imageUrl}" alt="${r.title}">`
+    : "🍽️";
+  document.getElementById("randomModalTitle").textContent = r.title;
+  document.getElementById("randomModalMeta").innerHTML =
+    `⏱ ${formatCookTime(r)}   ${difficultyBadge(r)}`;
 
-  <!-- ===== BOTTOM NAV ===== -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-page="home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-      <span data-i18n="nav_home">Bosh sahifa</span>
-    </button>
-    <button class="nav-item" data-page="recipes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 11h.01M11 15h.01M16 16h.01M2 16l6-6a4 4 0 0 1 5 0l1 1a4 4 0 0 0 5 0l3-3"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
-      <span data-i18n="nav_recipes">Retseptlar</span>
-    </button>
-    <button class="nav-item" data-page="favorites">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-      <span data-i18n="nav_favorites">Saqlanganlar</span>
-    </button>
-    <button class="nav-item" data-page="profile">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span data-i18n="nav_profile">Profil</span>
-    </button>
-  </nav>
+  const modal = document.getElementById("randomModal");
+  const box = document.getElementById("randomModalBox");
+  modal.style.display = "flex";
+  // Animatsiyani qayta ishga tushirish (qayta bosilganda ham)
+  box.style.animation = "none";
+  void box.offsetWidth;
+  box.style.animation = "";
+}
 
-  <script src="firebase-config.js"></script>
-  <script src="i18n.js"></script>
-  <script src="translit.js"></script>
-  <script src="recipes-cache.js"></script>
-  <script src="premium-store.js"></script>
-  <script src="nav.js"></script>
-  <script src="app.js"></script>
-</body>
-  </html>
+function runRandomPick() {
+  const cached = getCachedRecipes();
+  if (cached && cached.data.length > 0) {
+    showRandomModal(pickRandomRecipe(cached.data));
+    return;
+  }
+  db.collection("recipes").get().then(snapshot => {
+    if (snapshot.empty) return;
+    const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    showRandomModal(pickRandomRecipe(list));
+  });
+}
 
-  
+document.getElementById("randomBtn")?.addEventListener("click", runRandomPick);
+document.getElementById("randomModalAgain")?.addEventListener("click", runRandomPick);
+document.getElementById("randomModalClose")?.addEventListener("click", () => {
+  document.getElementById("randomModal").style.display = "none";
+});
+document.getElementById("randomModalView")?.addEventListener("click", () => {
+  if (currentRandomRecipe) {
+    window.location.href = `recipe-detail.html?id=${currentRandomRecipe.id}`;
+  }
+});
+
+// --- 3 ta asosiy tugma (Uyda bor / AI / Haftalik menyu) ---
+const actionCards = document.querySelectorAll(".action-card");
+actionCards.forEach(card => {
+  card.addEventListener("click", () => {
+    const action = card.getAttribute("data-action");
+    console.log("Amal tanlandi:", action);
+    // TODO: pantry.html, ai.html, weekly-menu.html tayyor bo'lgach shu yerga ulanadi
+  });
+});
+
+// --- Kategoriya tugmalari ---
+const categoryCards = document.querySelectorAll(".category-card");
+categoryCards.forEach(card => {
+  card.addEventListener("click", () => {
+    const cat = card.getAttribute("data-cat");
+    window.location.href = `recipes.html?cat=${cat}`;
+  });
+});
+
+// --- Bugungi tavsiya kartasi ---
+// Kuniga bittadan, faqat "Asosiy taomlar" va "Sho'rvalar" — boshqa
+// kategoriyalar (nonushta, shirinlik, ichimlik va h.k.) chiqmaydi.
+// Barcha foydalanuvchilarga bir xil, lekin har kuni almashadi.
+const DAILY_ALLOWED_CATEGORIES = ["main", "soup"];
+
+function pickDailyRecipe(list) {
+  const pool = list.filter(r => DAILY_ALLOWED_CATEGORIES.includes(r.category));
+  const source = pool.length > 0 ? pool : list;
+  if (source.length === 0) return null;
+
+  const dayIndex = Math.floor(Date.now() / 86400000);
+  return source[dayIndex % source.length];
+}
+
+function renderDailyRecipe(r) {
+  const dailyEl = document.getElementById("dailyRecipe");
+  if (!dailyEl || !r) return;
+
+  dailyEl.querySelector(".recipe-thumb").innerHTML = r.imageUrl
+    ? `<img src="${r.imageUrl}" alt="${r.title}">`
+    : "🍽️";
+  dailyEl.querySelector(".recipe-title").textContent = displayTitle(r);
+  dailyEl.querySelector(".recipe-meta").innerHTML =
+    `<span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}`;
+  dailyEl.onclick = () => { window.location.href = `recipe-detail.html?id=${r.id}`; };
+}
+
+if (document.getElementById("dailyRecipe")) {
+  loadRecipesWithCache((recipes) => {
+    renderDailyRecipe(pickDailyRecipe(recipes));
+  });
+}
+
+const dailyRecipe = document.getElementById("dailyRecipe");
+if (dailyRecipe) {
+  dailyRecipe.addEventListener("click", () => {
+    console.log("Retsept ochilmoqda...");
+    // TODO: retsept detali sahifasiga o'tish
+  });
+    }
+                        

@@ -160,4 +160,4 @@ const DIFFICULTY_LABELS = {
 function difficultyBadge(r) {
   const label = DIFFICULTY_LABELS[r.difficulty];
   return label ? `<span>${label}</span>` : "";
-      }
+}

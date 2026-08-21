@@ -101,4 +101,4 @@ loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
   applyFilters();
 });
-
+                               

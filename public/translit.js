@@ -68,4 +68,3 @@ function displayTitle(r) {
   }
   return hasCyrillic(r.title) ? cyrillicToLatin(r.title) : r.title;
 }
-  

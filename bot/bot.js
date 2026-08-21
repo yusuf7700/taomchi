@@ -218,7 +218,7 @@ async function sendRandomRecipe(ctx, t) {
   );
 }
 
-bot.hears(["🍽️ Tasodifiy taom", "🍽️ Тасодифий таом"], async (ctx) => {
+bot.hears(/tasodifiy taom|тасодифий таом/i, async (ctx) => {
   const lang = await getUserLang(ctx);
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
   try {
@@ -270,5 +270,4 @@ bot.command("qidir", async (ctx) => {
 });
 
 module.exports = bot;
-
     

@@ -399,5 +399,4 @@ async function deleteRecipe(id) {
 
 // ===== Qidiruv =====
 document.getElementById("searchInput").addEventListener("input", applyFilters);
-
-                          
+                              
