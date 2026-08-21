@@ -10,28 +10,34 @@ const BOT_TEXT = {
   uz: {
     welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Taomchini ochish",
-    quickCommands: "Tezkor buyruqlar:\n🎲 Tasodifiy taom — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
-    randomBtnLabel: "🎲 Tasodifiy taom",
+    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
+    randomBtnLabel: "🍽️ Tasodifiy taom",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
     errorMsg: "Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring.",
     searchUsage: "Qidirish uchun shunday yozing: /qidir osh",
     noMatches: (q) => `"${q}" bo'yicha hech narsa topilmadi.`,
-    minutes: "daqiqa"
+    minutes: "daqiqa",
+    hours: "soat",
+    timeUnknown: "Noma'lum",
+    difficulty: { oson: "🟢 Oson", orta: "🟡 O'rta", qiyin: "🔴 Qiyin" }
   },
   uzk: {
     welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Taomchini очиш",
-    quickCommands: "Тезкор буйруқлар:\n🎲 Тасодифий таом — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
-    randomBtnLabel: "🎲 Тасодифий таом",
+    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
+    randomBtnLabel: "🍽️ Тасодифий таом",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
     errorMsg: "Хатолик юз берди, бироздан кейин қайта уриниб кўринг.",
     searchUsage: "Қидириш учун шундай ёзинг: /qidir ош",
     noMatches: (q) => `"${q}" бўйича ҳеч нарса топилмади.`,
-    minutes: "дақиқа"
+    minutes: "дақиқа",
+    hours: "соат",
+    timeUnknown: "Номаълум",
+    difficulty: { oson: "🟢 Осон", orta: "🟡 Ўрта", qiyin: "🔴 Қийин" }
   }
 };
 
@@ -177,6 +183,17 @@ async function getAllRecipes() {
   return list;
 }
 
+// ===== Vaqt va qiyinchilik formatlash (bot xabarlarida ishlatiladi) =====
+function formatCookTimeBot(r, t) {
+  if (r.cookTimeUnit === "nomalum") return t.timeUnknown;
+  if (r.cookTimeUnit === "soat") return `${r.cookTime || "-"} ${t.hours}`;
+  return `${r.cookTime || "-"} ${t.minutes}`;
+}
+
+function formatDifficultyBot(r, t) {
+  return t.difficulty[r.difficulty] || "";
+}
+
 // ===== Tasodifiy taom (faqat asosiy taomlar va sho'rvalar) =====
 async function sendRandomRecipe(ctx, t) {
   const all = await getAllRecipes();
@@ -190,7 +207,7 @@ async function sendRandomRecipe(ctx, t) {
   const r = list[Math.floor(Math.random() * list.length)];
 
   await ctx.reply(
-    `🍲 ${r.title}\n⏱ ${r.cookTime || "-"} ${t.minutes}   ⭐ ${r.rating || "-"}`,
+    `🍲 ${r.title}\n⏱ ${formatCookTimeBot(r, t)}   ${formatDifficultyBot(r, t)}`,
     {
       reply_markup: {
         inline_keyboard: [[
@@ -201,7 +218,7 @@ async function sendRandomRecipe(ctx, t) {
   );
 }
 
-bot.hears(["🎲 Tasodifiy taom", "🎲 Тасодифий таом"], async (ctx) => {
+bot.hears(["🍽️ Tasodifiy taom", "🍽️ Тасодифий таом"], async (ctx) => {
   const lang = await getUserLang(ctx);
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
   try {
@@ -253,4 +270,5 @@ bot.command("qidir", async (ctx) => {
 });
 
 module.exports = bot;
+
     
