@@ -269,5 +269,40 @@ bot.command("qidir", async (ctx) => {
   }
 });
 
+// ===== /xabar — barcha foydalanuvchilarga xabar yuborish (faqat admin) =====
+bot.command("xabar", async (ctx) => {
+  const adminId = process.env.ADMIN_TELEGRAM_ID;
+  if (!adminId || String(ctx.from.id) !== String(adminId)) {
+    return; // admin bo'lmasa, hech qanday javob bermaymiz
+  }
+
+  const text = ctx.message.text.replace(/^\/xabar/i, "").trim();
+  if (!text) {
+    return ctx.reply("Xabar matnini yozing, masalan:\n/xabar Yangi retseptlar qo'shildi! Ko'rib chiqing 🍲");
+  }
+
+  await ctx.reply("⏳ Xabar yuborilmoqda, biroz kuting...");
+
+  const db = getDb();
+  const usersSnap = await db.collection("users").get();
+  const userIds = usersSnap.docs.map(doc => doc.id);
+
+  let sent = 0;
+  let failed = 0;
+
+  for (const userId of userIds) {
+    try {
+      await ctx.telegram.sendMessage(userId, text);
+      sent++;
+    } catch (err) {
+      failed++; // bot bloklangan yoki chat topilmadi
+    }
+    // Telegram limitidan chiqib ketmaslik uchun har xabar orasida kichik pauza
+    await new Promise(resolve => setTimeout(resolve, 40));
+  }
+
+  await ctx.reply(`✅ Yuborildi: ${sent} ta\n❌ Yetkazilmadi: ${failed} ta\n👥 Jami: ${userIds.length} ta foydalanuvchi`);
+});
+
 module.exports = bot;
     
