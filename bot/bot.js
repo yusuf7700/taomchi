@@ -270,17 +270,12 @@ bot.command("qidir", async (ctx) => {
 });
 
 // ===== /xabar — barcha foydalanuvchilarga xabar yuborish (faqat admin) =====
-bot.command("xabar", async (ctx) => {
+function isAdmin(ctx) {
   const adminId = process.env.ADMIN_TELEGRAM_ID;
-  if (!adminId || String(ctx.from.id) !== String(adminId)) {
-    return; // admin bo'lmasa, hech qanday javob bermaymiz
-  }
+  return adminId && String(ctx.from.id) === String(adminId);
+}
 
-  const text = ctx.message.text.replace(/^\/xabar/i, "").trim();
-  if (!text) {
-    return ctx.reply("Xabar matnini yozing, masalan:\n/xabar Yangi retseptlar qo'shildi! Ko'rib chiqing 🍲");
-  }
-
+async function broadcastToAll(ctx, sendOne) {
   await ctx.reply("⏳ Xabar yuborilmoqda, biroz kuting...");
 
   const db = getDb();
@@ -292,7 +287,7 @@ bot.command("xabar", async (ctx) => {
 
   for (const userId of userIds) {
     try {
-      await ctx.telegram.sendMessage(userId, text);
+      await sendOne(userId);
       sent++;
     } catch (err) {
       failed++; // bot bloklangan yoki chat topilmadi
@@ -302,6 +297,37 @@ bot.command("xabar", async (ctx) => {
   }
 
   await ctx.reply(`✅ Yuborildi: ${sent} ta\n❌ Yetkazilmadi: ${failed} ta\n👥 Jami: ${userIds.length} ta foydalanuvchi`);
+}
+
+// Matnli xabar: /xabar Matn...
+bot.command("xabar", async (ctx) => {
+  if (!isAdmin(ctx)) return;
+
+  const text = ctx.message.text.replace(/^\/xabar/i, "").trim();
+  if (!text) {
+    return ctx.reply(
+      "Xabar matnini yozing, masalan:\n/xabar Yangi retseptlar qo'shildi! Ko'rib chiqing 🍲\n\n" +
+      "Rasm bilan yuborish uchun: rasmni tanlang, izoh (caption) qismiga\n/xabar Matningiz\ndeb yozib yuboring."
+    );
+  }
+
+  await broadcastToAll(ctx, (userId) => ctx.telegram.sendMessage(userId, text));
+});
+
+// Rasmli xabar: rasmni /xabar Matn... izohi bilan yuborish
+bot.on("photo", async (ctx) => {
+  const caption = ctx.message.caption || "";
+  if (!/^\/xabar/i.test(caption)) return; // oddiy rasm, broadcast emas — e'tiborsiz qoldiramiz
+
+  if (!isAdmin(ctx)) return;
+
+  const text = caption.replace(/^\/xabar/i, "").trim();
+  const photoSizes = ctx.message.photo;
+  const fileId = photoSizes[photoSizes.length - 1].file_id; // eng yuqori sifatli variant
+
+  await broadcastToAll(ctx, (userId) =>
+    ctx.telegram.sendPhoto(userId, fileId, text ? { caption: text } : {})
+  );
 });
 
 module.exports = bot;
