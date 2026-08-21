@@ -74,8 +74,8 @@ function showRandomModal(r) {
     ? `<img src="${r.imageUrl}" alt="${r.title}">`
     : "🍽️";
   document.getElementById("randomModalTitle").textContent = r.title;
-  document.getElementById("randomModalMeta").textContent =
-    `⏱ ${formatCookTime(r)}   ⭐ ${r.rating || "-"}`;
+  document.getElementById("randomModalMeta").innerHTML =
+    `⏱ ${formatCookTime(r)}   ${difficultyBadge(r)}`;
 
   const modal = document.getElementById("randomModal");
   const box = document.getElementById("randomModalBox");
@@ -171,4 +171,4 @@ if (dailyRecipe) {
   });
     }
 
-                                   
+      
