@@ -34,6 +34,8 @@
     <div class="admin-tabs">
       <button class="admin-tab-btn active" id="tabBtnAdd" data-tab="add">➕ Qo'shish</button>
       <button class="admin-tab-btn" id="tabBtnList">📋 Ro'yxat <span id="tabListCount" class="admin-tab-count"></span></button>
+      <button class="admin-tab-btn" id="tabBtnUsers">👥 Userlar <span id="tabUsersCount" class="admin-tab-count"></span></button>
+      <button class="admin-tab-btn" id="tabBtnBroadcast">📢 Xabar</button>
     </div>
 
     <!-- Forma -->
@@ -127,6 +129,49 @@
       <div id="adminRecipeList" class="admin-recipe-list">
         <p class="admin-hint">Yuklanmoqda...</p>
       </div>
+    </section>
+
+    <!-- Foydalanuvchilar -->
+    <section class="admin-card admin-tab-panel screen-hidden" id="tabPanelUsers">
+      <p class="admin-card-title">👥 Bot foydalanuvchilari</p>
+
+      <div class="admin-stats-row">
+        <div class="admin-stat-box">
+          <span class="admin-stat-num" id="statTotal">-</span>
+          <span class="admin-stat-label">Jami</span>
+        </div>
+        <div class="admin-stat-box">
+          <span class="admin-stat-num" id="statPremium">-</span>
+          <span class="admin-stat-label">Premium</span>
+        </div>
+        <div class="admin-stat-box">
+          <span class="admin-stat-num" id="statToday">-</span>
+          <span class="admin-stat-label">Bugun qo'shilgan</span>
+        </div>
+      </div>
+
+      <input type="text" id="userSearchInput" class="admin-input" placeholder="🔎 Ism yoki username bo'yicha qidirish...">
+      <div id="adminUserList" class="admin-recipe-list">
+        <p class="admin-hint">Yuklanmoqda...</p>
+      </div>
+    </section>
+
+    <!-- Xabar yuborish (broadcast) -->
+    <section class="admin-card admin-tab-panel screen-hidden" id="tabPanelBroadcast">
+      <p class="admin-card-title">📢 Barcha foydalanuvchilarga xabar</p>
+      <p class="admin-hint" style="margin-bottom:12px;">Xabar botdagi barcha ro'yxatdan o'tgan foydalanuvchilarga yuboriladi. Rasm ixtiyoriy.</p>
+
+      <label class="admin-label">🖼 Rasm <span class="admin-hint-inline">(ixtiyoriy)</span></label>
+      <input type="file" id="bImageFile" accept="image/*" class="admin-input">
+      <p class="admin-hint" id="bUploadStatus"></p>
+      <input type="hidden" id="bImageUrl">
+      <img id="bImagePreview" class="admin-image-preview" style="display:none;">
+
+      <label class="admin-label">✏️ Xabar matni</label>
+      <textarea id="bText" class="admin-textarea" rows="5" placeholder="Salom! Taomchi'ga yangi retseptlar qo'shildi 🍲"></textarea>
+
+      <button id="bSendBtn" class="admin-btn-primary" style="margin-top:14px;">📢 Barchaga yuborish</button>
+      <p id="bStatus" class="admin-hint"></p>
     </section>
 
   </div>

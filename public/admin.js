@@ -13,19 +13,32 @@ const CATEGORY_LABELS = {
 // ===== Tab navigatsiya =====
 const tabBtnAdd = document.getElementById("tabBtnAdd");
 const tabBtnList = document.getElementById("tabBtnList");
+const tabBtnUsers = document.getElementById("tabBtnUsers");
+const tabBtnBroadcast = document.getElementById("tabBtnBroadcast");
 const tabPanelAdd = document.getElementById("tabPanelAdd");
 const tabPanelList = document.getElementById("tabPanelList");
+const tabPanelUsers = document.getElementById("tabPanelUsers");
+const tabPanelBroadcast = document.getElementById("tabPanelBroadcast");
 
 function showTab(tab) {
-  const isAdd = tab === "add";
-  tabPanelAdd.classList.toggle("screen-hidden", !isAdd);
-  tabPanelList.classList.toggle("screen-hidden", isAdd);
-  tabBtnAdd.classList.toggle("active", isAdd);
-  tabBtnList.classList.toggle("active", !isAdd);
+  tabPanelAdd.classList.toggle("screen-hidden", tab !== "add");
+  tabPanelList.classList.toggle("screen-hidden", tab !== "list");
+  tabPanelUsers.classList.toggle("screen-hidden", tab !== "users");
+  tabPanelBroadcast.classList.toggle("screen-hidden", tab !== "broadcast");
+  tabBtnAdd.classList.toggle("active", tab === "add");
+  tabBtnList.classList.toggle("active", tab === "list");
+  tabBtnUsers.classList.toggle("active", tab === "users");
+  tabBtnBroadcast.classList.toggle("active", tab === "broadcast");
+
+  if (tab === "users" && allAdminUsers.length === 0) {
+    loadUsers();
+  }
 }
 
 tabBtnAdd.addEventListener("click", () => showTab("add"));
 tabBtnList.addEventListener("click", () => showTab("list"));
+tabBtnUsers.addEventListener("click", () => showTab("users"));
+tabBtnBroadcast.addEventListener("click", () => showTab("broadcast"));
 
 // ⚠️ imgbb sozlamasi — quyidagi qatorni o'zingizning
 // bepul API kalitingizga almashtiring (api.imgbb.com'dan olinadi):
@@ -126,11 +139,10 @@ const uploadStatus = document.getElementById("uploadStatus");
 const imagePreview = document.getElementById("imagePreview");
 const imagePreviewHint = document.getElementById("imagePreviewHint");
 
-fImageFile.addEventListener("change", async () => {
-  const file = fImageFile.files[0];
-  if (!file) return;
-
-  uploadStatus.textContent = "Yuklanmoqda...";
+// Umumiy rasm yuklash funksiyasi — imgbb'ga yuklaydi va URL qaytaradi.
+// statusEl va previewEl ixtiyoriy (bo'lsa holatni ko'rsatib turadi).
+async function uploadImageToImgbb(file, statusEl, previewEl) {
+  if (statusEl) statusEl.textContent = "Yuklanmoqda...";
 
   const formData = new FormData();
   formData.append("image", file);
@@ -142,16 +154,28 @@ fImageFile.addEventListener("change", async () => {
     });
     const data = await res.json();
     if (data.success) {
-      fImageUrl.value = data.data.url;
-      imagePreview.src = data.data.url;
-      imagePreview.style.display = "block";
-      imagePreviewHint.style.display = "block";
-      uploadStatus.textContent = "✅ Rasm yuklandi";
-    } else {
-      uploadStatus.textContent = "❌ Xatolik: " + (data.error?.message || "noma'lum");
+      if (previewEl) {
+        previewEl.src = data.data.url;
+        previewEl.style.display = "block";
+      }
+      if (statusEl) statusEl.textContent = "✅ Rasm yuklandi";
+      return data.data.url;
     }
+    if (statusEl) statusEl.textContent = "❌ Xatolik: " + (data.error?.message || "noma'lum");
+    return null;
   } catch (err) {
-    uploadStatus.textContent = "❌ Yuklashda xatolik: " + err.message;
+    if (statusEl) statusEl.textContent = "❌ Yuklashda xatolik: " + err.message;
+    return null;
+  }
+}
+
+fImageFile.addEventListener("change", async () => {
+  const file = fImageFile.files[0];
+  if (!file) return;
+  const url = await uploadImageToImgbb(file, uploadStatus, imagePreview);
+  if (url) {
+    fImageUrl.value = url;
+    imagePreviewHint.style.display = "block";
   }
 });
 
@@ -399,4 +423,127 @@ async function deleteRecipe(id) {
 
 // ===== Qidiruv =====
 document.getElementById("searchInput").addEventListener("input", applyFilters);
+
+// ===== Foydalanuvchilar =====
+let allAdminUsers = [];
+
+async function loadUsers() {
+  const listEl = document.getElementById("adminUserList");
+  listEl.innerHTML = `<p class="admin-hint">Yuklanmoqda...</p>`;
+
+  try {
+    const res = await fetch("/api/admin-users", {
+      headers: { "x-admin-secret": getSecret() }
+    });
+    allAdminUsers = await res.json();
+    renderUserStats();
+    applyUserFilter();
+  } catch (err) {
+    listEl.innerHTML = `<p class="admin-hint">Xatolik: ${err.message}</p>`;
+  }
+}
+
+function renderUserStats() {
+  document.getElementById("tabUsersCount").textContent = allAdminUsers.length ? `(${allAdminUsers.length})` : "";
+  document.getElementById("statTotal").textContent = allAdminUsers.length;
+  document.getElementById("statPremium").textContent = allAdminUsers.filter(u => u.isPremium).length;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayCount = allAdminUsers.filter(u => u.createdAt && u.createdAt >= todayStart.getTime()).length;
+  document.getElementById("statToday").textContent = todayCount;
+}
+
+function applyUserFilter() {
+  const q = document.getElementById("userSearchInput").value.trim().toLowerCase();
+  const filtered = allAdminUsers.filter(u => {
+    if (!q) return true;
+    return (u.firstName || "").toLowerCase().includes(q) || (u.username || "").toLowerCase().includes(q);
+  });
+  renderUserList(filtered);
+}
+
+function renderUserList(users) {
+  const listEl = document.getElementById("adminUserList");
+  if (users.length === 0) {
+    listEl.innerHTML = `<p class="admin-hint">Hech narsa topilmadi.</p>`;
+    return;
+  }
+
+  const sorted = [...users].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  listEl.innerHTML = sorted.map(u => {
+    const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString("uz-UZ") : "-";
+    const langLabel = u.language === "uzk" ? "Кирилл" : "Lotin";
+    return `
+      <div class="admin-user-item">
+        <div class="admin-user-avatar">${(u.firstName || "?").charAt(0).toUpperCase()}</div>
+        <div class="admin-recipe-item-info">
+          <p class="admin-recipe-item-title">${u.firstName || "(nomsiz)"} ${u.isPremium ? "⭐" : ""}</p>
+          <p class="admin-recipe-item-meta">${u.username ? "@" + u.username : "username yo'q"} · ${langLabel} · ${date}</p>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+document.getElementById("userSearchInput").addEventListener("input", applyUserFilter);
+
+// ===== Xabar yuborish (broadcast) =====
+const bImageFile = document.getElementById("bImageFile");
+const bImageUrl = document.getElementById("bImageUrl");
+const bUploadStatus = document.getElementById("bUploadStatus");
+const bImagePreview = document.getElementById("bImagePreview");
+const bText = document.getElementById("bText");
+const bSendBtn = document.getElementById("bSendBtn");
+const bStatus = document.getElementById("bStatus");
+
+bImageFile.addEventListener("change", async () => {
+  const file = bImageFile.files[0];
+  if (!file) return;
+  const url = await uploadImageToImgbb(file, bUploadStatus, bImagePreview);
+  if (url) bImageUrl.value = url;
+});
+
+bSendBtn.addEventListener("click", async () => {
+  const text = bText.value.trim();
+  if (!text) {
+    bStatus.textContent = "❌ Avval xabar matnini yozing.";
+    return;
+  }
+
+  if (!confirm(`Xabar barcha foydalanuvchilarga (${allAdminUsers.length || "?"} ta) yuborilsinmi?`)) return;
+
+  bSendBtn.disabled = true;
+  bSendBtn.textContent = "⏳ Yuborilmoqda...";
+  bStatus.textContent = "";
+
+  try {
+    const res = await fetch("/api/broadcast", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-secret": getSecret()
+      },
+      body: JSON.stringify({ text, imageUrl: bImageUrl.value || null })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      bStatus.textContent = "❌ Xatolik: " + (data.error || "noma'lum");
+    } else {
+      bStatus.textContent = `✅ Yuborildi: ${data.sent} ta · ❌ Yetkazilmadi: ${data.failed} ta · 👥 Jami: ${data.total} ta`;
+      bText.value = "";
+      bImageUrl.value = "";
+      bImageFile.value = "";
+      bImagePreview.style.display = "none";
+      bUploadStatus.textContent = "";
+    }
+  } catch (err) {
+    bStatus.textContent = "❌ Yuborishda xatolik: " + err.message;
+  } finally {
+    bSendBtn.disabled = false;
+    bSendBtn.textContent = "📢 Barchaga yuborish";
+  }
+});
                               

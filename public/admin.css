@@ -79,7 +79,8 @@
 
 /* ===== Tab navigatsiya ===== */
 .admin-tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 16px;
   background: var(--cream);
@@ -88,7 +89,6 @@
 }
 
 .admin-tab-btn {
-  flex: 1;
   border: none;
   background: transparent;
   padding: 10px 8px;
@@ -319,4 +319,58 @@
   align-items: center;
   justify-content: center;
   font-size: 15px;
+}
+
+/* ===== Foydalanuvchilar statistikasi ===== */
+.admin-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.admin-stat-box {
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 12px 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-stat-num {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.admin-stat-label {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ===== Foydalanuvchi ro'yxati elementi ===== */
+.admin-user-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.admin-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  color: var(--cream);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
 }
