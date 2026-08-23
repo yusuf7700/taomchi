@@ -9,6 +9,7 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { extractUnmatchedWords, slugify } = require("../lib/pantryMatch");
+const { ensureSeeded } = require("../lib/pantrySeed");
 
 // Retsept saqlangach (qo'shilganda yoki tahrirlanganda), ingredient matnlaridan
 // hozircha tanilmagan so'zlarni topib, "pantrySuggestions" to'plamiga yozadi
@@ -17,6 +18,10 @@ const { extractUnmatchedWords, slugify } = require("../lib/pantryMatch");
 async function recordPantrySuggestions(db, recipeId, recipeTitle, ingredients) {
   const lines = (ingredients || []).map(i => i.name || "").filter(Boolean);
   if (lines.length === 0) return;
+
+  // Mahsulotlar ro'yxati hali "seed" qilinmagan bo'lsa, avval shuni bajaramiz —
+  // aks holda ro'yxat bo'sh ko'rinib, hamma so'z noto'g'ri "yangi" deb belgilanadi.
+  await ensureSeeded(db);
 
   const canonicalSnap = await db.collection("pantryIngredients").get();
   const canonicalItems = canonicalSnap.docs.map(doc => doc.data());
