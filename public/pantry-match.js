@@ -32,7 +32,9 @@ function containsPhrase(textWords, keywordWords) {
 
 // Retseptning ingredient matnlaridan qaysi asosiy mahsulotlar (id) borligini
 // aniqlaydi. Natija — Set(masalan: {"tovuq", "kartoshka", "piyoz"})
-function getRecipeIngredientIds(recipe) {
+// pantryIngredients: [{ id, keywords: [...] }, ...] — Firestore'dan yuklangan
+// (yoki zaxira) mahsulotlar ro'yxati
+function getRecipeIngredientIds(recipe, pantryIngredients) {
   const ids = new Set();
   const lines = (recipe.ingredients || []).map(i => i.name || "");
 
@@ -40,7 +42,7 @@ function getRecipeIngredientIds(recipe) {
     const words = toWords(line);
     if (words.length === 0) continue;
 
-    for (const item of PANTRY_INGREDIENTS) {
+    for (const item of pantryIngredients) {
       if (ids.has(item.id)) continue;
       for (const kw of item.keywords) {
         const kwWords = kw.toLowerCase().split(/[^a-z']+/).filter(Boolean);
@@ -63,8 +65,8 @@ function getRecipeIngredientIds(recipe) {
 //      bo'lardi, chunki aslida hech narsa mos kelmagan).
 // Aks holda: { requiredCount, matchedCount, missing, status }
 // status: "full" — barcha mahsulot bor, "partial" — ba'zi mahsulot yetmaydi
-function matchRecipe(recipe, selectedIds) {
-  const requiredIds = getRecipeIngredientIds(recipe);
+function matchRecipe(recipe, selectedIds, pantryIngredients) {
+  const requiredIds = getRecipeIngredientIds(recipe, pantryIngredients);
   if (requiredIds.size === 0) return null;
 
   const matchedIds = [...requiredIds].filter(id => selectedIds.has(id));

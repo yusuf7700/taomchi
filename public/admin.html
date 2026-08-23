@@ -36,6 +36,7 @@
       <button class="admin-tab-btn" id="tabBtnList">📋 Ro'yxat <span id="tabListCount" class="admin-tab-count"></span></button>
       <button class="admin-tab-btn" id="tabBtnUsers">👥 Userlar <span id="tabUsersCount" class="admin-tab-count"></span></button>
       <button class="admin-tab-btn" id="tabBtnBroadcast">📢 Xabar</button>
+      <button class="admin-tab-btn" id="tabBtnPantry">🆕 Yangi mahsulotlar <span id="tabPantryCount" class="admin-tab-count"></span></button>
     </div>
 
     <!-- Forma -->
@@ -174,9 +175,51 @@
       <p id="bStatus" class="admin-hint"></p>
     </section>
 
+    <!-- "Uyda nima bor?" — yangi mahsulot takliflari -->
+    <section class="admin-card admin-tab-panel screen-hidden" id="tabPanelPantry">
+      <p class="admin-card-title">🆕 Yangi mahsulotlar</p>
+      <p class="admin-hint" style="margin-bottom:12px;">
+        Retsept qo'shilganda yoki tahrirlanganda, "Uyda nima bor?" ro'yxatida hali yo'q so'zlar
+        shu yerda paydo bo'ladi. Har birini tasdiqlang (ro'yxatga qo'shiladi) yoki rad eting.
+      </p>
+      <div id="pantrySuggestionList" class="admin-recipe-list">
+        <p class="admin-hint">Yuklanmoqda...</p>
+      </div>
+    </section>
+
   </div>
 
-  <script src="translit.js"></script>
+  <!-- Taklifni tasdiqlash oynasi -->
+  <div id="pantryApproveModal" class="admin-modal-overlay screen-hidden">
+    <div class="admin-modal-box">
+      <p class="admin-card-title" id="pantryApproveTitle">Mahsulotni tasdiqlash</p>
+
+      <label class="admin-label">🏷 Nomi (o'zbekcha)</label>
+      <input type="text" id="paLabel" class="admin-input" placeholder="Masalan: Tvorog">
+
+      <label class="admin-label">😀 Emoji</label>
+      <input type="text" id="paEmoji" class="admin-input" placeholder="🧀" maxlength="4">
+
+      <label class="admin-label">📂 Guruh</label>
+      <select id="paGroup" class="admin-input">
+        <option value="meat">Go'sht, baliq va tuxum</option>
+        <option value="veg">Sabzavotlar</option>
+        <option value="herbs">Ko'katlar</option>
+        <option value="grains">Don va yormalar</option>
+        <option value="dairy">Sut mahsulotlari</option>
+        <option value="fruit">Mevalar</option>
+        <option value="dessert">Shirinlik mahsulotlari</option>
+        <option value="other">Boshqa mahsulotlar</option>
+      </select>
+
+      <label class="admin-label">🔑 Kalit so'zlar <span class="admin-hint-inline">(vergul bilan, retsept matnida qidiriladi)</span></label>
+      <textarea id="paKeywords" class="admin-textarea" rows="2" placeholder="tvorog, tvarog"></textarea>
+
+      <button id="paConfirmBtn" class="admin-btn-primary" style="margin-top:14px;">✅ Tasdiqlash va qo'shish</button>
+      <button id="paCancelBtn" class="admin-btn-secondary" style="margin-top:8px;">Bekor qilish</button>
+      <p id="paStatus" class="admin-hint"></p>
+    </div>
+  </div>
   <script src="admin.js"></script>
 </body>
   </html>

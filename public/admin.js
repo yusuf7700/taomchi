@@ -15,23 +15,30 @@ const tabBtnAdd = document.getElementById("tabBtnAdd");
 const tabBtnList = document.getElementById("tabBtnList");
 const tabBtnUsers = document.getElementById("tabBtnUsers");
 const tabBtnBroadcast = document.getElementById("tabBtnBroadcast");
+const tabBtnPantry = document.getElementById("tabBtnPantry");
 const tabPanelAdd = document.getElementById("tabPanelAdd");
 const tabPanelList = document.getElementById("tabPanelList");
 const tabPanelUsers = document.getElementById("tabPanelUsers");
 const tabPanelBroadcast = document.getElementById("tabPanelBroadcast");
+const tabPanelPantry = document.getElementById("tabPanelPantry");
 
 function showTab(tab) {
   tabPanelAdd.classList.toggle("screen-hidden", tab !== "add");
   tabPanelList.classList.toggle("screen-hidden", tab !== "list");
   tabPanelUsers.classList.toggle("screen-hidden", tab !== "users");
   tabPanelBroadcast.classList.toggle("screen-hidden", tab !== "broadcast");
+  tabPanelPantry.classList.toggle("screen-hidden", tab !== "pantry");
   tabBtnAdd.classList.toggle("active", tab === "add");
   tabBtnList.classList.toggle("active", tab === "list");
   tabBtnUsers.classList.toggle("active", tab === "users");
   tabBtnBroadcast.classList.toggle("active", tab === "broadcast");
+  tabBtnPantry.classList.toggle("active", tab === "pantry");
 
   if (tab === "users" && allAdminUsers.length === 0) {
     loadUsers();
+  }
+  if (tab === "pantry") {
+    loadPantrySuggestions();
   }
 }
 
@@ -39,6 +46,7 @@ tabBtnAdd.addEventListener("click", () => showTab("add"));
 tabBtnList.addEventListener("click", () => showTab("list"));
 tabBtnUsers.addEventListener("click", () => showTab("users"));
 tabBtnBroadcast.addEventListener("click", () => showTab("broadcast"));
+tabBtnPantry.addEventListener("click", () => showTab("pantry"));
 
 // ⚠️ imgbb sozlamasi — quyidagi qatorni o'zingizning
 // bepul API kalitingizga almashtiring (api.imgbb.com'dan olinadi):
@@ -547,3 +555,162 @@ bSendBtn.addEventListener("click", async () => {
   }
 });
                               
+
+// ===== "Uyda nima bor?" — yangi mahsulot takliflari =====
+const GROUP_LABELS = {
+  meat: "Go'sht, baliq va tuxum",
+  veg: "Sabzavotlar",
+  herbs: "Ko'katlar",
+  grains: "Don va yormalar",
+  dairy: "Sut mahsulotlari",
+  fruit: "Mevalar",
+  dessert: "Shirinlik mahsulotlari",
+  other: "Boshqa mahsulotlar"
+};
+
+let allPantrySuggestions = [];
+
+async function loadPantrySuggestions() {
+  const listEl = document.getElementById("pantrySuggestionList");
+  listEl.innerHTML = `<p class="admin-hint">Yuklanmoqda...</p>`;
+
+  try {
+    const res = await fetch("/api/admin-pantry?type=suggestions", {
+      headers: { "x-admin-secret": getSecret() }
+    });
+    allPantrySuggestions = await res.json();
+    renderPantrySuggestions();
+  } catch (err) {
+    listEl.innerHTML = `<p class="admin-hint">Xatolik: ${err.message}</p>`;
+  }
+}
+
+function renderPantrySuggestions() {
+  const listEl = document.getElementById("pantrySuggestionList");
+  const countEl = document.getElementById("tabPantryCount");
+  countEl.textContent = allPantrySuggestions.length ? `(${allPantrySuggestions.length})` : "";
+
+  if (allPantrySuggestions.length === 0) {
+    listEl.innerHTML = `<p class="admin-hint">Hozircha yangi taklif yo'q. 🎉</p>`;
+    return;
+  }
+
+  listEl.innerHTML = allPantrySuggestions.map(s => `
+    <div class="pantry-suggestion-item">
+      <div class="pantry-suggestion-info">
+        <p class="pantry-suggestion-word">${s.word}${s.occurrences > 1 ? ` <span style="font-weight:400;color:var(--text-muted);">(${s.occurrences}x)</span>` : ""}</p>
+        <p class="pantry-suggestion-meta">${s.recipeTitle || ""} · "${s.sampleLine || ""}"</p>
+      </div>
+      <div class="pantry-suggestion-actions">
+        <button class="pantry-suggestion-btn pantry-suggestion-btn--approve" data-id="${s.id}" data-action="approve">✅</button>
+        <button class="pantry-suggestion-btn pantry-suggestion-btn--reject" data-id="${s.id}" data-action="reject">✕</button>
+      </div>
+    </div>
+  `).join("");
+
+  listEl.querySelectorAll("[data-action='reject']").forEach(btn => {
+    btn.addEventListener("click", () => rejectSuggestion(btn.getAttribute("data-id")));
+  });
+  listEl.querySelectorAll("[data-action='approve']").forEach(btn => {
+    btn.addEventListener("click", () => openApproveModal(btn.getAttribute("data-id")));
+  });
+}
+
+async function rejectSuggestion(suggestionId) {
+  try {
+    await fetch("/api/admin-pantry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({ action: "reject", suggestionId })
+    });
+    allPantrySuggestions = allPantrySuggestions.filter(s => s.id !== suggestionId);
+    renderPantrySuggestions();
+  } catch (err) {
+    alert("Xatolik: " + err.message);
+  }
+}
+
+// ===== Tasdiqlash modali =====
+const pantryApproveModal = document.getElementById("pantryApproveModal");
+const paLabel = document.getElementById("paLabel");
+const paEmoji = document.getElementById("paEmoji");
+const paGroup = document.getElementById("paGroup");
+const paKeywords = document.getElementById("paKeywords");
+const paConfirmBtn = document.getElementById("paConfirmBtn");
+const paCancelBtn = document.getElementById("paCancelBtn");
+const paStatus = document.getElementById("paStatus");
+
+let currentSuggestion = null;
+
+function openApproveModal(suggestionId) {
+  currentSuggestion = allPantrySuggestions.find(s => s.id === suggestionId);
+  if (!currentSuggestion) return;
+
+  document.getElementById("pantryApproveTitle").textContent = `"${currentSuggestion.word}" ni tasdiqlash`;
+  paLabel.value = capitalize(currentSuggestion.word);
+  paEmoji.value = "";
+  paGroup.value = "other";
+  paKeywords.value = currentSuggestion.word;
+  paStatus.textContent = "";
+  pantryApproveModal.classList.remove("screen-hidden");
+}
+
+function capitalize(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+function slugifyId(word) {
+  return String(word).toLowerCase().replace(/[^a-z0-9']/g, "").slice(0, 40);
+}
+
+paCancelBtn.addEventListener("click", () => {
+  pantryApproveModal.classList.add("screen-hidden");
+  currentSuggestion = null;
+});
+
+paConfirmBtn.addEventListener("click", async () => {
+  if (!currentSuggestion) return;
+
+  const label = paLabel.value.trim();
+  const emoji = paEmoji.value.trim() || "🍽️";
+  const groupId = paGroup.value;
+  const keywords = paKeywords.value.split(",").map(k => k.trim()).filter(Boolean);
+
+  if (!label || keywords.length === 0) {
+    paStatus.textContent = "❗ Nomi va kamida bitta kalit so'z kerak.";
+    return;
+  }
+
+  const ingredientId = slugifyId(label) || slugifyId(currentSuggestion.word);
+
+  paConfirmBtn.disabled = true;
+  paStatus.textContent = "Saqlanmoqda...";
+
+  try {
+    await fetch("/api/admin-pantry", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({
+        action: "approve",
+        suggestionId: currentSuggestion.id,
+        ingredient: {
+          id: ingredientId,
+          label,
+          emoji,
+          groupId,
+          groupLabel: GROUP_LABELS[groupId] || "Boshqa mahsulotlar",
+          keywords
+        }
+      })
+    });
+
+    allPantrySuggestions = allPantrySuggestions.filter(s => s.id !== currentSuggestion.id);
+    renderPantrySuggestions();
+    pantryApproveModal.classList.add("screen-hidden");
+    currentSuggestion = null;
+  } catch (err) {
+    paStatus.textContent = "❌ Xatolik: " + err.message;
+  } finally {
+    paConfirmBtn.disabled = false;
+  }
+});
