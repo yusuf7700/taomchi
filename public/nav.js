@@ -5,7 +5,8 @@ const ROUTES = {
   home: "index.html",
   recipes: "recipes.html",
   favorites: "favorites.html",
-  profile: "profile.html"
+  profile: "profile.html",
+  pantry: "pantry.html"
 };
 
 document.querySelectorAll(".nav-item").forEach(item => {

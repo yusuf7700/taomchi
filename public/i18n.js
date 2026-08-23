@@ -50,7 +50,15 @@ const TRANSLATIONS = {
     nav_recipes: "Retseptlar",
     nav_favorites: "Saqlanganlar",
     nav_profile: "Profil",
-    splash_tagline: "Har bir taom — yaqinlarga quvonch, yaxshiliklarga quvvat"
+    splash_tagline: "Har bir taom — yaqinlarga quvonch, yaxshiliklarga quvvat",
+    pantry_intro: "Uyingizda bor mahsulotlarni tanlang, biz mos retseptlarni topamiz 👇",
+    pantry_selected: "ta mahsulot tanlandi",
+    pantry_clear: "Tozalash",
+    pantry_empty_hint: "Retseptlarni ko'rish uchun uyingizdagi mahsulotlarni tanlang.",
+    pantry_no_match: "Hozircha mos retsept topilmadi. Yana mahsulot tanlab ko'ring.",
+    pantry_full_title: "✅ To'liq mos retseptlar",
+    pantry_partial_title: "🔶 Deyarli tayyor",
+    pantry_missing_suffix: "yetishmayapti"
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -99,7 +107,15 @@ const TRANSLATIONS = {
     nav_recipes: "Рецептлар",
     nav_favorites: "Сақланганлар",
     nav_profile: "Профил",
-    splash_tagline: "Ҳар бир таом — яқинларга қувонч, яхшиликларга қувват"
+    splash_tagline: "Ҳар бир таом — яқинларга қувонч, яхшиликларга қувват",
+    pantry_intro: "Уйингизда бор маҳсулотларни танланг, биз мос рецептларни топамиз 👇",
+    pantry_selected: "та маҳсулот танланди",
+    pantry_clear: "Тозалаш",
+    pantry_empty_hint: "Рецептларни кўриш учун уйингиздаги маҳсулотларни танланг.",
+    pantry_no_match: "Ҳозирча мос рецепт топилмади. Яна маҳсулот танлаб кўринг.",
+    pantry_full_title: "✅ Тўлиқ мос рецептлар",
+    pantry_partial_title: "🔶 Деярли тайёр",
+    pantry_missing_suffix: "етишмаяпти"
   }
 };
 

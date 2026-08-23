@@ -115,8 +115,12 @@ const actionCards = document.querySelectorAll(".action-card");
 actionCards.forEach(card => {
   card.addEventListener("click", () => {
     const action = card.getAttribute("data-action");
+    if (action === "pantry") {
+      window.location.href = "pantry.html";
+      return;
+    }
     console.log("Amal tanlandi:", action);
-    // TODO: pantry.html, ai.html, weekly-menu.html tayyor bo'lgach shu yerga ulanadi
+    // TODO: ai.html, weekly-menu.html tayyor bo'lgach shu yerga ulanadi
   });
 });
 
