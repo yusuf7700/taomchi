@@ -55,16 +55,31 @@ function getRecipeIngredientIds(recipe) {
 }
 
 // Bitta retsept uchun moslik natijasini hisoblaydi.
-// Qaytaradi: null (agar retseptda hech qanday taniqli mahsulot topilmasa —
-// bu funksiyada ko'rsatilmaydi) yoki { requiredCount, missing, status }
+// Qaytaradi: null quyidagi hollarda —
+//   a) retseptda hech qanday taniqli mahsulot topilmasa, YOKI
+//   b) siz tanlagan mahsulotlar bilan retsept orasida yetarli umumiylik
+//      bo'lmasa (masalan retseptda faqat 1ta taniqli mahsulot bor va u
+//      sizda yo'q — bunday holatda "deyarli tayyor" deb ko'rsatish noto'g'ri
+//      bo'lardi, chunki aslida hech narsa mos kelmagan).
+// Aks holda: { requiredCount, matchedCount, missing, status }
 // status: "full" — barcha mahsulot bor, "partial" — ba'zi mahsulot yetmaydi
 function matchRecipe(recipe, selectedIds) {
   const requiredIds = getRecipeIngredientIds(recipe);
   if (requiredIds.size === 0) return null;
 
+  const matchedIds = [...requiredIds].filter(id => selectedIds.has(id));
   const missing = [...requiredIds].filter(id => !selectedIds.has(id));
+
+  // Kamida shuncha mahsulot mos kelishi shart: retsept juda kichik
+  // (faqat 1ta taniqli mahsulot) bo'lsa — o'sha bitta ham mos kelishi kerak.
+  // Kattaroq retseptlarda esa kamida 2ta mahsulot mos kelishi kerak,
+  // aks holda tasodifiy bitta so'z moslashuvi noto'g'ri natija beradi.
+  const minRequired = requiredIds.size === 1 ? 1 : 2;
+  if (matchedIds.length < minRequired) return null;
+
   return {
     requiredCount: requiredIds.size,
+    matchedCount: matchedIds.length,
     missing,
     status: missing.length === 0 ? "full" : "partial"
   };

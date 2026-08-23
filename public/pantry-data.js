@@ -89,6 +89,20 @@ const PANTRY_GROUPS = [
       { id: "qora_murch", label: "Qora murch", emoji: "🌶️", keywords: ["qora murch"] },
       { id: "kunjut", label: "Kunjut", emoji: "⚪", keywords: ["kunjut"] }
     ]
+  },
+  {
+    id: "dessert",
+    label: "Shirinlik mahsulotlari",
+    items: [
+      { id: "qaymoq", label: "Qaymoq", emoji: "🍦", keywords: ["qaymoq"] },
+      { id: "sgushonka", label: "Sgushonka", emoji: "🥫", keywords: ["sgushonka", "quyuq sut"] },
+      { id: "shokolad", label: "Shokolad", emoji: "🍫", keywords: ["shokolad"] },
+      { id: "pechenye", label: "Pechenye", emoji: "🍪", keywords: ["pechenye", "pecheniye"] },
+      { id: "vanilin", label: "Vanilin", emoji: "🌼", keywords: ["vanilin", "vanil"] },
+      { id: "kokos", label: "Kokos qirindisi", emoji: "🥥", keywords: ["kokos"] },
+      { id: "jem", label: "Jem / murabbo", emoji: "🍓", keywords: ["jem", "murabbo", "povidlo"] },
+      { id: "razrixlitel", label: "Razrixlitel (xamir kukuni)", emoji: "🧁", keywords: ["razrixlitel"] }
+    ]
   }
 ];
 
