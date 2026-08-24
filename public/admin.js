@@ -278,9 +278,20 @@ submitBtn.addEventListener("click", async () => {
       body: JSON.stringify(editId ? { id: editId, ...data } : data)
     });
 
-    if (!res.ok) throw new Error("Server xatosi");
+    const responseData = await res.json();
+    if (!res.ok) throw new Error(responseData.error || "Server xatosi");
 
-    formStatus.textContent = "✅ Saqlandi!";
+    console.log("Pantry debug:", responseData.pantryDebug);
+
+    const pd = responseData.pantryDebug;
+    let pantryNote = "";
+    if (pd && pd.ok === false) {
+      pantryNote = ` (⚠️ pantry taklif xatosi: ${pd.error})`;
+    } else if (pd && pd.writtenAsNewPending && pd.writtenAsNewPending.length > 0) {
+      pantryNote = ` (🆕 yangi taklif: ${pd.writtenAsNewPending.join(", ")})`;
+    }
+
+    formStatus.textContent = "✅ Saqlandi!" + pantryNote;
     clearForm();
     loadRecipes();
     showTab("list");

@@ -17,7 +17,7 @@ const { ensureSeeded } = require("../lib/pantrySeed");
 // Bu funksiya xato bersa ham retsept saqlanishiga xalaqit bermaydi (try/catch bilan o'raladi).
 async function recordPantrySuggestions(db, recipeId, recipeTitle, ingredients) {
   const lines = (ingredients || []).map(i => i.name || "").filter(Boolean);
-  if (lines.length === 0) return;
+  if (lines.length === 0) return { ok: true, unmatchedWords: [], note: "ingredient qatorlari bo'sh" };
 
   // Mahsulotlar ro'yxati hali "seed" qilinmagan bo'lsa, avval shuni bajaramiz —
   // aks holda ro'yxat bo'sh ko'rinib, hamma so'z noto'g'ri "yangi" deb belgilanadi.
@@ -27,9 +27,10 @@ async function recordPantrySuggestions(db, recipeId, recipeTitle, ingredients) {
   const canonicalItems = canonicalSnap.docs.map(doc => doc.data());
 
   const unmatched = extractUnmatchedWords(lines, canonicalItems);
-  if (unmatched.size === 0) return;
+  if (unmatched.size === 0) return { ok: true, unmatchedWords: [], note: "hammasi tanilgan" };
 
   const batch = db.batch();
+  const written = [];
   for (const word of unmatched) {
     const id = slugify(word);
     if (!id) continue;
@@ -53,8 +54,10 @@ async function recordPantrySuggestions(db, recipeId, recipeTitle, ingredients) {
         createdAt: Date.now()
       });
     }
+    written.push(word);
   }
   await batch.commit();
+  return { ok: true, unmatchedWords: [...unmatched], writtenAsNewPending: written };
 }
 
 module.exports = async (req, res) => {
@@ -81,24 +84,28 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const data = { ...req.body, createdAt: Date.now() };
       const ref = await db.collection("recipes").add(data);
+      let pantryDebug;
       try {
-        await recordPantrySuggestions(db, ref.id, data.title, data.ingredients);
+        pantryDebug = await recordPantrySuggestions(db, ref.id, data.title, data.ingredients);
       } catch (err) {
         console.error("Pantry taklif yozishda xato (retsept baribir saqlandi):", err);
+        pantryDebug = { ok: false, error: err.message };
       }
-      return res.status(200).json({ id: ref.id });
+      return res.status(200).json({ id: ref.id, pantryDebug });
     }
 
     if (req.method === "PUT") {
       const { id, ...data } = req.body;
       if (!id) return res.status(400).json({ error: "id kerak" });
       await db.collection("recipes").doc(id).set(data, { merge: true });
+      let pantryDebug;
       try {
-        await recordPantrySuggestions(db, id, data.title, data.ingredients);
+        pantryDebug = await recordPantrySuggestions(db, id, data.title, data.ingredients);
       } catch (err) {
         console.error("Pantry taklif yozishda xato (retsept baribir saqlandi):", err);
+        pantryDebug = { ok: false, error: err.message };
       }
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, pantryDebug });
     }
 
     if (req.method === "DELETE") {
