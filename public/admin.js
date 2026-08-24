@@ -578,7 +578,10 @@ async function loadPantrySuggestions() {
     const res = await fetch("/api/admin-pantry?type=suggestions", {
       headers: { "x-admin-secret": getSecret() }
     });
-    allPantrySuggestions = await res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server xatosi (${res.status})`);
+
+    allPantrySuggestions = data;
     renderPantrySuggestions();
   } catch (err) {
     listEl.innerHTML = `<p class="admin-hint">Xatolik: ${err.message}</p>`;
@@ -618,11 +621,14 @@ function renderPantrySuggestions() {
 
 async function rejectSuggestion(suggestionId) {
   try {
-    await fetch("/api/admin-pantry", {
+    const res = await fetch("/api/admin-pantry", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
       body: JSON.stringify({ action: "reject", suggestionId })
     });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server xatosi (${res.status})`);
+
     allPantrySuggestions = allPantrySuggestions.filter(s => s.id !== suggestionId);
     renderPantrySuggestions();
   } catch (err) {
@@ -687,7 +693,7 @@ paConfirmBtn.addEventListener("click", async () => {
   paStatus.textContent = "Saqlanmoqda...";
 
   try {
-    await fetch("/api/admin-pantry", {
+    const res = await fetch("/api/admin-pantry", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
       body: JSON.stringify({
@@ -703,6 +709,8 @@ paConfirmBtn.addEventListener("click", async () => {
         }
       })
     });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server xatosi (${res.status})`);
 
     allPantrySuggestions = allPantrySuggestions.filter(s => s.id !== currentSuggestion.id);
     renderPantrySuggestions();
