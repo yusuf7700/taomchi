@@ -29,13 +29,35 @@ document.getElementById("langRow").addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", updateLangValue);
 
-// --- Bildirishnoma toggle (hozircha faqat vizual, keyin FCM ulanadi) ---
+// --- Bildirishnoma toggle (Telegram bot orqali eslatma yuboriladi) ---
 const notifToggle = document.getElementById("notifToggle");
-const NOTIF_KEY = "taomchi_notifications";
-notifToggle.checked = localStorage.getItem(NOTIF_KEY) !== "off";
-notifToggle.addEventListener("change", () => {
-  localStorage.setItem(NOTIF_KEY, notifToggle.checked ? "on" : "off");
+
+async function loadNotificationSetting() {
+  if (!tg?.initData) return; // Telegram tashqarisida ochilgan bo'lishi mumkin (test rejimi)
+  try {
+    const res = await fetch(`/api/user-settings?initData=${encodeURIComponent(tg.initData)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    notifToggle.checked = data.notificationsEnabled;
+  } catch {
+    // Internet yo'q bo'lishi mumkin — joriy (standart) holatda qoldiramiz
+  }
+}
+
+notifToggle.addEventListener("change", async () => {
+  if (!tg?.initData) return;
+  try {
+    await fetch("/api/user-settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tg.initData, notificationsEnabled: notifToggle.checked })
+    });
+  } catch {
+    // Xato bo'lsa ham UI holati saqlanadi, keyingi safar qayta urinib ko'ramiz
+  }
 });
+
+loadNotificationSetting();
 
 // --- Premium holati ---
 function renderPremiumBanner() {

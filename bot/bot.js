@@ -62,7 +62,8 @@ async function ensureUser(ctx) {
       isPremium: false,
       premiumUntil: null,
       trialUsed: false,
-      language: null
+      language: null,
+      notificationsEnabled: true
     });
     return { isNew: true, language: null };
   }

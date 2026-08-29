@@ -356,18 +356,49 @@ function renderAdminList(recipes) {
         <p class="admin-recipe-item-meta">${CATEGORY_LABELS[r.category] || r.category || "-"} · ⏱ ${r.cookTimeUnit === "nomalum" ? "Noma'lum" : `${r.cookTime || "-"} ${r.cookTimeUnit === "soat" ? "soat" : "daq"}`}</p>
       </div>
       <div class="admin-recipe-item-actions">
+        <button class="admin-icon-btn" data-notify="${r.id}" title="Xabar yuborish">📣</button>
         <button class="admin-icon-btn" data-edit="${r.id}">✏️</button>
         <button class="admin-icon-btn" data-delete="${r.id}">🗑️</button>
       </div>
     </div>
   `).join("");
 
+  listEl.querySelectorAll("[data-notify]").forEach(btn => {
+    btn.addEventListener("click", () => notifyRecipe(btn.getAttribute("data-notify"), btn));
+  });
   listEl.querySelectorAll("[data-edit]").forEach(btn => {
     btn.addEventListener("click", () => startEdit(btn.getAttribute("data-edit")));
   });
   listEl.querySelectorAll("[data-delete]").forEach(btn => {
     btn.addEventListener("click", () => deleteRecipe(btn.getAttribute("data-delete")));
   });
+}
+
+async function notifyRecipe(recipeId, btn) {
+  const recipe = allAdminRecipes.find(r => r.id === recipeId);
+  const name = recipe ? recipe.title : "bu retsept";
+  if (!confirm(`"${name}" haqida bildirishnoma yoqilgan barcha foydalanuvchilarga xabar yuborilsinmi?`)) return;
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "⏳";
+
+  try {
+    const res = await fetch("/api/notify-recipe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({ recipeId })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Server xatosi");
+
+    alert(`✅ Yuborildi: ${data.sent} ta · ❌ Yetkazilmadi: ${data.failed} ta · 👥 Jami: ${data.total} ta`);
+  } catch (err) {
+    alert("Xatolik: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
 }
 
 function startEdit(id) {

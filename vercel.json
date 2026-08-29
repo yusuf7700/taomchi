@@ -5,6 +5,9 @@
     },
     "api/broadcast.js": {
       "maxDuration": 60
+    },
+    "api/notify-recipe.js": {
+      "maxDuration": 60
     }
   }
 }
