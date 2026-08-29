@@ -11,7 +11,6 @@ const clearBtn = document.getElementById("clearPantryBtn");
 
 let selectedIds = new Set(loadSelected());
 let allRecipes = [];
-let pantryIngredients = []; // Firestore'dan (yoki zaxiradan) yuklanadi
 
 function loadSelected() {
   try {
@@ -36,30 +35,9 @@ function t(key, fallback) {
   return dict[key] || fallback || key;
 }
 
-// Mahsulotlarni guruhlarga ajratib, PANTRY_GROUP_ORDER tartibida qaytaradi
-function groupPantryIngredients(items) {
-  const byGroup = {};
-  for (const item of items) {
-    const g = item.groupId || "other";
-    if (!byGroup[g]) byGroup[g] = [];
-    byGroup[g].push(item);
-  }
-  const orderedGroupIds = [
-    ...PANTRY_GROUP_ORDER.filter(g => byGroup[g]),
-    ...Object.keys(byGroup).filter(g => !PANTRY_GROUP_ORDER.includes(g))
-  ];
-  return orderedGroupIds.map(groupId => ({
-    id: groupId,
-    label: PANTRY_GROUP_LABELS[groupId] || "Boshqa mahsulotlar",
-    items: byGroup[groupId]
-  }));
-}
-
 // ===== Mahsulot chip'larini chizish =====
 function renderChips() {
-  const groups = groupPantryIngredients(pantryIngredients);
-
-  chipContainer.innerHTML = groups.map(group => `
+  chipContainer.innerHTML = PANTRY_GROUPS.map(group => `
     <div class="pantry-group">
       <p class="pantry-group-title">${displayText(group.label)}</p>
       <div class="pantry-chip-row">
@@ -95,7 +73,7 @@ function updateSelectedCount() {
 // ===== Natijalarni chizish =====
 function missingNames(ids) {
   return ids.map(id => {
-    const item = pantryIngredients.find(i => i.id === id);
+    const item = PANTRY_INGREDIENTS.find(i => i.id === id);
     return item ? displayText(item.label) : id;
   });
 }
@@ -121,11 +99,6 @@ function recipeResultCard(m) {
 }
 
 function renderResults() {
-  if (pantryIngredients.length === 0) {
-    resultSection.innerHTML = `<p class="empty-text">Yuklanmoqda...</p>`;
-    return;
-  }
-
   if (selectedIds.size === 0) {
     resultSection.innerHTML = `<p class="empty-text">${t("pantry_empty_hint")}</p>`;
     return;
@@ -133,7 +106,7 @@ function renderResults() {
 
   const matched = [];
   for (const r of allRecipes) {
-    const m = matchRecipe(r, selectedIds, pantryIngredients);
+    const m = matchRecipe(r, selectedIds);
     if (m) matched.push({ recipe: r, ...m });
   }
 
@@ -174,14 +147,9 @@ clearBtn.addEventListener("click", () => {
 });
 
 // ===== Boshlang'ich yuklash =====
+renderChips();
 updateSelectedCount();
 renderResults();
-
-loadPantryIngredientsWithCache((items) => {
-  pantryIngredients = items && items.length > 0 ? items : PANTRY_FALLBACK_INGREDIENTS;
-  renderChips();
-  renderResults();
-});
 
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
