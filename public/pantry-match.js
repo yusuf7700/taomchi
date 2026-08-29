@@ -69,11 +69,17 @@ function matchRecipe(recipe, selectedIds) {
   const matchedIds = [...requiredIds].filter(id => selectedIds.has(id));
   const missing = [...requiredIds].filter(id => !selectedIds.has(id));
 
-  // Kamida shuncha mahsulot mos kelishi shart: retsept juda kichik
-  // (faqat 1ta taniqli mahsulot) bo'lsa — o'sha bitta ham mos kelishi kerak.
-  // Kattaroq retseptlarda esa kamida 2ta mahsulot mos kelishi kerak,
-  // aks holda tasodifiy bitta so'z moslashuvi noto'g'ri natija beradi.
-  const minRequired = requiredIds.size === 1 ? 1 : 2;
+  // Kamida shuncha mahsulot mos kelishi shart — retsept qanchalik ko'p
+  // taniqli mahsulotga ega bo'lsa, moslik ham shunchalik ishonchli bo'lishi
+  // kerak (aks holda tasodifiy 1-2ta so'z moslashuvi noto'g'ri natija beradi):
+  //   1-2ta taniqli mahsulot bo'lsa   -> hammasi mos kelishi kerak
+  //   3-4ta taniqli mahsulot bo'lsa   -> kamida 2tasi
+  //   5 va undan ko'p bo'lsa          -> kamida 3tasi
+  let minRequired;
+  if (requiredIds.size <= 2) minRequired = requiredIds.size;
+  else if (requiredIds.size <= 4) minRequired = 2;
+  else minRequired = 3;
+
   if (matchedIds.length < minRequired) return null;
 
   return {
