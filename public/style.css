@@ -1202,6 +1202,17 @@ html.no-splash .splash {
   flex-shrink: 0;
 }
 
+.picker-search-input {
+  width: 100%;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
 .picker-list {
   display: flex;
   flex-direction: column;

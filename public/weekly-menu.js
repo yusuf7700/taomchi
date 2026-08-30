@@ -9,11 +9,17 @@ const DAY_LABEL_KEYS = {
   fri: "day_fri", sat: "day_sat", sun: "day_sun"
 };
 
+// Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi —
+// shirinlik, ichimlik, salat kabi kategoriyalar kunlik ovqat rejasiga mos
+// kelmaydi.
+const WEEKLY_CATEGORIES = ["main", "soup"];
+
 const dayListView = document.getElementById("dayListView");
 const pickerView = document.getElementById("pickerView");
 const weeklyDayList = document.getElementById("weeklyDayList");
 const pickerList = document.getElementById("pickerList");
 const pickerBackBtn = document.getElementById("pickerBackBtn");
+const pickerSearch = document.getElementById("pickerSearch");
 
 let currentMenu = {}; // { mon: recipeId, ... }
 let allRecipes = [];
@@ -27,6 +33,10 @@ function t(key, fallback) {
 
 function findRecipe(id) {
   return allRecipes.find(r => r.id === id);
+}
+
+function getPickableRecipes() {
+  return allRecipes.filter(r => WEEKLY_CATEGORIES.includes(r.category));
 }
 
 // ===== Kunlar ro'yxatini chizish =====
@@ -59,9 +69,13 @@ function renderDays() {
   }).join("");
 }
 
-// Event delegation: kunlar ro'yxati har safar qayta chizilsa ham,
-// bitta doimiy listener orqali bosishlarni ushlaymiz.
-weeklyDayList.addEventListener("pointerdown", (e) => {
+// Event delegation: kunlar ro'yxati har safar qayta chizilsa ham, bitta
+// doimiy listener orqali bosishlarni ushlaymiz. "click" ishlatiladi (
+// "pointerdown" emas) — chunki brauzer "click"ni faqat haqiqiy bosishda
+// ishga tushiradi, pastga/tepaga surish harakatida esa avtomatik bekor
+// qiladi. "pointerdown" esa har qanday teginishda darrov ishga tushib,
+// ro'yxatni pastga surayotganda ham tasodifan tanlab qo'yishi mumkin edi.
+weeklyDayList.addEventListener("click", (e) => {
   const clearBtn = e.target.closest("[data-day-clear]");
   if (clearBtn) {
     setDay(clearBtn.getAttribute("data-day-clear"), null);
@@ -73,18 +87,10 @@ weeklyDayList.addEventListener("pointerdown", (e) => {
   }
 });
 
-// Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi —
-// shirinlik, ichimlik, salat kabi kategoriyalar kunlik ovqat rejasiga mos
-// kelmaydi.
-const WEEKLY_CATEGORIES = ["main", "soup"];
-
-function getPickableRecipes() {
-  return allRecipes.filter(r => WEEKLY_CATEGORIES.includes(r.category));
-}
-
 // ===== Retsept tanlash ko'rinishi (sahifa ichida, oyna emas) =====
 function openPicker(day) {
   activeDay = day;
+  pickerSearch.value = "";
   renderPickerList(getPickableRecipes());
   dayListView.classList.add("screen-hidden");
   pickerView.classList.remove("screen-hidden");
@@ -113,14 +119,25 @@ function renderPickerList(recipes) {
   `).join("");
 }
 
-pickerList.addEventListener("pointerdown", (e) => {
+function applyPickerFilter() {
+  const q = pickerSearch.value.trim().toLowerCase();
+  const base = getPickableRecipes();
+  if (!q) return base;
+  return base.filter(r => (r.title || "").toLowerCase().includes(q));
+}
+
+pickerSearch.addEventListener("input", () => {
+  renderPickerList(applyPickerFilter());
+});
+
+pickerList.addEventListener("click", (e) => {
   const item = e.target.closest("[data-picker-id]");
   if (!item || !activeDay) return;
   setDay(activeDay, item.getAttribute("data-picker-id"));
   closePicker();
 });
 
-pickerBackBtn.addEventListener("pointerdown", closePicker);
+pickerBackBtn.addEventListener("click", closePicker);
 
 // ===== Saqlash (server bilan sinxron) =====
 async function setDay(day, recipeId) {
@@ -147,7 +164,7 @@ loadRecipesWithCache((recipes) => {
   renderDays();
   // Agar retsept tanlash ko'rinishi ochiq turgan bo'lsa (retseptlar hali
   // yuklanmagan payt ochilgan bo'lishi mumkin), ro'yxatni ham yangilaymiz
-  if (activeDay) renderPickerList(getPickableRecipes());
+  if (activeDay) renderPickerList(applyPickerFilter());
 });
 
 if (tg?.initData) {
