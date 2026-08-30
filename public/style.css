@@ -1075,3 +1075,132 @@ html.no-splash .splash {
   text-align: center;
   padding: 24px 12px;
 }
+
+/* ===== Haftalik ovqat rejasi ===== */
+.weekly-day-row {
+  margin-bottom: 12px;
+}
+
+.weekly-day-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.weekly-day-empty {
+  width: 100%;
+  border: 1.5px dashed var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green-dark);
+  background: var(--white);
+}
+
+.weekly-day-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  min-height: 60px;
+}
+
+.weekly-day-recipe-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.weekly-day-clear {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--cream-soft);
+  color: var(--text-muted);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.recipe-thumb--sm {
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+}
+
+/* ===== Retsept tanlash oynasi (umumiy modal) ===== */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+}
+
+.admin-modal-box {
+  background: var(--cream);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 18px 18px 0 0;
+  padding: 18px 16px 24px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.admin-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+
+.admin-input {
+  width: 100%;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--text-dark);
+}
+
+.admin-btn-secondary {
+  width: 100%;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--white);
+}
+
+.picker-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+}
+
+.picker-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}

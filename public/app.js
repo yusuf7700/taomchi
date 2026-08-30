@@ -119,8 +119,12 @@ actionCards.forEach(card => {
       window.location.href = "pantry.html";
       return;
     }
+    if (action === "weekly") {
+      window.location.href = "weekly-menu.html";
+      return;
+    }
     console.log("Amal tanlandi:", action);
-    // TODO: ai.html, weekly-menu.html tayyor bo'lgach shu yerga ulanadi
+    // TODO: ai.html tayyor bo'lgach shu yerga ulanadi
   });
 });
 

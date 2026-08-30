@@ -58,7 +58,17 @@ const TRANSLATIONS = {
     pantry_no_match: "Hozircha mos retsept topilmadi. Yana mahsulot tanlab ko'ring.",
     pantry_full_title: "✅ To'liq mos retseptlar",
     pantry_partial_title: "🔶 Deyarli tayyor",
-    pantry_missing_suffix: "yetishmayapti"
+    pantry_missing_suffix: "yetishmayapti",
+    day_mon: "Dushanba",
+    day_tue: "Seshanba",
+    day_wed: "Chorshanba",
+    day_thu: "Payshanba",
+    day_fri: "Juma",
+    day_sat: "Shanba",
+    day_sun: "Yakshanba",
+    weekly_intro: "Har bir kunga bitta taom belgilab qo'ying — hafta davomida nima pishirishni o'ylab yurmaysiz 👇",
+    weekly_choose: "Retsept tanlash",
+    weekly_no_results: "Hech narsa topilmadi"
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -115,7 +125,17 @@ const TRANSLATIONS = {
     pantry_no_match: "Ҳозирча мос рецепт топилмади. Яна маҳсулот танлаб кўринг.",
     pantry_full_title: "✅ Тўлиқ мос рецептлар",
     pantry_partial_title: "🔶 Деярли тайёр",
-    pantry_missing_suffix: "етишмаяпти"
+    pantry_missing_suffix: "етишмаяпти",
+    day_mon: "Душанба",
+    day_tue: "Сешанба",
+    day_wed: "Чоршанба",
+    day_thu: "Пайшанба",
+    day_fri: "Жума",
+    day_sat: "Шанба",
+    day_sun: "Якшанба",
+    weekly_intro: "Ҳар бир кунга битта таом белгилаб қўйинг — ҳафта давомида нима пиширишни ўйлаб юрмайсиз 👇",
+    weekly_choose: "Рецепт танлаш",
+    weekly_no_results: "Ҳеч нарса топилмади"
   }
 };
 

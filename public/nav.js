@@ -6,7 +6,8 @@ const ROUTES = {
   recipes: "recipes.html",
   favorites: "favorites.html",
   profile: "profile.html",
-  pantry: "pantry.html"
+  pantry: "pantry.html",
+  weekly: "weekly-menu.html"
 };
 
 document.querySelectorAll(".nav-item").forEach(item => {
