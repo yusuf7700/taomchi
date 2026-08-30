@@ -1,4 +1,7 @@
-// ===== Taomchi — Haftalik ovqat rejasi (Tushlik + Kechki ovqat) =====
+// ===== Taomchi — Haftalik ovqat rejasi ("Bitta kunga e'tibor" ko'rinishi) =====
+// Barcha 7 kun bir vaqtda ko'rsatilmaydi (uzun surish talab qilardi).
+// Buning o'rniga: tepada kichik kun tugmalari, pastda faqat TANLANGAN
+// kunning 2ta ovqati (Tushlik, Kechki ovqat) ko'rinadi.
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
@@ -8,20 +11,23 @@ const DAY_LABEL_KEYS = {
   mon: "day_mon", tue: "day_tue", wed: "day_wed", thu: "day_thu",
   fri: "day_fri", sat: "day_sat", sun: "day_sun"
 };
+const DAY_SHORT_KEYS = {
+  mon: "day_short_mon", tue: "day_short_tue", wed: "day_short_wed", thu: "day_short_thu",
+  fri: "day_short_fri", sat: "day_short_sat", sun: "day_short_sun"
+};
 const MEALS = ["lunch", "dinner"];
 const MEAL_LABEL_KEYS = { lunch: "meal_lunch", dinner: "meal_dinner" };
 const MEAL_ICONS = { lunch: "🍽️", dinner: "🌙" };
 
-// Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi —
-// shirinlik, ichimlik, salat kabi kategoriyalar kunlik ovqat rejasiga mos
-// kelmaydi.
+// Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi.
 const WEEKLY_CATEGORIES = ["main", "soup"];
 
 const WEEKLY_CACHE_KEY = "taomchi_weekly_menu_cache";
 
 const dayListView = document.getElementById("dayListView");
 const pickerView = document.getElementById("pickerView");
-const weeklyDayList = document.getElementById("weeklyDayList");
+const dayTabsEl = document.getElementById("weeklyDayTabs");
+const dayPanelEl = document.getElementById("weeklyDayPanel");
 const pickerList = document.getElementById("pickerList");
 const pickerBackBtn = document.getElementById("pickerBackBtn");
 const pickerTitleText = document.getElementById("pickerTitleText");
@@ -31,7 +37,8 @@ const progressText = document.getElementById("weeklyProgressText");
 
 let currentMenu = {}; // { mon: { lunch: recipeId, dinner: recipeId }, ... }
 let allRecipes = [];
-let activeDay = null;
+let selectedDay = null; // hozir "fokusda" turgan kun (tab orqali tanlanadi)
+let activeDay = null;   // retsept tanlash oynasi qaysi kun uchun ochilgan
 let activeMeal = null;
 let lastSet = null; // { day, meal } — animatsiya uchun
 
@@ -56,7 +63,7 @@ function getTodayKey() {
   return DAY_KEYS[shifted.getUTCDay()];
 }
 
-// ===== Mahalliy kesh (darrov ko'rsatish uchun — server sekin javob bersa ham) =====
+// ===== Mahalliy kesh (darrov ko'rsatish uchun) =====
 function getCachedMenu() {
   try {
     const raw = localStorage.getItem(WEEKLY_CACHE_KEY);
@@ -74,6 +81,16 @@ function setCachedMenu(days) {
   }
 }
 
+function isDayFilled(day) {
+  const d = currentMenu[day] || {};
+  return !!(d.lunch && d.dinner);
+}
+
+function isDayPartial(day) {
+  const d = currentMenu[day] || {};
+  return !!(d.lunch || d.dinner) && !isDayFilled(day);
+}
+
 function updateProgress() {
   let filled = 0;
   DAYS.forEach(day => {
@@ -86,7 +103,45 @@ function updateProgress() {
   progressText.textContent = `${filled}/${total}`;
 }
 
-// ===== Kunlar ro'yxatini chizish =====
+// ===== Kun tugmalari (tepadagi tab'lar) =====
+function renderDayTabs() {
+  const todayKey = getTodayKey();
+
+  dayTabsEl.innerHTML = DAYS.map(day => {
+    const isActive = day === selectedDay;
+    const isToday = day === todayKey;
+    let dotClass = "";
+    if (isDayFilled(day)) dotClass = "weekly-tab-dot--full";
+    else if (isDayPartial(day)) dotClass = "weekly-tab-dot--partial";
+
+    return `
+      <button class="weekly-day-tab ${isActive ? "weekly-day-tab--active" : ""}" data-tab-day="${day}">
+        ${isToday ? `<span class="weekly-tab-today-mark"></span>` : ""}
+        <span>${t(DAY_SHORT_KEYS[day])}</span>
+        ${dotClass ? `<span class="weekly-tab-dot ${dotClass}"></span>` : ""}
+      </button>
+    `;
+  }).join("");
+
+  // Tanlangan tab ko'rinadigan qismga suriladi (agar chekkada bo'lsa)
+  const activeTabEl = dayTabsEl.querySelector(".weekly-day-tab--active");
+  if (activeTabEl) activeTabEl.scrollIntoView({ inline: "center", block: "nearest" });
+}
+
+dayTabsEl.addEventListener("click", (e) => {
+  const tab = e.target.closest("[data-tab-day]");
+  if (!tab) return;
+  selectDay(tab.getAttribute("data-tab-day"));
+});
+
+function selectDay(day) {
+  if (day === selectedDay) return;
+  selectedDay = day;
+  renderDayTabs();
+  renderDayPanel({ animate: true });
+}
+
+// ===== Tanlangan kunning paneli (Tushlik + Kechki ovqat) =====
 function renderMealSlot(day, meal) {
   const dayData = currentMenu[day] || {};
   const recipeId = dayData[meal];
@@ -117,31 +172,35 @@ function renderMealSlot(day, meal) {
   `;
 }
 
-function renderDays() {
+function renderDayPanel(opts = {}) {
+  const day = selectedDay;
   const todayKey = getTodayKey();
+  const isToday = day === todayKey;
 
-  weeklyDayList.innerHTML = DAYS.map(day => {
-    const isToday = day === todayKey;
-    return `
-      <div class="weekly-day-row" data-day="${day}">
-        <p class="weekly-day-label">${t(DAY_LABEL_KEYS[day])}${isToday ? `<span class="weekly-today-badge">${t("weekly_today", "Bugun")}</span>` : ""}</p>
-        <div class="weekly-meal-grid ${isToday ? "weekly-meal-grid--today" : ""}">
-          ${renderMealSlot(day, "lunch")}
-          ${renderMealSlot(day, "dinner")}
-        </div>
-      </div>
-    `;
-  }).join("");
+  dayPanelEl.innerHTML = `
+    <p class="weekly-panel-title">${t(DAY_LABEL_KEYS[day])}${isToday ? `<span class="weekly-today-badge">${t("weekly_today", "Bugun")}</span>` : ""}</p>
+    ${renderMealSlot(day, "lunch")}
+    ${renderMealSlot(day, "dinner")}
+  `;
+
+  if (opts.animate) {
+    dayPanelEl.classList.remove("weekly-panel-enter");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => dayPanelEl.classList.add("weekly-panel-enter"));
+    });
+  } else {
+    dayPanelEl.classList.add("weekly-panel-enter");
+  }
 
   lastSet = null; // animatsiya faqat bir marta ko'rsatiladi
   updateProgress();
+  renderDayTabs(); // nuqtachalar (to'ldirilgan/qisman) yangilanishi uchun
 }
 
-// Event delegation: kunlar ro'yxati har safar qayta chizilsa ham, bitta
-// doimiy listener orqali bosishlarni ushlaymiz. "click" ishlatiladi
-// (pointerdown emas) — brauzer buni faqat haqiqiy bosishda ishga tushiradi,
-// ro'yxatni surish harakatida esa avtomatik bekor qiladi.
-weeklyDayList.addEventListener("click", (e) => {
+// Event delegation: panel har safar qayta chizilsa ham, bitta doimiy
+// listener orqali bosishlarni ushlaymiz. "click" ishlatiladi — brauzer
+// buni faqat haqiqiy bosishda ishga tushiradi, surishda esa bekor qiladi.
+dayPanelEl.addEventListener("click", (e) => {
   const clearBtn = e.target.closest("[data-day-clear]");
   if (clearBtn) {
     setMeal(clearBtn.getAttribute("data-day-clear"), clearBtn.getAttribute("data-meal-clear"), null);
@@ -221,7 +280,8 @@ async function setMeal(day, meal, recipeId) {
     [day]: { ...(currentMenu[day] || {}), [meal]: recipeId }
   };
   lastSet = recipeId ? { day, meal } : null;
-  renderDays();
+  if (day === selectedDay) renderDayPanel({ animate: false });
+  else { renderDayTabs(); updateProgress(); }
   setCachedMenu(currentMenu);
 
   if (!tg?.initData) return; // Telegram tashqarisida ochilgan bo'lishi mumkin
@@ -237,17 +297,17 @@ async function setMeal(day, meal, recipeId) {
 }
 
 // ===== Boshlang'ich yuklash =====
-// Avval keshdan (bor bo'lsa) darrov ko'rsatamiz — server javobini kutib
-// o'tirmasdan. Bu sahifa ochilishini sezilarli tezlashtiradi.
+// Avval keshdan (bor bo'lsa) darrov ko'rsatamiz — server javobini kutmasdan.
 const cachedMenu = getCachedMenu();
 if (cachedMenu) currentMenu = cachedMenu;
-renderDays();
+
+selectedDay = getTodayKey(); // har doim BUGUNGI kundan boshlanadi
+renderDayTabs();
+renderDayPanel();
 
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
-  renderDays();
-  // Agar retsept tanlash ko'rinishi ochiq turgan bo'lsa (retseptlar hali
-  // yuklanmagan payt ochilgan bo'lishi mumkin), ro'yxatni ham yangilaymiz
+  renderDayPanel();
   if (activeDay) renderPickerList(applyPickerFilter());
 });
 
@@ -257,7 +317,8 @@ if (tg?.initData) {
     .then(data => {
       currentMenu = data.days || {};
       setCachedMenu(currentMenu);
-      renderDays();
+      renderDayTabs();
+      renderDayPanel();
     })
     .catch(() => {
       // Internet yo'q — keshdan ko'rsatilgan holatda qoladi

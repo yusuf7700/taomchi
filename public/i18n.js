@@ -73,7 +73,14 @@ const TRANSLATIONS = {
     search_placeholder_short: "Qidirish...",
     weekly_today: "Bugun",
     meal_lunch: "Tushlik",
-    meal_dinner: "Kechki ovqat"
+    meal_dinner: "Kechki ovqat",
+    day_short_mon: "Dush",
+    day_short_tue: "Sesh",
+    day_short_wed: "Chor",
+    day_short_thu: "Pay",
+    day_short_fri: "Jum",
+    day_short_sat: "Shan",
+    day_short_sun: "Yak"
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -145,7 +152,14 @@ const TRANSLATIONS = {
     search_placeholder_short: "Қидириш...",
     weekly_today: "Бугун",
     meal_lunch: "Тушлик",
-    meal_dinner: "Кечки овқат"
+    meal_dinner: "Кечки овқат",
+    day_short_mon: "Душ",
+    day_short_tue: "Сеш",
+    day_short_wed: "Чор",
+    day_short_thu: "Пай",
+    day_short_fri: "Жум",
+    day_short_sat: "Шан",
+    day_short_sun: "Якш"
   }
 };
 

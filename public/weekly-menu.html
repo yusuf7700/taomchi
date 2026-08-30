@@ -27,16 +27,18 @@
 
     <!-- Kunlar ro'yxati -->
     <div id="dayListView">
-      <p class="pantry-intro" data-i18n="weekly_intro">Har bir kunga bitta taom belgilab qo'ying — hafta davomida nima pishirishni o'ylab yurmaysiz 👇</p>
-
       <div class="weekly-progress">
         <div class="weekly-progress-track">
           <div class="weekly-progress-fill" id="weeklyProgressFill"></div>
         </div>
-        <p class="weekly-progress-text" id="weeklyProgressText">0/7</p>
+        <p class="weekly-progress-text" id="weeklyProgressText">0/14</p>
       </div>
 
-      <div id="weeklyDayList"></div>
+      <!-- Kunlar orasida tez o'tish (gorizontal suriladigan) -->
+      <div class="weekly-day-tabs" id="weeklyDayTabs"></div>
+
+      <!-- Faqat tanlangan kunning ovqatlari shu yerda ko'rinadi -->
+      <div id="weeklyDayPanel" class="weekly-day-panel"></div>
     </div>
 
     <!-- Retsept tanlash ro'yxati (kun bosilganda shu ko'rinadi) -->
@@ -76,6 +78,6 @@
   <script src="translit.js"></script>
   <script src="recipes-cache.js"></script>
   <script src="nav.js"></script>
-  <script src="weekly-menu.js?v=8"></script>
+  <script src="weekly-menu.js?v=9"></script>
 </body>
 </html>
