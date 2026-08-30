@@ -70,7 +70,8 @@ const TRANSLATIONS = {
     weekly_choose: "Retsept tanlash",
     weekly_no_results: "Hech narsa topilmadi",
     weekly_cancel: "Bekor qilish",
-    search_placeholder_short: "Qidirish..."
+    search_placeholder_short: "Qidirish...",
+    weekly_today: "Bugun"
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -139,7 +140,8 @@ const TRANSLATIONS = {
     weekly_choose: "Рецепт танлаш",
     weekly_no_results: "Ҳеч нарса топилмади",
     weekly_cancel: "Бекор қилиш",
-    search_placeholder_short: "Қидириш..."
+    search_placeholder_short: "Қидириш...",
+    weekly_today: "Бугун"
   }
 };
 

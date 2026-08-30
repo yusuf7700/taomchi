@@ -1233,3 +1233,79 @@ html.no-splash .splash {
   font-weight: 600;
   color: var(--text-dark);
 }
+
+/* ===== Haftalik reja — progress, bugungi kun, animatsiyalar ===== */
+.weekly-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.weekly-progress-track {
+  flex: 1;
+  height: 8px;
+  background: var(--cream-soft);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.weekly-progress-fill {
+  height: 100%;
+  background: var(--green-dark);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+
+.weekly-progress-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-dark);
+  min-width: 32px;
+  text-align: right;
+}
+
+.weekly-today-badge {
+  display: inline-block;
+  margin-left: 8px;
+  background: var(--orange);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  vertical-align: middle;
+}
+
+.weekly-day-card--today {
+  border: 1.5px solid var(--orange);
+}
+
+.weekly-day-empty--today {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+
+/* Retsept yangi tanlanganda kichik "pop" animatsiyasi */
+@keyframes weeklyPop {
+  0%   { transform: scale(0.96); background: var(--cream-soft); }
+  50%  { transform: scale(1.02); }
+  100% { transform: scale(1); background: var(--white); }
+}
+
+.weekly-day-card--pop {
+  animation: weeklyPop 0.35s ease;
+}
+
+/* Kunlar ro'yxati <-> Retsept tanlash o'rtasidagi silliq o'tish */
+#pickerView {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+#pickerView.view-enter {
+  opacity: 1;
+  transform: translateY(0);
+}

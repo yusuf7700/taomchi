@@ -20,10 +20,13 @@ const weeklyDayList = document.getElementById("weeklyDayList");
 const pickerList = document.getElementById("pickerList");
 const pickerBackBtn = document.getElementById("pickerBackBtn");
 const pickerSearch = document.getElementById("pickerSearch");
+const progressFill = document.getElementById("weeklyProgressFill");
+const progressText = document.getElementById("weeklyProgressText");
 
 let currentMenu = {}; // { mon: recipeId, ... }
 let allRecipes = [];
 let activeDay = null; // hozir tanlanayotgan kun
+let lastSetDay = null; // animatsiya uchun — hozirgina o'rnatilgan kun
 
 function t(key, fallback) {
   const lang = getCurrentLang();
@@ -39,17 +42,34 @@ function getPickableRecipes() {
   return allRecipes.filter(r => WEEKLY_CATEGORIES.includes(r.category));
 }
 
+// O'zbekiston vaqti bo'yicha bugungi kun kalitini hisoblaydi (UTC+5)
+function getTodayKey() {
+  const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  const shifted = new Date(Date.now() + 5 * 60 * 60 * 1000);
+  return DAY_KEYS[shifted.getUTCDay()];
+}
+
+function updateProgress() {
+  const filled = DAYS.filter(day => currentMenu[day]).length;
+  progressFill.style.width = `${Math.round((filled / DAYS.length) * 100)}%`;
+  progressText.textContent = `${filled}/${DAYS.length}`;
+}
+
 // ===== Kunlar ro'yxatini chizish =====
 function renderDays() {
+  const todayKey = getTodayKey();
+
   weeklyDayList.innerHTML = DAYS.map(day => {
     const recipeId = currentMenu[day];
     const recipe = recipeId ? findRecipe(recipeId) : null;
+    const isToday = day === todayKey;
+    const justSet = day === lastSetDay;
 
     if (recipe) {
       return `
         <div class="weekly-day-row" data-day="${day}">
-          <p class="weekly-day-label">${t(DAY_LABEL_KEYS[day])}</p>
-          <div class="weekly-day-card" data-day-select="${day}">
+          <p class="weekly-day-label">${t(DAY_LABEL_KEYS[day])}${isToday ? `<span class="weekly-today-badge">${t("weekly_today", "Bugun")}</span>` : ""}</p>
+          <div class="weekly-day-card ${isToday ? "weekly-day-card--today" : ""} ${justSet ? "weekly-day-card--pop" : ""}" data-day-select="${day}">
             <div class="recipe-thumb recipe-thumb--sm">
               ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.title}">` : "🍽️"}
             </div>
@@ -62,11 +82,14 @@ function renderDays() {
 
     return `
       <div class="weekly-day-row" data-day="${day}">
-        <p class="weekly-day-label">${t(DAY_LABEL_KEYS[day])}</p>
-        <button class="weekly-day-empty" data-day-select="${day}">+ ${t("weekly_choose", "Retsept tanlash")}</button>
+        <p class="weekly-day-label">${t(DAY_LABEL_KEYS[day])}${isToday ? `<span class="weekly-today-badge">${t("weekly_today", "Bugun")}</span>` : ""}</p>
+        <button class="weekly-day-empty ${isToday ? "weekly-day-empty--today" : ""}" data-day-select="${day}">+ ${t("weekly_choose", "Retsept tanlash")}</button>
       </div>
     `;
   }).join("");
+
+  lastSetDay = null; // animatsiya faqat bir marta ko'rsatiladi
+  updateProgress();
 }
 
 // Event delegation: kunlar ro'yxati har safar qayta chizilsa ham, bitta
@@ -92,13 +115,22 @@ function openPicker(day) {
   activeDay = day;
   pickerSearch.value = "";
   renderPickerList(getPickableRecipes());
+
   dayListView.classList.add("screen-hidden");
   pickerView.classList.remove("screen-hidden");
+  pickerView.classList.remove("view-enter");
+  // requestAnimationFrame orqali brauzerga "screen-hidden olib tashlandi"
+  // holatini chizib ulgurishga imkon beramiz, shundan keyingina animatsiya
+  // klassini qo'shamiz — aks holda o'tish sezilmay, sakrab qoladi.
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => pickerView.classList.add("view-enter"));
+  });
   window.scrollTo(0, 0);
 }
 
 function closePicker() {
   pickerView.classList.add("screen-hidden");
+  pickerView.classList.remove("view-enter");
   dayListView.classList.remove("screen-hidden");
   activeDay = null;
 }
@@ -142,6 +174,7 @@ pickerBackBtn.addEventListener("click", closePicker);
 // ===== Saqlash (server bilan sinxron) =====
 async function setDay(day, recipeId) {
   currentMenu = { ...currentMenu, [day]: recipeId };
+  lastSetDay = recipeId ? day : null; // faqat yangi tanlanganda animatsiya ko'rsatiladi
   renderDays();
 
   if (!tg?.initData) return; // Telegram tashqarisida ochilgan bo'lishi mumkin
