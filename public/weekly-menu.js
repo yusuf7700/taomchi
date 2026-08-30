@@ -75,7 +75,9 @@ function openPicker(day) {
   pickerSearch.value = "";
   renderPickerList(allRecipes);
   pickerOverlay.classList.remove("screen-hidden");
-  pickerSearch.focus();
+  // Avtomatik fokus (va shu bilan klaviatura ochilishi) qasddan qo'yilmadi —
+  // mobil brauzerlarda bu birinchi bosishni "klaviaturani yopish" sifatida
+  // yutib yuborishi mumkin, natijada retsept tanlash ishlamagandek tuyuladi.
 }
 
 function closePicker() {
@@ -97,14 +99,20 @@ function renderPickerList(recipes) {
       <p class="picker-item-title">${displayTitle(r)}</p>
     </div>
   `).join("");
-
-  pickerList.querySelectorAll("[data-picker-id]").forEach(el => {
-    el.addEventListener("click", () => {
-      setDay(activeDay, el.getAttribute("data-picker-id"));
-      closePicker();
-    });
-  });
 }
+
+// Event delegation: pickerList har safar renderPickerList orqali qayta
+// chizilsa ham, bitta doimiy listener orqali barcha element bosilishini
+// ushlaymiz. "pointerdown" ishlatilgan — "click" o'rniga, chunki mobil
+// brauzerlarda klaviatura ochiq bo'lganda birinchi bosish ba'zan faqat
+// klaviaturani yopish sifatida "yutilib" ketadi; pointerdown esa darrov,
+// bunday keyingi holatlarni kutmasdan ishga tushadi.
+pickerList.addEventListener("pointerdown", (e) => {
+  const item = e.target.closest("[data-picker-id]");
+  if (!item || !activeDay) return;
+  setDay(activeDay, item.getAttribute("data-picker-id"));
+  closePicker();
+});
 
 function applyPickerFilter() {
   const q = pickerSearch.value.trim().toLowerCase();
@@ -116,8 +124,8 @@ pickerSearch.addEventListener("input", () => {
   renderPickerList(applyPickerFilter());
 });
 
-pickerCancelBtn.addEventListener("click", closePicker);
-pickerOverlay.addEventListener("click", (e) => {
+pickerCancelBtn.addEventListener("pointerdown", closePicker);
+pickerOverlay.addEventListener("pointerdown", (e) => {
   if (e.target === pickerOverlay) closePicker();
 });
 
