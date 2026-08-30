@@ -24,20 +24,23 @@
 
   <!-- ===== MAIN ===== -->
   <main class="main">
-    <p class="pantry-intro" data-i18n="weekly_intro">Har bir kunga bitta taom belgilab qo'ying — hafta davomida nima pishirishni o'ylab yurmaysiz 👇</p>
 
-    <div id="weeklyDayList"></div>
-  </main>
-
-  <!-- ===== Retsept tanlash oynasi ===== -->
-  <div id="recipePickerOverlay" class="admin-modal-overlay screen-hidden">
-    <div class="admin-modal-box">
-      <p class="admin-card-title" id="pickerTitle" data-i18n="weekly_choose">Retsept tanlash</p>
-      <input type="text" id="pickerSearch" class="admin-input" placeholder="Qidirish..." data-i18n-placeholder="search_placeholder_short" style="margin-bottom:10px;">
-      <div id="pickerList" class="picker-list"></div>
-      <button id="pickerCancelBtn" class="admin-btn-secondary" data-i18n="weekly_cancel" style="margin-top:10px;">Bekor qilish</button>
+    <!-- Kunlar ro'yxati -->
+    <div id="dayListView">
+      <p class="pantry-intro" data-i18n="weekly_intro">Har bir kunga bitta taom belgilab qo'ying — hafta davomida nima pishirishni o'ylab yurmaysiz 👇</p>
+      <div id="weeklyDayList"></div>
     </div>
-  </div>
+
+    <!-- Retsept tanlash ro'yxati (kun bosilganda shu ko'rinadi) -->
+    <div id="pickerView" class="screen-hidden">
+      <button id="pickerBackBtn" class="picker-back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        <span data-i18n="weekly_choose">Retsept tanlash</span>
+      </button>
+      <div id="pickerList"></div>
+    </div>
+
+  </main>
 
   <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottom-nav">
@@ -64,6 +67,6 @@
   <script src="translit.js"></script>
   <script src="recipes-cache.js"></script>
   <script src="nav.js"></script>
-  <script src="weekly-menu.js?v=3"></script>
+  <script src="weekly-menu.js?v=4"></script>
 </body>
 </html>

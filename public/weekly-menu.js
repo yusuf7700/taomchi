@@ -9,11 +9,11 @@ const DAY_LABEL_KEYS = {
   fri: "day_fri", sat: "day_sat", sun: "day_sun"
 };
 
-const dayListEl = document.getElementById("weeklyDayList");
-const pickerOverlay = document.getElementById("recipePickerOverlay");
+const dayListView = document.getElementById("dayListView");
+const pickerView = document.getElementById("pickerView");
+const weeklyDayList = document.getElementById("weeklyDayList");
 const pickerList = document.getElementById("pickerList");
-const pickerSearch = document.getElementById("pickerSearch");
-const pickerCancelBtn = document.getElementById("pickerCancelBtn");
+const pickerBackBtn = document.getElementById("pickerBackBtn");
 
 let currentMenu = {}; // { mon: recipeId, ... }
 let allRecipes = [];
@@ -31,7 +31,7 @@ function findRecipe(id) {
 
 // ===== Kunlar ro'yxatini chizish =====
 function renderDays() {
-  dayListEl.innerHTML = DAYS.map(day => {
+  weeklyDayList.innerHTML = DAYS.map(day => {
     const recipeId = currentMenu[day];
     const recipe = recipeId ? findRecipe(recipeId) : null;
 
@@ -57,31 +57,34 @@ function renderDays() {
       </div>
     `;
   }).join("");
-
-  dayListEl.querySelectorAll("[data-day-select]").forEach(el => {
-    el.addEventListener("click", () => openPicker(el.getAttribute("data-day-select")));
-  });
-  dayListEl.querySelectorAll("[data-day-clear]").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      setDay(btn.getAttribute("data-day-clear"), null);
-    });
-  });
 }
 
-// ===== Retsept tanlash oynasi =====
+// Event delegation: kunlar ro'yxati har safar qayta chizilsa ham,
+// bitta doimiy listener orqali bosishlarni ushlaymiz.
+weeklyDayList.addEventListener("pointerdown", (e) => {
+  const clearBtn = e.target.closest("[data-day-clear]");
+  if (clearBtn) {
+    setDay(clearBtn.getAttribute("data-day-clear"), null);
+    return;
+  }
+  const selectEl = e.target.closest("[data-day-select]");
+  if (selectEl) {
+    openPicker(selectEl.getAttribute("data-day-select"));
+  }
+});
+
+// ===== Retsept tanlash ko'rinishi (sahifa ichida, oyna emas) =====
 function openPicker(day) {
   activeDay = day;
-  pickerSearch.value = "";
   renderPickerList(allRecipes);
-  pickerOverlay.classList.remove("screen-hidden");
-  // Avtomatik fokus (va shu bilan klaviatura ochilishi) qasddan qo'yilmadi —
-  // mobil brauzerlarda bu birinchi bosishni "klaviaturani yopish" sifatida
-  // yutib yuborishi mumkin, natijada retsept tanlash ishlamagandek tuyuladi.
+  dayListView.classList.add("screen-hidden");
+  pickerView.classList.remove("screen-hidden");
+  window.scrollTo(0, 0);
 }
 
 function closePicker() {
-  pickerOverlay.classList.add("screen-hidden");
+  pickerView.classList.add("screen-hidden");
+  dayListView.classList.remove("screen-hidden");
   activeDay = null;
 }
 
@@ -101,12 +104,6 @@ function renderPickerList(recipes) {
   `).join("");
 }
 
-// Event delegation: pickerList har safar renderPickerList orqali qayta
-// chizilsa ham, bitta doimiy listener orqali barcha element bosilishini
-// ushlaymiz. "pointerdown" ishlatilgan — "click" o'rniga, chunki mobil
-// brauzerlarda klaviatura ochiq bo'lganda birinchi bosish ba'zan faqat
-// klaviaturani yopish sifatida "yutilib" ketadi; pointerdown esa darrov,
-// bunday keyingi holatlarni kutmasdan ishga tushadi.
 pickerList.addEventListener("pointerdown", (e) => {
   const item = e.target.closest("[data-picker-id]");
   if (!item || !activeDay) return;
@@ -114,20 +111,7 @@ pickerList.addEventListener("pointerdown", (e) => {
   closePicker();
 });
 
-function applyPickerFilter() {
-  const q = pickerSearch.value.trim().toLowerCase();
-  if (!q) return allRecipes;
-  return allRecipes.filter(r => (r.title || "").toLowerCase().includes(q));
-}
-
-pickerSearch.addEventListener("input", () => {
-  renderPickerList(applyPickerFilter());
-});
-
-pickerCancelBtn.addEventListener("pointerdown", closePicker);
-pickerOverlay.addEventListener("pointerdown", (e) => {
-  if (e.target === pickerOverlay) closePicker();
-});
+pickerBackBtn.addEventListener("pointerdown", closePicker);
 
 // ===== Saqlash (server bilan sinxron) =====
 async function setDay(day, recipeId) {
@@ -152,9 +136,9 @@ renderDays(); // recipe'lar hali kelmagan bo'lsa ham bo'sh joylarni ko'rsatib tu
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
   renderDays();
-  // Agar retsept tanlash oynasi ochiq turgan bo'lsa (retseptlar hali
+  // Agar retsept tanlash ko'rinishi ochiq turgan bo'lsa (retseptlar hali
   // yuklanmagan payt ochilgan bo'lishi mumkin), ro'yxatni ham yangilaymiz
-  if (activeDay) renderPickerList(applyPickerFilter());
+  if (activeDay) renderPickerList(allRecipes);
 });
 
 if (tg?.initData) {

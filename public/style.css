@@ -1182,9 +1182,23 @@ html.no-splash .splash {
   background: var(--white);
 }
 
+.picker-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-dark);
+  padding: 4px 0 16px;
+}
+
+.picker-back-btn svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
 .picker-list {
-  max-height: 50vh;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
