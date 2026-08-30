@@ -68,7 +68,9 @@ const TRANSLATIONS = {
     day_sun: "Yakshanba",
     weekly_intro: "Har bir kunga bitta taom belgilab qo'ying — hafta davomida nima pishirishni o'ylab yurmaysiz 👇",
     weekly_choose: "Retsept tanlash",
-    weekly_no_results: "Hech narsa topilmadi"
+    weekly_no_results: "Hech narsa topilmadi",
+    weekly_cancel: "Bekor qilish",
+    search_placeholder_short: "Qidirish..."
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -135,7 +137,9 @@ const TRANSLATIONS = {
     day_sun: "Якшанба",
     weekly_intro: "Ҳар бир кунга битта таом белгилаб қўйинг — ҳафта давомида нима пиширишни ўйлаб юрмайсиз 👇",
     weekly_choose: "Рецепт танлаш",
-    weekly_no_results: "Ҳеч нарса топилмади"
+    weekly_no_results: "Ҳеч нарса топилмади",
+    weekly_cancel: "Бекор қилиш",
+    search_placeholder_short: "Қидириш..."
   }
 };
 

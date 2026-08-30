@@ -106,14 +106,14 @@ function renderPickerList(recipes) {
   });
 }
 
-pickerSearch.addEventListener("input", () => {
+function applyPickerFilter() {
   const q = pickerSearch.value.trim().toLowerCase();
-  if (!q) {
-    renderPickerList(allRecipes);
-    return;
-  }
-  const filtered = allRecipes.filter(r => (r.title || "").toLowerCase().includes(q));
-  renderPickerList(filtered);
+  if (!q) return allRecipes;
+  return allRecipes.filter(r => (r.title || "").toLowerCase().includes(q));
+}
+
+pickerSearch.addEventListener("input", () => {
+  renderPickerList(applyPickerFilter());
 });
 
 pickerCancelBtn.addEventListener("click", closePicker);
@@ -144,6 +144,9 @@ renderDays(); // recipe'lar hali kelmagan bo'lsa ham bo'sh joylarni ko'rsatib tu
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
   renderDays();
+  // Agar retsept tanlash oynasi ochiq turgan bo'lsa (retseptlar hali
+  // yuklanmagan payt ochilgan bo'lishi mumkin), ro'yxatni ham yangilaymiz
+  if (activeDay) renderPickerList(applyPickerFilter());
 });
 
 if (tg?.initData) {
