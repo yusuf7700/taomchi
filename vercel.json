@@ -15,8 +15,12 @@
   },
   "crons": [
     {
-      "path": "/api/cron-daily-reminder",
-      "schedule": "0 3 * * *"
+      "path": "/api/cron-daily-reminder?meal=lunch",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron-daily-reminder?meal=dinner",
+      "schedule": "30 11 * * *"
     }
   ]
 }

@@ -1082,23 +1082,48 @@ html.no-splash .splash {
 
 /* ===== Haftalik ovqat rejasi ===== */
 .weekly-day-row {
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .weekly-day-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.weekly-meal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+}
+
+.weekly-meal-grid--today {
+  background: var(--cream-soft);
+  border: 1.5px solid var(--orange);
+}
+
+.weekly-meal-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.weekly-meal-label {
+  font-size: 12px;
+  font-weight: 600;
   color: var(--text-muted);
-  margin-bottom: 6px;
 }
 
 .weekly-day-empty {
   width: 100%;
   border: 1.5px dashed var(--border-soft);
   border-radius: var(--radius-sm);
-  padding: 16px;
+  padding: 14px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--green-dark);
   background: var(--white);
@@ -1111,7 +1136,7 @@ html.no-splash .splash {
   background: var(--white);
   border-radius: var(--radius-sm);
   padding: 8px;
-  min-height: 60px;
+  min-height: 56px;
 }
 
 .weekly-day-recipe-title {

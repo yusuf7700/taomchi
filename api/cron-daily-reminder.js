@@ -1,5 +1,7 @@
 // ===== Taomchi — Kunlik ovqat eslatmasi (Vercel Cron orqali avtomatik) =====
-// Har kuni ertalab (vercel.json'dagi jadval bo'yicha) ishga tushadi.
+// Har kuni belgilangan vaqtda (vercel.json'dagi jadval bo'yicha) ishga
+// tushadi — bittasi tushlik uchun ertalab, bittasi kechki ovqat uchun
+// tushdan keyin (?meal=lunch yoki ?meal=dinner query orqali farqlanadi).
 // Har bir foydalanuvchining "weeklyMenus/{id}" hujjatidan bugungi kunga
 // belgilangan retseptni tekshiradi va — agar bor bo'lsa hamda
 // bildirishnoma yoqilgan bo'lsa — Telegram orqali eslatma yuboradi.
@@ -14,11 +16,13 @@ const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]; // getUTCDay
 
 const TEXT = {
   uz: {
-    title: (name) => `🍽 Bugun rejangizda: ${name}\nYoqimli ishtaha!`,
+    lunch: (name) => `🍽 Bugungi tushlik: ${name}\nYoqimli ishtaha!`,
+    dinner: (name) => `🌙 Bugungi kechki ovqat: ${name}\nYoqimli ishtaha!`,
     viewBtn: "📖 Retseptni ko'rish"
   },
   uzk: {
-    title: (name) => `🍽 Бугун режангизда: ${name}\nЁқимли иштаҳа!`,
+    lunch: (name) => `🍽 Бугунги тушлик: ${name}\nЁқимли иштаҳа!`,
+    dinner: (name) => `🌙 Бугунги кечки овқат: ${name}\nЁқимли иштаҳа!`,
     viewBtn: "📖 Рецептни кўриш"
   }
 };
@@ -35,6 +39,8 @@ module.exports = async (req, res) => {
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: "Ruxsat yo'q" });
   }
+
+  const meal = req.query.meal === "dinner" ? "dinner" : "lunch";
 
   let db;
   try {
@@ -60,7 +66,7 @@ module.exports = async (req, res) => {
 
     for (const menuDoc of menusSnap.docs) {
       const userId = menuDoc.id;
-      const recipeId = (menuDoc.data().days || {})[todayKey];
+      const recipeId = ((menuDoc.data().days || {})[todayKey] || {})[meal];
       if (!recipeId) { skipped++; continue; }
 
       const user = usersById.get(userId);
@@ -77,11 +83,11 @@ module.exports = async (req, res) => {
       try {
         if (recipe.imageUrl) {
           await bot.telegram.sendPhoto(userId, recipe.imageUrl, {
-            caption: tt.title(recipe.title || ""),
+            caption: tt[meal](recipe.title || ""),
             reply_markup: { inline_keyboard: [[{ text: tt.viewBtn, web_app: { url } }]] }
           });
         } else {
-          await bot.telegram.sendMessage(userId, tt.title(recipe.title || ""), {
+          await bot.telegram.sendMessage(userId, tt[meal](recipe.title || ""), {
             reply_markup: { inline_keyboard: [[{ text: tt.viewBtn, web_app: { url } }]] }
           });
         }
@@ -92,7 +98,7 @@ module.exports = async (req, res) => {
       await new Promise(resolve => setTimeout(resolve, 40)); // Telegram limitidan chiqmaslik uchun
     }
 
-    return res.status(200).json({ day: todayKey, sent, skipped, failed });
+    return res.status(200).json({ meal, day: todayKey, sent, skipped, failed });
   } catch (err) {
     console.error("Kunlik eslatma xatosi:", err);
     return res.status(500).json({ error: err.message });

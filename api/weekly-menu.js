@@ -1,7 +1,10 @@
 // ===== Taomchi — Haftalik ovqat rejasi =====
-// GET  /api/weekly-menu?initData=...                          -> joriy hafta rejasi
-// POST /api/weekly-menu  body: { initData, day, recipeId }    -> bitta kunni saqlash/tozalash
-//   (recipeId: null yuborilsa — o'sha kun tozalanadi)
+// GET  /api/weekly-menu?initData=...                                    -> joriy hafta rejasi
+// POST /api/weekly-menu  body: { initData, day, meal, recipeId }        -> bitta ovqatni saqlash/tozalash
+//   meal: "lunch" | "dinner"; recipeId: null yuborilsa — o'sha ovqat tozalanadi
+//
+// Ma'lumot tuzilishi: days.{day}.{meal} = recipeId
+// (masalan days.mon.lunch = "abc123")
 //
 // Reja Telegram akkauntga bog'liq (Firestore "weeklyMenus/{telegram_id}"),
 // shuning uchun foydalanuvchi istalgan qurilmadan o'zining rejasini ko'radi.
@@ -12,6 +15,7 @@ const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
 
 const VALID_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+const VALID_MEALS = ["lunch", "dinner"];
 
 module.exports = async (req, res) => {
   let db;
@@ -34,18 +38,21 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
-      const { initData, day, recipeId } = req.body || {};
+      const { initData, day, meal, recipeId } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
 
       if (!VALID_DAYS.includes(day)) {
         return res.status(400).json({ error: "Noto'g'ri kun: " + day });
       }
+      if (!VALID_MEALS.includes(meal)) {
+        return res.status(400).json({ error: "Noto'g'ri ovqat turi: " + meal });
+      }
 
       const ref = db.collection("weeklyMenus").doc(String(tgUser.id));
       await ref.set(
         {
-          days: { [day]: recipeId || null },
+          days: { [day]: { [meal]: recipeId || null } },
           updatedAt: Date.now()
         },
         { merge: true }
