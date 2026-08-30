@@ -73,10 +73,19 @@ weeklyDayList.addEventListener("pointerdown", (e) => {
   }
 });
 
+// Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi —
+// shirinlik, ichimlik, salat kabi kategoriyalar kunlik ovqat rejasiga mos
+// kelmaydi.
+const WEEKLY_CATEGORIES = ["main", "soup"];
+
+function getPickableRecipes() {
+  return allRecipes.filter(r => WEEKLY_CATEGORIES.includes(r.category));
+}
+
 // ===== Retsept tanlash ko'rinishi (sahifa ichida, oyna emas) =====
 function openPicker(day) {
   activeDay = day;
-  renderPickerList(allRecipes);
+  renderPickerList(getPickableRecipes());
   dayListView.classList.add("screen-hidden");
   pickerView.classList.remove("screen-hidden");
   window.scrollTo(0, 0);
@@ -138,7 +147,7 @@ loadRecipesWithCache((recipes) => {
   renderDays();
   // Agar retsept tanlash ko'rinishi ochiq turgan bo'lsa (retseptlar hali
   // yuklanmagan payt ochilgan bo'lishi mumkin), ro'yxatni ham yangilaymiz
-  if (activeDay) renderPickerList(allRecipes);
+  if (activeDay) renderPickerList(getPickableRecipes());
 });
 
 if (tg?.initData) {
