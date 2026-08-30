@@ -22,6 +22,10 @@
   padding: 0;
 }
 
+.screen-hidden {
+  display: none !important;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--cream);
