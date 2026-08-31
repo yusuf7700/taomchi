@@ -80,7 +80,16 @@ const TRANSLATIONS = {
     day_short_thu: "Pay",
     day_short_fri: "Jum",
     day_short_sat: "Shan",
-    day_short_sun: "Yak"
+    day_short_sun: "Yak",
+    ai_intro: "Uyingizda bor mahsulotlar yoki ovqat pishirish haqida savolingiz bo'lsa, so'rang 👇",
+    ai_placeholder: "Masalan: Tuxum va pomidor bilan nima pishirsam bo'ladi?",
+    ai_ask_btn: "So'rash",
+    ai_thinking: "O'ylanmoqda...",
+    ai_limit_reached: "Bugungi bepul so'rov limiti tugadi. Ertaga qayta urinib ko'ring yoki Premium bilan cheksiz foydalaning.",
+    ai_limit_reached_short: "Bugungi limit tugadi",
+    ai_telegram_only: "Bu funksiya faqat Telegram ilovasi ichida ishlaydi.",
+    ai_premium_unlimited: "Premium: cheksiz so'rov",
+    ai_free_remaining: "Bugun yana so'rash mumkin: "
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -159,7 +168,16 @@ const TRANSLATIONS = {
     day_short_thu: "Пай",
     day_short_fri: "Жум",
     day_short_sat: "Шан",
-    day_short_sun: "Якш"
+    day_short_sun: "Якш",
+    ai_intro: "Уйингизда бор маҳсулотлар ёки овқат пишириш ҳақида саволингиз бўлса, сўранг 👇",
+    ai_placeholder: "Масалан: Тухум ва помидор билан нима пиширсам бўлади?",
+    ai_ask_btn: "Сўраш",
+    ai_thinking: "Ўйланмоқда...",
+    ai_limit_reached: "Бугунги бепул сўров лимити тугади. Эртага қайта уриниб кўринг ёки Premium билан чексиз фойдаланинг.",
+    ai_limit_reached_short: "Бугунги лимит тугади",
+    ai_telegram_only: "Бу функция фақат Telegram иловаси ичида ишлайди.",
+    ai_premium_unlimited: "Premium: чексиз сўров",
+    ai_free_remaining: "Бугун яна сўраш мумкин: "
   }
 };
 

@@ -2,6 +2,7 @@
 
 const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
+const { checkAndConsumeAiQuota, askFoodAssistant } = require("../lib/aiAssistant");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -10,10 +11,15 @@ const BOT_TEXT = {
   uz: {
     welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Taomchini ochish",
-    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
+    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🍽️ Tasodifiy taom",
     pantryBtnLabel: "🧺 Uyda nima bor?",
     weeklyBtnLabel: "🗓 Haftalik menyu",
+    aiBtnLabel: "🤖 AI'dan so'rash",
+    aiPrompt: "Ovqat yoki oshxona haqidagi savolingizni yozib yuboring 👇\n(masalan: \"Tuxum va pomidor bilan nima pishirsam bo'ladi?\")",
+    aiThinking: "🤔 O'ylanmoqda...",
+    aiLimitReached: "⏳ Bugungi bepul so'rov limiti tugadi. Ertaga qayta urinib ko'ring yoki Premium bilan cheksiz foydalaning.",
+    aiError: "Kechirasiz, AI javob berishda xatolik yuz berdi. Birozdan keyin qayta urinib ko'ring.",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -28,10 +34,15 @@ const BOT_TEXT = {
   uzk: {
     welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Taomchini очиш",
-    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
+    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🍽️ Тасодифий таом",
     pantryBtnLabel: "🧺 Уйда нима бор?",
     weeklyBtnLabel: "🗓 Ҳафталик менюси",
+    aiBtnLabel: "🤖 AI'дан сўраш",
+    aiPrompt: "Овқат ёки ошхона ҳақидаги саволингизни ёзиб юборинг 👇\n(масалан: \"Тухум ва помидор билан нима пиширсам бўлади?\")",
+    aiThinking: "🤔 Ўйланмоқда...",
+    aiLimitReached: "⏳ Бугунги бепул сўров лимити тугади. Эртага қайта уриниб кўринг ёки Premium билан чексиз фойдаланинг.",
+    aiError: "Кечирасиз, AI жавоб беришда хатолик юз берди. Бироздан кейин қайта уриниб кўринг.",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -44,6 +55,11 @@ const BOT_TEXT = {
     difficulty: { oson: "🟢 Осон", orta: "🟡 Ўрта", qiyin: "🔴 Қийин" }
   }
 };
+
+// Foydalanuvchi "AI'dan so'rash" tugmasini bosgach, keyingi yuboradigan
+// matnini savol sifatida kutish uchun (Telegraf'da sessiya yo'q, shuning
+// uchun langCache kabi oddiy Map orqali eslab turamiz).
+const awaitingAiQuestion = new Set();
 
 // Faoliyatdagi (warm) funksiya uchun tezkor xotira — har bir xabarda
 // Firestore'ga qayta-qayta murojaat qilmaslik uchun (tezlik uchun muhim)
@@ -106,7 +122,8 @@ async function sendWelcome(ctx, lang) {
       keyboard: [
         [t.randomBtnLabel],
         [{ text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }],
-        [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }]
+        [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }],
+        [t.aiBtnLabel]
       ],
       resize_keyboard: true
     }
@@ -228,6 +245,7 @@ async function sendRandomRecipe(ctx, t) {
 }
 
 bot.hears(/tasodifiy taom|тасодифий таом/i, async (ctx) => {
+  awaitingAiQuestion.delete(String(ctx.from.id)); // AI kutayotgan holat bo'lsa, tozalanadi
   const lang = await getUserLang(ctx);
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
   try {
@@ -235,6 +253,46 @@ bot.hears(/tasodifiy taom|тасодифий таом/i, async (ctx) => {
   } catch (err) {
     console.error("Tasodifiy taom xatosi:", err);
     await ctx.reply(t.errorMsg);
+  }
+});
+
+// ===== AI'dan so'rash =====
+bot.hears(/AI'dan so'rash|AI'дан сўраш/i, async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  awaitingAiQuestion.add(String(ctx.from.id));
+  await ctx.reply(t.aiPrompt);
+});
+
+// Yuqoridagi tugma bosilgach, keyingi oddiy matnli xabar savol sifatida
+// qabul qilinadi. Bu handler eng oxirida turishi shart — aks holda boshqa
+// buyruq/tugmalar (masalan "Tasodifiy taom") ham shu yerga tushib qolishi
+// mumkin edi.
+bot.on("text", async (ctx, next) => {
+  const userId = String(ctx.from.id);
+  if (!awaitingAiQuestion.has(userId)) return next();
+  awaitingAiQuestion.delete(userId);
+
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  const question = ctx.message.text.trim();
+
+  const thinkingMsg = await ctx.reply(t.aiThinking);
+
+  try {
+    const db = getDb();
+    const quota = await checkAndConsumeAiQuota(db, userId);
+
+    if (!quota.allowed) {
+      await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiLimitReached);
+      return;
+    }
+
+    const answer = await askFoodAssistant(question, lang);
+    await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, answer);
+  } catch (err) {
+    console.error("AI javob xatosi:", err);
+    await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiError).catch(() => {});
   }
 });
 

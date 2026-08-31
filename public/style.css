@@ -1423,3 +1423,59 @@ html.no-splash .splash {
   align-items: center;
   gap: 10px;
 }
+
+/* ===== AI yordamchi sahifasi ===== */
+.ai-quota-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: -8px 0 14px;
+}
+
+.ai-question-input {
+  width: 100%;
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  background: var(--white);
+  color: var(--text-dark);
+  resize: vertical;
+  margin-bottom: 12px;
+  font-family: inherit;
+}
+
+.ai-ask-btn {
+  width: 100%;
+  background: var(--green-dark);
+  color: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ai-ask-btn:disabled {
+  opacity: 0.6;
+}
+
+.ai-answer-card {
+  margin-top: 18px;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-dark);
+}
+
+.ai-limit-text {
+  margin-top: 18px;
+  background: var(--cream-soft);
+  border: 1.5px solid var(--orange);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-size: 14px;
+  color: var(--text-dark);
+  text-align: center;
+}

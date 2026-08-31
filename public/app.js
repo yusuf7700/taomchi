@@ -123,8 +123,11 @@ actionCards.forEach(card => {
       window.location.href = "weekly-menu.html";
       return;
     }
+    if (action === "ai") {
+      window.location.href = "ai.html";
+      return;
+    }
     console.log("Amal tanlandi:", action);
-    // TODO: ai.html tayyor bo'lgach shu yerga ulanadi
   });
 });
 
