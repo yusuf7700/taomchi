@@ -89,7 +89,9 @@ const TRANSLATIONS = {
     ai_limit_reached_short: "Bugungi limit tugadi",
     ai_telegram_only: "Bu funksiya faqat Telegram ilovasi ichida ishlaydi.",
     ai_premium_unlimited: "Premium: cheksiz so'rov",
-    ai_free_remaining: "Bugun yana so'rash mumkin: "
+    ai_free_remaining: "Bugun yana so'rash mumkin: ",
+    ai_pay_once_more: "yana 1 marta so'rash",
+    ai_loading: "Yuklanmoqda..."
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -177,7 +179,9 @@ const TRANSLATIONS = {
     ai_limit_reached_short: "Бугунги лимит тугади",
     ai_telegram_only: "Бу функция фақат Telegram иловаси ичида ишлайди.",
     ai_premium_unlimited: "Premium: чексиз сўров",
-    ai_free_remaining: "Бугун яна сўраш мумкин: "
+    ai_free_remaining: "Бугун яна сўраш мумкин: ",
+    ai_pay_once_more: "яна 1 марта сўраш",
+    ai_loading: "Юкланмоқда..."
   }
 };
 

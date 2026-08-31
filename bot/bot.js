@@ -2,7 +2,7 @@
 
 const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
-const { checkAndConsumeAiQuota, askFoodAssistant } = require("../lib/aiAssistant");
+const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -18,8 +18,12 @@ const BOT_TEXT = {
     aiBtnLabel: "🤖 AI'dan so'rash",
     aiPrompt: "Ovqat yoki oshxona haqidagi savolingizni yozib yuboring 👇\n(masalan: \"Tuxum va pomidor bilan nima pishirsam bo'ladi?\")",
     aiThinking: "🤔 O'ylanmoqda...",
-    aiLimitReached: "⏳ Bugungi bepul so'rov limiti tugadi. Ertaga qayta urinib ko'ring yoki Premium bilan cheksiz foydalaning.",
+    aiLimitReached: "⏳ Bugungi bepul so'rov limiti tugadi. Yana 1 marta so'rash uchun pastdagi tugmani bosing, yoki ertaga qayta urinib ko'ring.",
     aiError: "Kechirasiz, AI javob berishda xatolik yuz berdi. Birozdan keyin qayta urinib ko'ring.",
+    aiPayBtn: `⭐ ${EXTRA_QUESTION_STARS_PRICE} Stars — yana 1 marta so'rash`,
+    aiInvoiceTitle: "Qo'shimcha AI so'rovi",
+    aiInvoiceDescription: "1 marta qo'shimcha AI'dan savol so'rash huquqi",
+    aiPaymentThanks: "✅ To'lov qabul qilindi! Javobingiz tayyorlanmoqda...",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -41,8 +45,12 @@ const BOT_TEXT = {
     aiBtnLabel: "🤖 AI'дан сўраш",
     aiPrompt: "Овқат ёки ошхона ҳақидаги саволингизни ёзиб юборинг 👇\n(масалан: \"Тухум ва помидор билан нима пиширсам бўлади?\")",
     aiThinking: "🤔 Ўйланмоқда...",
-    aiLimitReached: "⏳ Бугунги бепул сўров лимити тугади. Эртага қайта уриниб кўринг ёки Premium билан чексиз фойдаланинг.",
+    aiLimitReached: "⏳ Бугунги бепул сўров лимити тугади. Яна 1 марта сўраш учун пастдаги тугмани босинг, ёки эртага қайта уриниб кўринг.",
     aiError: "Кечирасиз, AI жавоб беришда хатолик юз берди. Бироздан кейин қайта уриниб кўринг.",
+    aiPayBtn: `⭐ ${EXTRA_QUESTION_STARS_PRICE} Stars — яна 1 марта сўраш`,
+    aiInvoiceTitle: "Қўшимча AI сўрови",
+    aiInvoiceDescription: "1 марта қўшимча AI'дан савол сўраш ҳуқуқи",
+    aiPaymentThanks: "✅ Тўлов қабул қилинди! Жавобингиз тайёрланмоқда...",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -57,9 +65,13 @@ const BOT_TEXT = {
 };
 
 // Foydalanuvchi "AI'dan so'rash" tugmasini bosgach, keyingi yuboradigan
-// matnini savol sifatida kutish uchun (Telegraf'da sessiya yo'q, shuning
-// uchun langCache kabi oddiy Map orqali eslab turamiz).
+// matnini savol sifatida kutish uchun.
 const awaitingAiQuestion = new Set();
+
+// Limit tugaganda va foydalanuvchi to'lov qilishga qaror qilsa, savolini
+// qayta yozdirmaslik uchun — to'lov muvaffaqiyatli bo'lgach shu yerdan
+// olib, avtomatik javob beriladi.
+const pendingPaidQuestion = new Map(); // userId -> { question, lang }
 
 // Faoliyatdagi (warm) funksiya uchun tezkor xotira — har bir xabarda
 // Firestore'ga qayta-qayta murojaat qilmaslik uchun (tezlik uchun muhim)
@@ -284,7 +296,16 @@ bot.on("text", async (ctx, next) => {
     const quota = await checkAndConsumeAiQuota(db, userId);
 
     if (!quota.allowed) {
+      pendingPaidQuestion.set(userId, { question, lang });
       await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiLimitReached);
+      await ctx.replyWithInvoice({
+        title: t.aiInvoiceTitle,
+        description: t.aiInvoiceDescription,
+        payload: `ai_bonus_${userId}`,
+        provider_token: "", // Telegram Stars uchun bo'sh qoldiriladi
+        currency: "XTR",
+        prices: [{ label: t.aiInvoiceTitle, amount: EXTRA_QUESTION_STARS_PRICE }]
+      });
       return;
     }
 
@@ -293,6 +314,38 @@ bot.on("text", async (ctx, next) => {
   } catch (err) {
     console.error("AI javob xatosi:", err);
     await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiError).catch(() => {});
+  }
+});
+
+// Telegram har qanday to'lovdan oldin tasdiqlash so'raydi — shuni
+// darhol qabul qilamiz (aks holda to'lov amalga oshmaydi).
+bot.on("pre_checkout_query", async (ctx) => {
+  await ctx.answerPreCheckoutQuery(true);
+});
+
+// To'lov muvaffaqiyatli o'tgach — bonus so'rov huquqini beramiz va,
+// agar oldin so'ralgan savol saqlangan bo'lsa, uni avtomatik javoblaymiz.
+bot.on("successful_payment", async (ctx) => {
+  const userId = String(ctx.from.id);
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+
+  try {
+    const db = getDb();
+    await grantBonusQuestion(db, userId);
+    await ctx.reply(t.aiPaymentThanks);
+
+    const pending = pendingPaidQuestion.get(userId);
+    if (!pending) return;
+    pendingPaidQuestion.delete(userId);
+
+    const quota = await checkAndConsumeAiQuota(db, userId); // bonus'ni "ishlatib" qo'yadi
+    if (!quota.allowed) return; // bo'lishi kerak emas, lekin ehtiyot uchun
+
+    const answer = await askFoodAssistant(pending.question, pending.lang);
+    await ctx.reply(answer);
+  } catch (err) {
+    console.error("To'lovdan keyingi AI javobi xatosi:", err);
   }
 });
 
