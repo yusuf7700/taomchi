@@ -10,9 +10,10 @@ const BOT_TEXT = {
   uz: {
     welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Taomchini ochish",
-    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
+    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🍽️ Tasodifiy taom",
     pantryBtnLabel: "🧺 Uyda nima bor?",
+    weeklyBtnLabel: "🗓 Haftalik menyu",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -27,9 +28,10 @@ const BOT_TEXT = {
   uzk: {
     welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Taomchini очиш",
-    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
+    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🍽️ Тасодифий таом",
     pantryBtnLabel: "🧺 Уйда нима бор?",
+    weeklyBtnLabel: "🗓 Ҳафталик менюси",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -103,7 +105,8 @@ async function sendWelcome(ctx, lang) {
     reply_markup: {
       keyboard: [
         [t.randomBtnLabel],
-        [{ text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }]
+        [{ text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }],
+        [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }]
       ],
       resize_keyboard: true
     }
