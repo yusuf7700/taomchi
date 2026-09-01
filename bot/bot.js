@@ -249,12 +249,9 @@ async function sendWelcome(ctx, lang) {
   await ctx.reply(t.quickCommands, {
     reply_markup: {
       keyboard: [
-        [t.randomBtnLabel],
-        [{ text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }],
-        [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }],
-        [t.aiBtnLabel],
-        [t.premiumBtnLabel],
-        [t.referralBtnLabel]
+        [t.randomBtnLabel, { text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }],
+        [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }, t.aiBtnLabel],
+        [t.premiumBtnLabel, t.referralBtnLabel]
       ],
       resize_keyboard: true
     }
