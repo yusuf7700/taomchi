@@ -80,6 +80,7 @@ premiumTitle.textContent = tp("premium_title", "Taomchi Premium");
 premiumSubtitle.textContent = tp("ai_loading", "Yuklanmoqda...");
 premiumBanner.style.cursor = "default";
 premiumBanner.onclick = null;
+document.getElementById("premiumBannerChevron").style.display = "none";
 
 async function loadPremiumStatus() {
   if (!tg?.initData) { renderPremiumBanner(); return; }
@@ -100,16 +101,19 @@ function closePremiumActions() {
 
 function renderPremiumBanner() {
   closePremiumActions();
+  const chevron = document.getElementById("premiumBannerChevron");
 
   if (premiumState.active) {
     premiumTitle.textContent = tp("premium_active_title", "⭐ Premium faol");
     premiumSubtitle.textContent = premiumState.daysLeft + tp("premium_days_left_suffix", " kun qoldi");
     premiumBanner.onclick = null;
     premiumBanner.style.cursor = "default";
+    chevron.style.display = "none";
     return;
   }
 
   premiumBanner.style.cursor = "pointer";
+  chevron.style.display = "block";
 
   if (premiumState.trialAvailable) {
     premiumTitle.textContent = tp("premium_gift_title", "🎁 Sizga sovg'a bor!");
@@ -248,3 +252,44 @@ async function buyPremium(plan) {
 }
 
 loadPremiumStatus();
+
+// --- Referal / ball tizimi ---
+let referralState = { points: 0, referralLink: null, redeemCost: 3 };
+
+async function loadReferralStatus() {
+  if (!tg?.initData) return;
+  try {
+    const res = await fetch(`/api/referral?initData=${encodeURIComponent(tg.initData)}`);
+    if (!res.ok) throw new Error();
+    referralState = await res.json();
+    document.getElementById("referralPointsValue").textContent = referralState.points;
+  } catch {
+    // Internet yo'q bo'lishi mumkin — jim o'tkazamiz, ball 0 ko'rinadi
+  }
+}
+
+function shareReferralLink() {
+  if (!referralState.referralLink) return;
+  const text = tp("referral_share_text", "Taomchi — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇");
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralState.referralLink)}&text=${encodeURIComponent(text)}`;
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink(shareUrl);
+  } else {
+    window.open(shareUrl, "_blank");
+  }
+}
+
+function copyReferralLink() {
+  if (!referralState.referralLink) return;
+  navigator.clipboard?.writeText(referralState.referralLink).then(() => {
+    tg?.HapticFeedback?.notificationOccurred?.("success");
+    alert(tp("referral_copied", "Havola nusxalandi!"));
+  }).catch(() => {
+    alert(referralState.referralLink);
+  });
+}
+
+document.getElementById("referralShareBtn").addEventListener("click", shareReferralLink);
+document.getElementById("referralCopyBtn").addEventListener("click", copyReferralLink);
+
+loadReferralStatus();

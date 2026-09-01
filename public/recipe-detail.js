@@ -73,15 +73,43 @@ async function processVideoEmbed(r) {
 // bu MVP bosqichida yetarli: oddiy foydalanuvchi uchun to'liq matn
 // ko'rsatilmaydi, texnik bilimga ega odam DevTools orqali aylanib o'tishi
 // mumkin — lekin bu hozircha qabul qilinadigan xavf).
-async function isCurrentUserPremium() {
-  if (!tg?.initData) return false;
+async function getUnlockStatus(recipeId) {
+  if (!tg?.initData) return { premium: false, points: 0, redeemCost: 3, alreadyUnlocked: false };
   try {
-    const res = await fetch(`/api/premium?initData=${encodeURIComponent(tg.initData)}`);
-    if (!res.ok) return false;
-    const data = await res.json();
-    return data.active === true;
+    const [premiumRes, referralRes] = await Promise.all([
+      fetch(`/api/premium?initData=${encodeURIComponent(tg.initData)}`),
+      fetch(`/api/referral?initData=${encodeURIComponent(tg.initData)}`)
+    ]);
+    const premiumData = premiumRes.ok ? await premiumRes.json() : { active: false };
+    const referralData = referralRes.ok ? await referralRes.json() : { points: 0, unlockedRecipes: [], redeemCost: 3 };
+    return {
+      premium: premiumData.active === true,
+      points: referralData.points || 0,
+      redeemCost: referralData.redeemCost || 3,
+      alreadyUnlocked: (referralData.unlockedRecipes || []).includes(String(recipeId))
+    };
   } catch {
-    return false;
+    return { premium: false, points: 0, redeemCost: 3, alreadyUnlocked: false };
+  }
+}
+
+async function redeemRecipeWithPoints(r) {
+  const btn = document.getElementById("premiumRedeemBtn");
+  btn.disabled = true;
+  btn.textContent = getCurrentLang() === "uzk" ? "Юкланмоқда..." : "Yuklanmoqda...";
+
+  try {
+    const res = await fetch("/api/referral", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tg.initData, action: "redeem_recipe", recipeId: r.id })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Server xatosi");
+    await renderRecipe(r); // qayta chizamiz — endi ochiq bo'ladi
+  } catch {
+    alert(getCurrentLang() === "uzk" ? "Хатолик юз берди." : "Xatolik yuz berdi.");
+    btn.disabled = false;
   }
 }
 
@@ -89,7 +117,9 @@ async function renderRecipe(r) {
   const lang = getCurrentLang();
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
 
-  const locked = r.isPremium === true && !(await isCurrentUserPremium());
+  const unlockStatus = r.isPremium === true ? await getUnlockStatus(r.id) : null;
+  const locked = r.isPremium === true && !(unlockStatus.premium || unlockStatus.alreadyUnlocked);
+  const canRedeemWithPoints = locked && unlockStatus.points >= unlockStatus.redeemCost;
 
   const ingredientsHtml = (r.ingredients || []).map(ing => `
     <li><span>${displayText(ing.name)}</span><span class="ing-amount">${ing.amount}</span></li>
@@ -106,6 +136,9 @@ async function renderRecipe(r) {
         <p class="premium-lock-title" data-i18n="recipe_lock_title">Bu — Premium retsept</p>
         <p class="premium-lock-text" data-i18n="recipe_lock_text">To'liq tarkib, tayyorlash tartibi va videoni ko'rish uchun Premium'ga obuna bo'ling.</p>
         <button class="premium-lock-btn" id="premiumLockBtn" data-i18n="recipe_lock_btn">👑 Premium olish</button>
+        ${canRedeemWithPoints
+          ? `<button class="premium-lock-btn premium-lock-btn--points" id="premiumRedeemBtn">${dict.recipe_redeem_btn_prefix || "🎁 "}${unlockStatus.redeemCost}${dict.recipe_redeem_btn_suffix || " ball evaziga ochish"}</button>`
+          : `<p class="premium-lock-points-hint">${dict.recipe_redeem_hint_prefix || "Ballaringiz: "}${unlockStatus.points}/${unlockStatus.redeemCost}${dict.recipe_redeem_hint_suffix || " — do'st taklif qilib ball to'plang!"}</p>`}
       </div>
     `
     : `
@@ -150,6 +183,7 @@ async function renderRecipe(r) {
     document.getElementById("premiumLockBtn").addEventListener("click", () => {
       window.location.href = "profile.html";
     });
+    document.getElementById("premiumRedeemBtn")?.addEventListener("click", () => redeemRecipeWithPoints(r));
   } else {
     processVideoEmbed(r);
   }

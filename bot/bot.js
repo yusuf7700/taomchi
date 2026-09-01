@@ -4,6 +4,7 @@ const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
 const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
 const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHLY_STARS_PRICE, YEARLY_STARS_PRICE } = require("../lib/premium");
+const { creditReferral } = require("../lib/referral");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -193,6 +194,16 @@ bot.start(async (ctx) => {
   try {
     const result = await ensureUser(ctx);
     language = result.language;
+
+    // Referal havola orqali kirgan bo'lsa ("ref_<userId>") — faqat yangi
+    // foydalanuvchi uchun va faqat 1 marta taklif qilganga ball beriladi.
+    if (result.isNew && typeof ctx.startPayload === "string" && ctx.startPayload.startsWith("ref_")) {
+      const referrerId = ctx.startPayload.slice(4);
+      if (referrerId) {
+        const db = getDb();
+        await creditReferral(db, referrerId, ctx.from.id);
+      }
+    }
   } catch (err) {
     console.error("Foydalanuvchini saqlashda xato:", err);
   }

@@ -754,6 +754,101 @@ html.no-splash .splash {
   border-radius: var(--radius-sm);
 }
 
+.premium-lock-btn--points {
+  margin-top: 10px;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: var(--cream);
+  display: block;
+  width: 100%;
+}
+
+.premium-lock-points-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #D9EAD9;
+}
+
+.referral-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1.5px solid var(--border-soft);
+}
+
+.referral-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.referral-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.referral-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.referral-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.referral-points-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.referral-points-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.referral-points-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green-dark);
+}
+
+.referral-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.referral-btn {
+  flex: 1;
+  border-radius: var(--radius-sm);
+  padding: 11px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.referral-btn--primary {
+  background: var(--green-dark);
+  color: var(--cream);
+}
+
+.referral-btn--ghost {
+  background: var(--cream);
+  color: var(--text-dark);
+  border: 1.5px solid var(--border-soft);
+}
+
 .detail-section-title {
   font-size: 17px;
   font-weight: 700;
@@ -920,9 +1015,38 @@ html.no-splash .splash {
   padding: 14px 16px;
   margin-bottom: 8px;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(45, 90, 45, 0.25);
+  position: relative;
+  overflow: hidden;
 }
 
-.premium-banner-icon { font-size: 26px; flex-shrink: 0; }
+.premium-banner::after {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+
+.premium-banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.premium-banner-text {
+  flex: 1;
+  min-width: 0;
+}
 
 .premium-banner-title {
   font-size: 14.5px;
@@ -934,6 +1058,13 @@ html.no-splash .splash {
   font-size: 12px;
   color: #C9DDC9;
   margin-top: 2px;
+}
+
+.premium-banner-chevron {
+  width: 18px;
+  height: 18px;
+  color: rgba(255,255,255,0.7);
+  flex-shrink: 0;
 }
 
 .premium-actions {

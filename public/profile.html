@@ -30,12 +30,32 @@
     <!-- Premium banner -->
     <section class="premium-banner" id="premiumBanner">
       <div class="premium-banner-icon">⭐</div>
-      <div>
+      <div class="premium-banner-text">
         <p class="premium-banner-title" id="premiumTitle">Taomchi Premium</p>
         <p class="premium-banner-subtitle" id="premiumSubtitle">Tez orada — AI, shaxsiy menyu va boshqa imkoniyatlar</p>
       </div>
+      <svg class="premium-banner-chevron" id="premiumBannerChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
     </section>
     <div class="premium-actions screen-hidden" id="premiumActions"></div>
+
+    <!-- Referal / ball tizimi -->
+    <section class="referral-card">
+      <div class="referral-card-header">
+        <span class="referral-icon">🎁</span>
+        <div>
+          <p class="referral-title" data-i18n="referral_title">Do'stlarni taklif qiling</p>
+          <p class="referral-subtitle" data-i18n="referral_subtitle">Har bir taklif — 1 ball. 3 ball = 1ta Premium retsept bepul!</p>
+        </div>
+      </div>
+      <div class="referral-points-row">
+        <span class="referral-points-label" data-i18n="referral_points_label">Sizning ballaringiz</span>
+        <span class="referral-points-value" id="referralPointsValue">0</span>
+      </div>
+      <div class="referral-actions-row">
+        <button class="referral-btn referral-btn--primary" id="referralShareBtn" data-i18n="referral_share_btn">📤 Ulashish</button>
+        <button class="referral-btn referral-btn--ghost" id="referralCopyBtn" data-i18n="referral_copy_btn">🔗 Nusxalash</button>
+      </div>
+    </section>
 
     <!-- Sozlamalar ro'yxati -->
     <section class="section">
