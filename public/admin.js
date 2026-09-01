@@ -15,23 +15,30 @@ const tabBtnAdd = document.getElementById("tabBtnAdd");
 const tabBtnList = document.getElementById("tabBtnList");
 const tabBtnUsers = document.getElementById("tabBtnUsers");
 const tabBtnBroadcast = document.getElementById("tabBtnBroadcast");
+const tabBtnChannels = document.getElementById("tabBtnChannels");
 const tabPanelAdd = document.getElementById("tabPanelAdd");
 const tabPanelList = document.getElementById("tabPanelList");
 const tabPanelUsers = document.getElementById("tabPanelUsers");
 const tabPanelBroadcast = document.getElementById("tabPanelBroadcast");
+const tabPanelChannels = document.getElementById("tabPanelChannels");
 
 function showTab(tab) {
   tabPanelAdd.classList.toggle("screen-hidden", tab !== "add");
   tabPanelList.classList.toggle("screen-hidden", tab !== "list");
   tabPanelUsers.classList.toggle("screen-hidden", tab !== "users");
   tabPanelBroadcast.classList.toggle("screen-hidden", tab !== "broadcast");
+  tabPanelChannels.classList.toggle("screen-hidden", tab !== "channels");
   tabBtnAdd.classList.toggle("active", tab === "add");
   tabBtnList.classList.toggle("active", tab === "list");
   tabBtnUsers.classList.toggle("active", tab === "users");
   tabBtnBroadcast.classList.toggle("active", tab === "broadcast");
+  tabBtnChannels.classList.toggle("active", tab === "channels");
 
   if (tab === "users" && allAdminUsers.length === 0) {
     loadUsers();
+  }
+  if (tab === "channels") {
+    loadChannels();
   }
 }
 
@@ -39,6 +46,7 @@ tabBtnAdd.addEventListener("click", () => showTab("add"));
 tabBtnList.addEventListener("click", () => showTab("list"));
 tabBtnUsers.addEventListener("click", () => showTab("users"));
 tabBtnBroadcast.addEventListener("click", () => showTab("broadcast"));
+tabBtnChannels.addEventListener("click", () => showTab("channels"));
 
 // ⚠️ imgbb sozlamasi — quyidagi qatorni o'zingizning
 // bepul API kalitingizga almashtiring (api.imgbb.com'dan olinadi):
@@ -630,4 +638,101 @@ bSendBtn.addEventListener("click", async () => {
     bSendBtn.textContent = "📢 Barchaga yuborish";
   }
 });
+
+// ===== Majburiy obuna kanallari =====
+let allAdminChannels = [];
+
+async function loadChannels() {
+  const listEl = document.getElementById("adminChannelList");
+  listEl.innerHTML = `<p class="admin-hint">Yuklanmoqda...</p>`;
+
+  try {
+    const res = await fetch("/api/admin-users?resource=channels", {
+      headers: { "x-admin-secret": getSecret() }
+    });
+    allAdminChannels = await res.json();
+    renderChannelList();
+  } catch (err) {
+    listEl.innerHTML = `<p class="admin-hint">Xatolik: ${err.message}</p>`;
+  }
+}
+
+function renderChannelList() {
+  const listEl = document.getElementById("adminChannelList");
+  if (allAdminChannels.length === 0) {
+    listEl.innerHTML = `<p class="admin-hint">Hozircha hech qanday kanal qo'shilmagan.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = allAdminChannels.map(ch => {
+    const expiryLabel = ch.expiresAt
+      ? `⏳ ${Math.max(0, Math.ceil((ch.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)))} kun qoldi`
+      : "♾️ Doimiy";
+
+    return `
+      <div class="admin-recipe-item">
+        <div class="admin-recipe-item-info">
+          <p class="admin-recipe-item-title">📡 ${ch.channelId}${ch.title ? " — " + ch.title : ""}</p>
+          <p class="admin-recipe-item-meta">${expiryLabel}</p>
+          <button class="admin-mini-btn admin-mini-btn--danger" onclick="removeChannelPrompt('${ch.id}')">🗑 O'chirish</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+document.getElementById("chAddBtn").addEventListener("click", async () => {
+  const chUsername = document.getElementById("chUsername");
+  const chTitle = document.getElementById("chTitle");
+  const chExpiresInDays = document.getElementById("chExpiresInDays");
+  const chStatus = document.getElementById("chStatus");
+
+  const channelId = chUsername.value.trim();
+  if (!channelId) {
+    chStatus.textContent = "❌ Kanal username kiriting (masalan @mychannel).";
+    return;
+  }
+
+  chStatus.textContent = "⏳ Qo'shilmoqda...";
+
+  try {
+    const res = await fetch("/api/admin-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({
+        resource: "channels",
+        action: "add",
+        channelId,
+        title: chTitle.value.trim(),
+        expiresInDays: chExpiresInDays.value ? Number(chExpiresInDays.value) : null
+      })
+    });
+    if (!res.ok) throw new Error();
+
+    chStatus.textContent = "✅ Qo'shildi!";
+    chUsername.value = "";
+    chTitle.value = "";
+    chExpiresInDays.value = "";
+    await loadChannels();
+  } catch {
+    chStatus.textContent = "❌ Xatolik yuz berdi.";
+  }
+});
+
+async function removeChannelPrompt(docId) {
+  if (!confirm("Bu kanalni majburiy obuna ro'yxatidan o'chirasizmi?")) return;
+
+  try {
+    const res = await fetch("/api/admin-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({ resource: "channels", action: "remove", docId })
+    });
+    if (!res.ok) throw new Error();
+    await loadChannels();
+  } catch {
+    alert("Xatolik yuz berdi.");
+  }
+}
+
                               

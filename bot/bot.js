@@ -5,6 +5,9 @@ const { getDb } = require("../lib/firebaseAdmin");
 const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
 const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHLY_STARS_PRICE, YEARLY_STARS_PRICE } = require("../lib/premium");
 const { creditReferral, getReferralStatus, redeemAiBonus, redeemPremiumDays, AI_BONUS_COST, PREMIUM_3D_COST, PREMIUM_3D_DAYS, PREMIUM_30D_COST, PREMIUM_30D_DAYS } = require("../lib/referral");
+const { getActiveChannels } = require("../lib/requiredChannels");
+
+const ADMIN_CHAT_ID = "7603550866";
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -16,6 +19,52 @@ async function getBotUsername() {
   const me = await bot.telegram.getMe();
   cachedBotUsername = me.username;
   return cachedBotUsername;
+}
+
+// ===== Majburiy obuna (force-subscribe) =====
+// Kanallar ro'yxatini har safar Firestore'dan o'qimaslik uchun qisqa
+// muddatga (60s) keshlanadi.
+let channelsCache = { data: [], fetchedAt: 0 };
+const CHANNELS_CACHE_TTL = 60 * 1000;
+
+async function getCachedActiveChannels(db) {
+  const now = Date.now();
+  if (now - channelsCache.fetchedAt < CHANNELS_CACHE_TTL) return channelsCache.data;
+  const data = await getActiveChannels(db);
+  channelsCache = { data, fetchedAt: now };
+  return data;
+}
+
+// Foydalanuvchi obuna bo'lmagan kanallar ro'yxatini qaytaradi.
+async function getMissingChannels(ctx, channels) {
+  const missing = [];
+  for (const ch of channels) {
+    try {
+      const member = await ctx.telegram.getChatMember(ch.channelId, ctx.from.id);
+      if (!["member", "administrator", "creator"].includes(member.status)) {
+        missing.push(ch);
+      }
+    } catch {
+      // Bot kanalda admin bo'lmasa yoki kanal topilmasa — xavfsizlik uchun
+      // obuna bo'lmagan deb hisoblaymiz.
+      missing.push(ch);
+    }
+  }
+  return missing;
+}
+
+async function sendSubscriptionRequired(ctx, lang, missingChannels) {
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  const channelButtons = missingChannels.map((ch) => ([{
+    text: `📡 ${ch.title || ch.channelId}`,
+    url: `https://t.me/${ch.channelId.replace("@", "")}`
+  }]));
+
+  await ctx.reply(t.subscribeRequired, {
+    reply_markup: {
+      inline_keyboard: [...channelButtons, [{ text: t.subscribeCheckBtn, callback_data: "check_subscription" }]]
+    }
+  });
 }
 
 // ===== Bot matnlari (Lotin / Kirill) =====
@@ -60,6 +109,10 @@ const BOT_TEXT = {
     referralShopPremium30dBtn: "👑 20 ball — 1 oylik Premium",
     referralShopSuccess: "Muvaffaqiyatli olindi! 🎉",
     referralShopNotEnough: "Ballaringiz yetarli emas.",
+    subscribeRequired: "🔒 Botdan foydalanish uchun quyidagi kanal(lar)ga obuna bo'ling, so'ng \"Tekshirish\" tugmasini bosing:",
+    subscribeCheckBtn: "✅ Tekshirish",
+    subscribeSuccess: "✅ Obuna tasdiqlandi! Botdan foydalanishingiz mumkin.",
+    subscribeStillMissing: "❌ Siz hali barcha kanallarga obuna bo'lmagansiz.",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -111,6 +164,10 @@ const BOT_TEXT = {
     referralShopPremium30dBtn: "👑 20 балл — 1 ойлик Premium",
     referralShopSuccess: "Муваффақиятли олинди! 🎉",
     referralShopNotEnough: "Баллларингиз етарли эмас.",
+    subscribeRequired: "🔒 Botdan фойдаланиш учун қуйидаги канал(лар)га обуна бўлинг, сўнг \"Текшириш\" тугмасини босинг:",
+    subscribeCheckBtn: "✅ Текшириш",
+    subscribeSuccess: "✅ Обуна тасдиқланди! Ботдан фойдаланишингиз мумкин.",
+    subscribeStillMissing: "❌ Сиз ҳали барча каналларга обуна бўлмагансиз.",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -215,6 +272,28 @@ function langSelectMarkup() {
   };
 }
 
+// ===== Majburiy obuna middleware — har bir xabarda tekshiradi =====
+bot.use(async (ctx, next) => {
+  if (ctx.updateType !== "message" || !ctx.from) return next();
+  if (ctx.message.successful_payment) return next();
+  if (String(ctx.from.id) === ADMIN_CHAT_ID) return next();
+
+  try {
+    const db = getDb();
+    const channels = await getCachedActiveChannels(db);
+    if (channels.length === 0) return next();
+
+    const missing = await getMissingChannels(ctx, channels);
+    if (missing.length === 0) return next();
+
+    const lang = await getUserLang(ctx);
+    return sendSubscriptionRequired(ctx, lang, missing);
+  } catch (err) {
+    console.error("Obuna tekshiruvida xato:", err);
+    return next(); // xatolik bo'lsa botni butunlay to'xtatib qo'ymaymiz
+  }
+});
+
 // ===== /start =====
 bot.start(async (ctx) => {
   let language = null;
@@ -261,6 +340,29 @@ bot.action(["lang_uz", "lang_uzk"], async (ctx) => {
     await sendWelcome(ctx, lang);
   } catch (err) {
     console.error("Til tanlashda xato:", err);
+  }
+});
+
+// ===== Majburiy obuna — "Tekshirish" tugmasi =====
+bot.action("check_subscription", async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+
+  try {
+    const db = getDb();
+    const channels = await getCachedActiveChannels(db);
+    const missing = await getMissingChannels(ctx, channels);
+
+    if (missing.length === 0) {
+      await ctx.answerCbQuery(t.subscribeSuccess, { show_alert: true });
+      await ctx.deleteMessage().catch(() => {});
+      await sendWelcome(ctx, lang);
+    } else {
+      await ctx.answerCbQuery(t.subscribeStillMissing, { show_alert: true });
+    }
+  } catch (err) {
+    console.error("Obuna tekshiruvida xato:", err);
+    await ctx.answerCbQuery(t.errorMsg, { show_alert: true });
   }
 });
 
