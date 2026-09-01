@@ -41,8 +41,8 @@ function closeOnboarding() {
 }
 
 document.getElementById("startTrialBtn")?.addEventListener("click", () => {
-  startPremiumTrial();
   closeOnboarding();
+  window.location.href = "profile.html";
 });
 document.getElementById("skipTrialBtn")?.addEventListener("click", closeOnboarding);
 

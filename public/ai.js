@@ -4,6 +4,7 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const STARS_PRICE = 5;
+const PREMIUM_MONTHLY_PRICE = 77;
 const MAX_HISTORY_MESSAGES = 6; // ~3 juftlik savol-javob
 
 const aiQuotaText = document.getElementById("aiQuotaText");
@@ -111,12 +112,42 @@ function renderLimitReached(question) {
   const bubble = document.createElement("div");
   bubble.className = "chat-bubble chat-bubble--limit";
   bubble.innerHTML = `
-    <span>⏳ ${escapeHtml(t("ai_limit_reached", "Bugungi bepul so'rov limiti tugadi."))}</span>
-    <button id="aiPayBtn" class="chat-pay-btn">⭐ ${STARS_PRICE} Stars — ${escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash"))}</button>
+    <p>⏳ ${escapeHtml(t("ai_limit_reached_short", "Bugungi limit tugadi"))}</p>
+    <button id="aiPayBtn" class="chat-pay-btn chat-pay-btn--secondary">⭐ ${STARS_PRICE} — ${escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash"))}</button>
+    <button id="aiPremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
   `;
   aiChatMessages.appendChild(bubble);
   scrollToBottom();
   document.getElementById("aiPayBtn").addEventListener("click", () => payForExtraQuestion(question, bubble));
+  document.getElementById("aiPremiumBtn").addEventListener("click", () => buyPremiumMonthly(bubble, question));
+}
+
+async function buyPremiumMonthly(limitBubble, question) {
+  const btn = document.getElementById("aiPremiumBtn");
+  btn.disabled = true;
+  btn.textContent = t("ai_loading", "Yuklanmoqda...");
+
+  try {
+    const res = await fetch("/api/premium", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tg.initData, action: "create_invoice", plan: "monthly" })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Server xatosi");
+
+    tg.openInvoice(data.link, (status) => {
+      if (status === "paid") {
+        limitBubble.remove();
+        askQuestion(question);
+      } else {
+        btn.disabled = false;
+        btn.textContent = `👑 ${t("premium_buy_subtitle_prefix", "Oyiga ⭐")}${PREMIUM_MONTHLY_PRICE}${t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang")}`;
+      }
+    });
+  } catch (err) {
+    addBubble("bot", "❌ " + err.message, "chat-bubble--error");
+  }
 }
 
 async function payForExtraQuestion(question, limitBubble) {

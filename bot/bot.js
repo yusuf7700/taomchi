@@ -3,6 +3,7 @@
 const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
 const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
+const { activatePremiumSubscription } = require("../lib/premium");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -24,6 +25,7 @@ const BOT_TEXT = {
     aiInvoiceTitle: "Qo'shimcha AI so'rovi",
     aiInvoiceDescription: "1 marta qo'shimcha AI'dan savol so'rash huquqi",
     aiPaymentThanks: "✅ To'lov qabul qilindi! Javobingiz tayyorlanmoqda...",
+    premiumPaymentThanks: "✅ To'lov qabul qilindi! Taomchi Premium faollashtirildi 🎉",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -51,6 +53,7 @@ const BOT_TEXT = {
     aiInvoiceTitle: "Қўшимча AI сўрови",
     aiInvoiceDescription: "1 марта қўшимча AI'дан савол сўраш ҳуқуқи",
     aiPaymentThanks: "✅ Тўлов қабул қилинди! Жавобингиз тайёрланмоқда...",
+    premiumPaymentThanks: "✅ Тўлов қабул қилинди! Taomchi Premium фаоллаштирилди 🎉",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -323,15 +326,32 @@ bot.on("pre_checkout_query", async (ctx) => {
   await ctx.answerPreCheckoutQuery(true);
 });
 
-// To'lov muvaffaqiyatli o'tgach — bonus so'rov huquqini beramiz va,
-// agar oldin so'ralgan savol saqlangan bo'lsa, uni avtomatik javoblaymiz.
+// To'lov muvaffaqiyatli o'tgach — payload turiga qarab tegishli huquqni
+// beramiz: "ai_bonus_" — bitta qo'shimcha AI so'rovi, "premium_" — Premium
+// obuna (oylik yoki yillik). Bir xil handler ham bot chat, ham Mini App
+// (tg.openInvoice) orqali qilingan to'lovlarni qamrab oladi.
 bot.on("successful_payment", async (ctx) => {
   const userId = String(ctx.from.id);
   const lang = await getUserLang(ctx);
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  const payload = ctx.message.successful_payment.invoice_payload || "";
 
   try {
     const db = getDb();
+
+    if (payload.startsWith("premium_monthly_")) {
+      await activatePremiumSubscription(db, userId, "monthly");
+      await ctx.reply(t.premiumPaymentThanks);
+      return;
+    }
+
+    if (payload.startsWith("premium_yearly_")) {
+      await activatePremiumSubscription(db, userId, "yearly");
+      await ctx.reply(t.premiumPaymentThanks);
+      return;
+    }
+
+    // Aks holda — AI bonus so'rovi (eski/standart oqim)
     await grantBonusQuestion(db, userId);
     await ctx.reply(t.aiPaymentThanks);
 
@@ -345,7 +365,7 @@ bot.on("successful_payment", async (ctx) => {
     const answer = await askFoodAssistant(pending.question, pending.lang);
     await ctx.reply(answer);
   } catch (err) {
-    console.error("To'lovdan keyingi AI javobi xatosi:", err);
+    console.error("To'lovdan keyingi javob xatosi:", err);
   }
 });
 

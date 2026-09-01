@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
   try {
     const quota = await checkAndConsumeAiQuota(db, tgUser.id);
     if (!quota.allowed) {
-      return res.status(429).json({ error: "limit", message: "Bugungi bepul so'rov limiti tugadi. Premium bilan cheksiz foydalaning." });
+      return res.status(429).json({ error: "limit", message: "Bugungi bepul so'rov limiti tugadi. Premium bilan kuniga 15 marta so'rashingiz mumkin." });
     }
 
     const answer = await askFoodAssistant(question, lang, history);

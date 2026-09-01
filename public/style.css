@@ -873,6 +873,55 @@ html.no-splash .splash {
   margin-top: 2px;
 }
 
+.premium-actions {
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin: -2px 0 16px;
+}
+
+.premium-actions-text {
+  font-size: 13.5px;
+  color: var(--text-dark);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.premium-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.premium-btn {
+  flex: 1;
+  border-radius: var(--radius-sm);
+  padding: 11px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.premium-btn--primary {
+  background: var(--green-dark);
+  color: var(--cream);
+}
+
+.premium-btn--secondary {
+  background: var(--orange);
+  color: var(--white);
+}
+
+.premium-btn--ghost {
+  background: var(--cream);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border-soft);
+}
+
+.premium-btn:disabled {
+  opacity: 0.6;
+}
+
 /* ===== Sozlamalar ro'yxati ===== */
 .settings-list {
   box-shadow: 0 2px 10px rgba(31,74,44,0.06);
@@ -1495,6 +1544,13 @@ html.no-splash .splash {
 
 .chat-pay-btn:disabled {
   opacity: 0.6;
+}
+
+.chat-pay-btn--secondary {
+  margin-top: 8px;
+  background: var(--cream);
+  color: var(--text-dark);
+  border: 1.5px solid var(--border-soft);
 }
 
 .chat-typing {
