@@ -293,3 +293,47 @@ document.getElementById("referralShareBtn").addEventListener("click", shareRefer
 document.getElementById("referralCopyBtn").addEventListener("click", copyReferralLink);
 
 loadReferralStatus();
+
+// --- Ballar do'koni ---
+async function redeemShopReward(rewardType, btn) {
+  if (!tg?.initData) return;
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "...";
+
+  try {
+    const res = await fetch("/api/referral", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tg.initData, action: "redeem_reward", rewardType })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.error === "not_enough_points") {
+        alert(tp("referral_shop_not_enough", "Ballaringiz yetarli emas."));
+      } else {
+        alert(tp("referral_shop_error", "Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring."));
+      }
+      return;
+    }
+
+    referralState.points = data.remainingPoints;
+    document.getElementById("referralPointsValue").textContent = data.remainingPoints;
+    tg?.HapticFeedback?.notificationOccurred?.("success");
+    alert(tp("referral_shop_success", "Muvaffaqiyatli olindi! 🎉"));
+
+    if (rewardType === "premium_3d" || rewardType === "premium_30d") {
+      loadPremiumStatus();
+    }
+  } catch {
+    alert(tp("referral_shop_error", "Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring."));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+document.querySelectorAll("[data-reward-btn]").forEach((btn) => {
+  btn.addEventListener("click", () => redeemShopReward(btn.dataset.rewardBtn, btn));
+});

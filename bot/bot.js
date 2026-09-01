@@ -4,7 +4,7 @@ const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
 const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
 const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHLY_STARS_PRICE, YEARLY_STARS_PRICE } = require("../lib/premium");
-const { creditReferral, getReferralStatus } = require("../lib/referral");
+const { creditReferral, getReferralStatus, redeemAiBonus, redeemPremiumDays, AI_BONUS_COST, PREMIUM_3D_COST, PREMIUM_3D_DAYS, PREMIUM_30D_COST, PREMIUM_30D_DAYS } = require("../lib/referral");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -55,6 +55,11 @@ const BOT_TEXT = {
     referralIntro: (points, link) => `🎁 Do'stlaringizni Taomchi'ga taklif qiling!\n\nHar bir yangi do'st — 1 ball. 3 ball to'plasangiz, xohlagan bitta Premium retseptni bepul ochasiz.\n\n⭐ Sizning ballaringiz: ${points}\n\n🔗 Havolangiz:\n${link}`,
     referralShareBtn: "📤 Ulashish",
     referralShareText: "Taomchi — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇",
+    referralShopAiBtn: "🤖 2 ball — +1 AI so'rov",
+    referralShopPremium3dBtn: "⭐ 8 ball — 3 kunlik Premium",
+    referralShopPremium30dBtn: "👑 20 ball — 1 oylik Premium",
+    referralShopSuccess: "Muvaffaqiyatli olindi! 🎉",
+    referralShopNotEnough: "Ballaringiz yetarli emas.",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -101,6 +106,11 @@ const BOT_TEXT = {
     referralIntro: (points, link) => `🎁 Дўстларингизни Taomchi'га таклиф қилинг!\n\nҲар бир янги дўст — 1 балл. 3 балл тўпласангиз, хоҳлаган битта Premium рецептни бепул очасиз.\n\n⭐ Сизнинг баллларингиз: ${points}\n\n🔗 Ҳаволангиз:\n${link}`,
     referralShareBtn: "📤 Улашиш",
     referralShareText: "Taomchi — овқат рецептлари ва AI ёрдамчи билан! Менга қўшилинг 👇",
+    referralShopAiBtn: "🤖 2 балл — +1 AI сўров",
+    referralShopPremium3dBtn: "⭐ 8 балл — 3 кунлик Premium",
+    referralShopPremium30dBtn: "👑 20 балл — 1 ойлик Premium",
+    referralShopSuccess: "Муваффақиятли олинди! 🎉",
+    referralShopNotEnough: "Баллларингиз етарли эмас.",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -400,7 +410,14 @@ async function sendReferralInfo(ctx, lang) {
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(t.referralShareText)}`;
 
     await ctx.reply(t.referralIntro(status.points, link), {
-      reply_markup: { inline_keyboard: [[{ text: t.referralShareBtn, url: shareUrl }]] }
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: t.referralShareBtn, url: shareUrl }],
+          [{ text: t.referralShopAiBtn, callback_data: "redeem_ai_bonus" }],
+          [{ text: t.referralShopPremium3dBtn, callback_data: "redeem_premium_3d" }],
+          [{ text: t.referralShopPremium30dBtn, callback_data: "redeem_premium_30d" }]
+        ]
+      }
     });
   } catch (err) {
     console.error("Referral ma'lumotini olishda xato:", err);
@@ -418,6 +435,52 @@ bot.hears(/🎁/, async (ctx) => {
   awaitingAiQuestion.delete(String(ctx.from.id));
   const lang = await getUserLang(ctx);
   await sendReferralInfo(ctx, lang);
+});
+
+// Ballar do'koni — bot chatdan to'g'ridan-to'g'ri sotib olish.
+bot.action("redeem_ai_bonus", async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  try {
+    const db = getDb();
+    const result = await redeemAiBonus(db, String(ctx.from.id));
+    await ctx.answerCbQuery();
+    await ctx.reply(result.success ? t.referralShopSuccess : t.referralShopNotEnough);
+  } catch (err) {
+    console.error("Referral shop (ai_bonus) xatosi:", err);
+    await ctx.answerCbQuery();
+    await ctx.reply(t.errorMsg);
+  }
+});
+
+bot.action("redeem_premium_3d", async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  try {
+    const db = getDb();
+    const result = await redeemPremiumDays(db, String(ctx.from.id), PREMIUM_3D_DAYS, PREMIUM_3D_COST);
+    await ctx.answerCbQuery();
+    await ctx.reply(result.success ? t.referralShopSuccess : t.referralShopNotEnough);
+  } catch (err) {
+    console.error("Referral shop (premium_3d) xatosi:", err);
+    await ctx.answerCbQuery();
+    await ctx.reply(t.errorMsg);
+  }
+});
+
+bot.action("redeem_premium_30d", async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  try {
+    const db = getDb();
+    const result = await redeemPremiumDays(db, String(ctx.from.id), PREMIUM_30D_DAYS, PREMIUM_30D_COST);
+    await ctx.answerCbQuery();
+    await ctx.reply(result.success ? t.referralShopSuccess : t.referralShopNotEnough);
+  } catch (err) {
+    console.error("Referral shop (premium_30d) xatosi:", err);
+    await ctx.answerCbQuery();
+    await ctx.reply(t.errorMsg);
+  }
 });
 
 // ===== Premium (bot chatda) =====

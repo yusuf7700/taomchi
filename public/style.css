@@ -849,6 +849,75 @@ html.no-splash .splash {
   border: 1.5px solid var(--border-soft);
 }
 
+.referral-shop-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1.5px solid var(--border-soft);
+}
+
+.referral-shop-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.referral-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.referral-shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.referral-shop-item-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.referral-shop-item-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.referral-shop-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.referral-shop-item-cost {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.referral-shop-btn {
+  flex-shrink: 0;
+  background: var(--green-dark);
+  color: var(--cream);
+  border-radius: var(--radius-sm);
+  padding: 9px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.referral-shop-btn:disabled {
+  opacity: 0.6;
+}
+
 .detail-section-title {
   font-size: 17px;
   font-weight: 700;

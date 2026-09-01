@@ -5,7 +5,7 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
-const { getReferralStatus, redeemRecipeUnlock } = require("../lib/referral");
+const { getReferralStatus, redeemRecipeUnlock, redeemAiBonus, redeemPremiumDays, PREMIUM_3D_DAYS, PREMIUM_3D_COST, PREMIUM_30D_DAYS, PREMIUM_30D_COST } = require("../lib/referral");
 
 let cachedBotUsername = null;
 async function getBotUsername() {
@@ -42,13 +42,29 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
-      const { initData, action, recipeId } = req.body || {};
+      const { initData, action, recipeId, rewardType } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
 
       if (action === "redeem_recipe") {
         if (!recipeId) return res.status(400).json({ error: "recipeId kerak" });
         const result = await redeemRecipeUnlock(db, tgUser.id, recipeId);
+        if (!result.success) return res.status(400).json({ error: result.reason });
+        return res.status(200).json({ success: true, remainingPoints: result.remainingPoints });
+      }
+
+      if (action === "redeem_reward") {
+        let result;
+        if (rewardType === "ai_bonus") {
+          result = await redeemAiBonus(db, tgUser.id);
+        } else if (rewardType === "premium_3d") {
+          result = await redeemPremiumDays(db, tgUser.id, PREMIUM_3D_DAYS, PREMIUM_3D_COST);
+        } else if (rewardType === "premium_30d") {
+          result = await redeemPremiumDays(db, tgUser.id, PREMIUM_30D_DAYS, PREMIUM_30D_COST);
+        } else {
+          return res.status(400).json({ error: "Noma'lum rewardType" });
+        }
+
         if (!result.success) return res.status(400).json({ error: result.reason });
         return res.status(200).json({ success: true, remainingPoints: result.remainingPoints });
       }
