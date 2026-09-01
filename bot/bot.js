@@ -3,7 +3,7 @@
 const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
 const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
-const { activatePremiumSubscription } = require("../lib/premium");
+const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHLY_STARS_PRICE, YEARLY_STARS_PRICE } = require("../lib/premium");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -12,11 +12,12 @@ const BOT_TEXT = {
   uz: {
     welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Taomchini ochish",
-    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
+    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n⭐ Premium — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🍽️ Tasodifiy taom",
     pantryBtnLabel: "🧺 Uyda nima bor?",
     weeklyBtnLabel: "🗓 Haftalik menyu",
     aiBtnLabel: "🤖 AI'dan so'rash",
+    premiumBtnLabel: "⭐ Premium",
     aiPrompt: "Ovqat yoki oshxona haqidagi savolingizni yozib yuboring 👇\n(masalan: \"Tuxum va pomidor bilan nima pishirsam bo'ladi?\")",
     aiThinking: "🤔 O'ylanmoqda...",
     aiLimitReached: "⏳ Bugungi bepul so'rov limiti tugadi. Yana 1 marta so'rash uchun pastdagi tugmani bosing, yoki ertaga qayta urinib ko'ring.",
@@ -26,6 +27,17 @@ const BOT_TEXT = {
     aiInvoiceDescription: "1 marta qo'shimcha AI'dan savol so'rash huquqi",
     aiPaymentThanks: "✅ To'lov qabul qilindi! Javobingiz tayyorlanmoqda...",
     premiumPaymentThanks: "✅ To'lov qabul qilindi! Taomchi Premium faollashtirildi 🎉",
+    premiumActiveStatus: (days) => `⭐ Premium faol — yana ${days} kun qoldi.`,
+    premiumGiftPrompt: (days) => `🎁 Sizga sovg'a bor! ${days} kunlik Premium'ni bepul sinab ko'ring.`,
+    premiumBuyPrompt: "👑 Premium bilan kuniga 15 marta AI'dan so'rashingiz mumkin. Muddatni tanlang:",
+    premiumTrialBtn: (days) => `🎁 ${days} kunlik sovg'ani ishlatish`,
+    premiumMonthlyBtn: (price) => `Oylik — ⭐${price}`,
+    premiumYearlyBtn: (price) => `Yillik — ⭐${price}`,
+    premiumTrialClaimed: "🎉 3 kunlik Premium faollashtirildi! Endi kuniga 15 marta AI'dan so'rashingiz mumkin.",
+    premiumTrialAlreadyUsed: "Siz sovg'ani allaqachon ishlatgansiz.",
+    premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 oy",
+    premiumInvoiceYearlyTitle: "Taomchi Premium — 1 yil",
+    premiumInvoiceDescription: "Kuniga 15 marta AI'dan so'rash va boshqa Premium imkoniyatlar",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -40,11 +52,12 @@ const BOT_TEXT = {
   uzk: {
     welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Taomchini очиш",
-    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
+    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n⭐ Premium — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🍽️ Тасодифий таом",
     pantryBtnLabel: "🧺 Уйда нима бор?",
     weeklyBtnLabel: "🗓 Ҳафталик менюси",
     aiBtnLabel: "🤖 AI'дан сўраш",
+    premiumBtnLabel: "⭐ Premium",
     aiPrompt: "Овқат ёки ошхона ҳақидаги саволингизни ёзиб юборинг 👇\n(масалан: \"Тухум ва помидор билан нима пиширсам бўлади?\")",
     aiThinking: "🤔 Ўйланмоқда...",
     aiLimitReached: "⏳ Бугунги бепул сўров лимити тугади. Яна 1 марта сўраш учун пастдаги тугмани босинг, ёки эртага қайта уриниб кўринг.",
@@ -54,6 +67,17 @@ const BOT_TEXT = {
     aiInvoiceDescription: "1 марта қўшимча AI'дан савол сўраш ҳуқуқи",
     aiPaymentThanks: "✅ Тўлов қабул қилинди! Жавобингиз тайёрланмоқда...",
     premiumPaymentThanks: "✅ Тўлов қабул қилинди! Taomchi Premium фаоллаштирилди 🎉",
+    premiumActiveStatus: (days) => `⭐ Premium фаол — яна ${days} кун қолди.`,
+    premiumGiftPrompt: (days) => `🎁 Сизга совға бор! ${days} кунлик Premium'ни бепул синаб кўринг.`,
+    premiumBuyPrompt: "👑 Premium билан кунига 15 марта AI'дан сўрашингиз мумкин. Муддатни танланг:",
+    premiumTrialBtn: (days) => `🎁 ${days} кунлик совғани ишлатиш`,
+    premiumMonthlyBtn: (price) => `Ойлик — ⭐${price}`,
+    premiumYearlyBtn: (price) => `Йиллик — ⭐${price}`,
+    premiumTrialClaimed: "🎉 3 кунлик Premium фаоллаштирилди! Энди кунига 15 марта AI'дан сўрашингиз мумкин.",
+    premiumTrialAlreadyUsed: "Сиз совғани аллақачон ишлатгансиз.",
+    premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 ой",
+    premiumInvoiceYearlyTitle: "Taomchi Premium — 1 йил",
+    premiumInvoiceDescription: "Кунига 15 марта AI'дан сўраш ва бошқа Premium имкониятлар",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -138,7 +162,8 @@ async function sendWelcome(ctx, lang) {
         [t.randomBtnLabel],
         [{ text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }],
         [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }],
-        [t.aiBtnLabel]
+        [t.aiBtnLabel],
+        [t.premiumBtnLabel]
       ],
       resize_keyboard: true
     }
@@ -317,6 +342,89 @@ bot.on("text", async (ctx, next) => {
   } catch (err) {
     console.error("AI javob xatosi:", err);
     await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiError).catch(() => {});
+  }
+});
+
+// ===== Premium (bot chatda) =====
+async function sendPremiumInfo(ctx, lang) {
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  const userId = String(ctx.from.id);
+
+  try {
+    const db = getDb();
+    const status = await getPremiumStatus(db, userId);
+
+    if (status.active) {
+      await ctx.reply(t.premiumActiveStatus(status.daysLeft));
+      return;
+    }
+
+    const buttons = [];
+    if (status.trialAvailable) {
+      buttons.push([{ text: t.premiumTrialBtn(status.trialDays), callback_data: "premium_trial" }]);
+    }
+    buttons.push([
+      { text: t.premiumMonthlyBtn(status.monthlyStarsPrice), callback_data: "premium_buy_monthly" },
+      { text: t.premiumYearlyBtn(status.yearlyStarsPrice), callback_data: "premium_buy_yearly" }
+    ]);
+
+    const introText = status.trialAvailable
+      ? t.premiumGiftPrompt(status.trialDays) + "\n\n" + t.premiumBuyPrompt
+      : t.premiumBuyPrompt;
+
+    await ctx.reply(introText, { reply_markup: { inline_keyboard: buttons } });
+  } catch (err) {
+    console.error("Premium ma'lumotini olishda xato:", err);
+    await ctx.reply(t.errorMsg);
+  }
+}
+
+bot.command("premium", async (ctx) => {
+  awaitingAiQuestion.delete(String(ctx.from.id));
+  const lang = await getUserLang(ctx);
+  await sendPremiumInfo(ctx, lang);
+});
+
+bot.hears(/⭐ Premium/i, async (ctx) => {
+  awaitingAiQuestion.delete(String(ctx.from.id));
+  const lang = await getUserLang(ctx);
+  await sendPremiumInfo(ctx, lang);
+});
+
+bot.action("premium_trial", async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  try {
+    const db = getDb();
+    const result = await claimPremiumTrial(db, String(ctx.from.id));
+    await ctx.answerCbQuery();
+    await ctx.reply(result.success ? t.premiumTrialClaimed : t.premiumTrialAlreadyUsed);
+  } catch (err) {
+    console.error("Trial claim xatosi:", err);
+    await ctx.answerCbQuery();
+    await ctx.reply(t.errorMsg);
+  }
+});
+
+bot.action(["premium_buy_monthly", "premium_buy_yearly"], async (ctx) => {
+  const lang = await getUserLang(ctx);
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  const plan = ctx.callbackQuery.data === "premium_buy_yearly" ? "yearly" : "monthly";
+  const userId = String(ctx.from.id);
+
+  try {
+    await ctx.answerCbQuery();
+    await ctx.replyWithInvoice({
+      title: plan === "yearly" ? t.premiumInvoiceYearlyTitle : t.premiumInvoiceMonthlyTitle,
+      description: t.premiumInvoiceDescription,
+      payload: `premium_${plan}_${userId}`,
+      provider_token: "", // Telegram Stars uchun bo'sh qoldiriladi
+      currency: "XTR",
+      prices: [{ label: "Taomchi Premium", amount: plan === "yearly" ? YEARLY_STARS_PRICE : MONTHLY_STARS_PRICE }]
+    });
+  } catch (err) {
+    console.error("Premium invoice xatosi:", err);
+    await ctx.reply(t.errorMsg);
   }
 });
 
