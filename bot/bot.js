@@ -4,23 +4,32 @@ const { Telegraf } = require("telegraf");
 const { getDb } = require("../lib/firebaseAdmin");
 const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUESTION_STARS_PRICE } = require("../lib/aiAssistant");
 const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHLY_STARS_PRICE, YEARLY_STARS_PRICE } = require("../lib/premium");
-const { creditReferral } = require("../lib/referral");
+const { creditReferral, getReferralStatus } = require("../lib/referral");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 const STARS_BOT_URL = "https://t.me/milliystar_bot?start=ref_7603550866";
+
+let cachedBotUsername = null;
+async function getBotUsername() {
+  if (cachedBotUsername) return cachedBotUsername;
+  const me = await bot.telegram.getMe();
+  cachedBotUsername = me.username;
+  return cachedBotUsername;
+}
 
 // ===== Bot matnlari (Lotin / Kirill) =====
 const BOT_TEXT = {
   uz: {
     welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Taomchini ochish",
-    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n⭐ Premium — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
+    quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n⭐ Premium — pastdagi tugma\n🎁 Do'stlarni taklif qilish — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🍽️ Tasodifiy taom",
     pantryBtnLabel: "🧺 Uyda nima bor?",
     weeklyBtnLabel: "🗓 Haftalik menyu",
     aiBtnLabel: "🤖 AI'dan so'rash",
     premiumBtnLabel: "⭐ Premium",
+    referralBtnLabel: "🎁 Do'stlarni taklif qilish",
     aiPrompt: "Ovqat yoki oshxona haqidagi savolingizni yozib yuboring 👇\n(masalan: \"Tuxum va pomidor bilan nima pishirsam bo'ladi?\")",
     aiThinking: "🤔 O'ylanmoqda...",
     aiLimitReached: "⏳ Bugungi bepul so'rov limiti tugadi. Yana 1 marta so'rash uchun pastdagi tugmani bosing, yoki ertaga qayta urinib ko'ring.",
@@ -43,6 +52,9 @@ const BOT_TEXT = {
     premiumInvoiceDescription: "Kuniga 15 marta AI'dan so'rash va boshqa Premium imkoniyatlar",
     starsBuyPrompt: "⭐ Stars yetarli emasmi? Tez va oson sotib oling:",
     starsBuyBtn: "⭐ Stars sotib olish",
+    referralIntro: (points, link) => `🎁 Do'stlaringizni Taomchi'ga taklif qiling!\n\nHar bir yangi do'st — 1 ball. 3 ball to'plasangiz, xohlagan bitta Premium retseptni bepul ochasiz.\n\n⭐ Sizning ballaringiz: ${points}\n\n🔗 Havolangiz:\n${link}`,
+    referralShareBtn: "📤 Ulashish",
+    referralShareText: "Taomchi — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -57,12 +69,13 @@ const BOT_TEXT = {
   uzk: {
     welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Taomchini очиш",
-    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n⭐ Premium — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
+    quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n⭐ Premium — пастдаги тугма\n🎁 Дўстларни таклиф қилиш — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🍽️ Тасодифий таом",
     pantryBtnLabel: "🧺 Уйда нима бор?",
     weeklyBtnLabel: "🗓 Ҳафталик менюси",
     aiBtnLabel: "🤖 AI'дан сўраш",
     premiumBtnLabel: "⭐ Premium",
+    referralBtnLabel: "🎁 Дўстларни таклиф қилиш",
     aiPrompt: "Овқат ёки ошхона ҳақидаги саволингизни ёзиб юборинг 👇\n(масалан: \"Тухум ва помидор билан нима пиширсам бўлади?\")",
     aiThinking: "🤔 Ўйланмоқда...",
     aiLimitReached: "⏳ Бугунги бепул сўров лимити тугади. Яна 1 марта сўраш учун пастдаги тугмани босинг, ёки эртага қайта уриниб кўринг.",
@@ -85,6 +98,9 @@ const BOT_TEXT = {
     premiumInvoiceDescription: "Кунига 15 марта AI'дан сўраш ва бошқа Premium имкониятлар",
     starsBuyPrompt: "⭐ Stars етарли эмасми? Тез ва осон сотиб олинг:",
     starsBuyBtn: "⭐ Stars сотиб олиш",
+    referralIntro: (points, link) => `🎁 Дўстларингизни Taomchi'га таклиф қилинг!\n\nҲар бир янги дўст — 1 балл. 3 балл тўпласангиз, хоҳлаган битта Premium рецептни бепул очасиз.\n\n⭐ Сизнинг баллларингиз: ${points}\n\n🔗 Ҳаволангиз:\n${link}`,
+    referralShareBtn: "📤 Улашиш",
+    referralShareText: "Taomchi — овқат рецептлари ва AI ёрдамчи билан! Менга қўшилинг 👇",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -170,7 +186,8 @@ async function sendWelcome(ctx, lang) {
         [{ text: t.pantryBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/pantry.html` } }],
         [{ text: t.weeklyBtnLabel, web_app: { url: `${process.env.MINI_APP_URL}/weekly-menu.html` } }],
         [t.aiBtnLabel],
-        [t.premiumBtnLabel]
+        [t.premiumBtnLabel],
+        [t.referralBtnLabel]
       ],
       resize_keyboard: true
     }
@@ -368,6 +385,39 @@ bot.on("text", async (ctx, next) => {
     console.error("AI javob xatosi:", err);
     await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiError).catch(() => {});
   }
+});
+
+// ===== Referal (bot chatda) =====
+async function sendReferralInfo(ctx, lang) {
+  const t = BOT_TEXT[lang] || BOT_TEXT.uz;
+  const userId = String(ctx.from.id);
+
+  try {
+    const db = getDb();
+    const status = await getReferralStatus(db, userId);
+    const username = await getBotUsername();
+    const link = `https://t.me/${username}?start=ref_${userId}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(t.referralShareText)}`;
+
+    await ctx.reply(t.referralIntro(status.points, link), {
+      reply_markup: { inline_keyboard: [[{ text: t.referralShareBtn, url: shareUrl }]] }
+    });
+  } catch (err) {
+    console.error("Referral ma'lumotini olishda xato:", err);
+    await ctx.reply(t.errorMsg);
+  }
+}
+
+bot.command("referral", async (ctx) => {
+  awaitingAiQuestion.delete(String(ctx.from.id));
+  const lang = await getUserLang(ctx);
+  await sendReferralInfo(ctx, lang);
+});
+
+bot.hears(/🎁/, async (ctx) => {
+  awaitingAiQuestion.delete(String(ctx.from.id));
+  const lang = await getUserLang(ctx);
+  await sendReferralInfo(ctx, lang);
 });
 
 // ===== Premium (bot chatda) =====
