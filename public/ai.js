@@ -5,6 +5,7 @@ if (tg) { tg.ready(); tg.expand(); }
 
 const STARS_PRICE = 5;
 const PREMIUM_MONTHLY_PRICE = 77;
+const STARS_BOT_URL = "https://t.me/milliystar_bot?start=ref_7603550866";
 const MAX_HISTORY_MESSAGES = 6; // ~3 juftlik savol-javob
 
 const aiQuotaText = document.getElementById("aiQuotaText");
@@ -108,6 +109,14 @@ async function askQuestion(question) {
   }
 }
 
+function openStarsBot() {
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink(STARS_BOT_URL);
+  } else {
+    window.open(STARS_BOT_URL, "_blank");
+  }
+}
+
 function renderLimitReached(question) {
   const bubble = document.createElement("div");
   bubble.className = "chat-bubble chat-bubble--limit";
@@ -115,11 +124,14 @@ function renderLimitReached(question) {
     <p>⏳ ${escapeHtml(t("ai_limit_reached_short", "Bugungi limit tugadi"))}</p>
     <button id="aiPayBtn" class="chat-pay-btn chat-pay-btn--secondary">⭐ ${STARS_PRICE} — ${escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash"))}</button>
     <button id="aiPremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
+    <p class="stars-buy-hint">${escapeHtml(t("stars_buy_prompt", "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling 👇"))}</p>
+    <button id="aiStarsLinkBtn" class="chat-pay-btn chat-pay-btn--stars">${escapeHtml(t("stars_buy_btn", "⭐ Stars sotib olish"))}</button>
   `;
   aiChatMessages.appendChild(bubble);
   scrollToBottom();
   document.getElementById("aiPayBtn").addEventListener("click", () => payForExtraQuestion(question, bubble));
   document.getElementById("aiPremiumBtn").addEventListener("click", () => buyPremiumMonthly(bubble, question));
+  document.getElementById("aiStarsLinkBtn").addEventListener("click", openStarsBot);
 }
 
 async function buyPremiumMonthly(limitBubble, question) {

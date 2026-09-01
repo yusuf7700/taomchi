@@ -74,6 +74,13 @@ function tp(key, fallback) {
 
 let premiumState = { active: false, daysLeft: 0, trialAvailable: false, monthlyStarsPrice: 77, yearlyStarsPrice: 777, trialDays: 3 };
 
+// Server javobi kelgunicha statik "Tez orada..." matni bir lahzaga
+// ko'rinib qolmasligi uchun — darhol "Yuklanmoqda..." holatini qo'yamiz.
+premiumTitle.textContent = tp("premium_title", "Taomchi Premium");
+premiumSubtitle.textContent = tp("ai_loading", "Yuklanmoqda...");
+premiumBanner.style.cursor = "default";
+premiumBanner.onclick = null;
+
 async function loadPremiumStatus() {
   if (!tg?.initData) { renderPremiumBanner(); return; }
   try {
@@ -162,10 +169,23 @@ function showPurchaseOffer() {
       <button class="premium-btn premium-btn--secondary" id="premiumMonthlyBtn">${tp("premium_monthly_btn", "Oylik")} ⭐${premiumState.monthlyStarsPrice}</button>
       <button class="premium-btn premium-btn--primary" id="premiumYearlyBtn">${tp("premium_yearly_btn", "Yillik")} ⭐${premiumState.yearlyStarsPrice}</button>
     </div>
+    <p class="stars-buy-hint">${escapeHtmlP(tp("stars_buy_prompt", "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling 👇"))}</p>
+    <button class="premium-btn premium-btn--stars" id="premiumStarsLinkBtn">${tp("stars_buy_btn", "⭐ Stars sotib olish")}</button>
   `;
   document.getElementById("premiumCancelBtn").addEventListener("click", closePremiumActions);
   document.getElementById("premiumMonthlyBtn").addEventListener("click", () => buyPremium("monthly"));
   document.getElementById("premiumYearlyBtn").addEventListener("click", () => buyPremium("yearly"));
+  document.getElementById("premiumStarsLinkBtn").addEventListener("click", openStarsBot);
+}
+
+const STARS_BOT_URL = "https://t.me/milliystar_bot?start=ref_7603550866";
+
+function openStarsBot() {
+  if (tg?.openTelegramLink) {
+    tg.openTelegramLink(STARS_BOT_URL);
+  } else {
+    window.open(STARS_BOT_URL, "_blank");
+  }
 }
 
 async function buyPremium(plan) {

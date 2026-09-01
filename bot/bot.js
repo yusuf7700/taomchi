@@ -7,6 +7,8 @@ const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHL
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+const STARS_BOT_URL = "https://t.me/milliystar_bot?start=ref_7603550866";
+
 // ===== Bot matnlari (Lotin / Kirill) =====
 const BOT_TEXT = {
   uz: {
@@ -38,6 +40,8 @@ const BOT_TEXT = {
     premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 oy",
     premiumInvoiceYearlyTitle: "Taomchi Premium — 1 yil",
     premiumInvoiceDescription: "Kuniga 15 marta AI'dan so'rash va boshqa Premium imkoniyatlar",
+    starsBuyPrompt: "⭐ Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling:",
+    starsBuyBtn: "⭐ Stars sotib olish",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
     noRecipes: "Hozircha retseptlar mavjud emas.",
@@ -78,6 +82,8 @@ const BOT_TEXT = {
     premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 ой",
     premiumInvoiceYearlyTitle: "Taomchi Premium — 1 йил",
     premiumInvoiceDescription: "Кунига 15 марта AI'дан сўраш ва бошқа Premium имкониятлар",
+    starsBuyPrompt: "⭐ Stars етарли эмасми? Миллий карта орқали сонияларда сотиб олинг:",
+    starsBuyBtn: "⭐ Stars сотиб олиш",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
     noRecipes: "Ҳозирча рецептлар мавжуд эмас.",
@@ -334,6 +340,7 @@ bot.on("text", async (ctx, next) => {
         currency: "XTR",
         prices: [{ label: t.aiInvoiceTitle, amount: EXTRA_QUESTION_STARS_PRICE }]
       });
+      await ctx.reply(t.starsBuyPrompt, { reply_markup: { inline_keyboard: [[{ text: t.starsBuyBtn, url: STARS_BOT_URL }]] } });
       return;
     }
 
@@ -367,6 +374,7 @@ async function sendPremiumInfo(ctx, lang) {
       { text: t.premiumMonthlyBtn(status.monthlyStarsPrice), callback_data: "premium_buy_monthly" },
       { text: t.premiumYearlyBtn(status.yearlyStarsPrice), callback_data: "premium_buy_yearly" }
     ]);
+    buttons.push([{ text: t.starsBuyBtn, url: STARS_BOT_URL }]);
 
     const introText = status.trialAvailable
       ? t.premiumGiftPrompt(status.trialDays) + "\n\n" + t.premiumBuyPrompt

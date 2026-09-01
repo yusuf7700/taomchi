@@ -478,7 +478,7 @@ async function loadUsers() {
 function renderUserStats() {
   document.getElementById("tabUsersCount").textContent = allAdminUsers.length ? `(${allAdminUsers.length})` : "";
   document.getElementById("statTotal").textContent = allAdminUsers.length;
-  document.getElementById("statPremium").textContent = allAdminUsers.filter(u => u.isPremium).length;
+  document.getElementById("statPremium").textContent = allAdminUsers.filter(u => (u.premiumUntil || 0) > Date.now()).length;
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -507,16 +507,63 @@ function renderUserList(users) {
   listEl.innerHTML = sorted.map(u => {
     const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString("uz-UZ") : "-";
     const langLabel = u.language === "uzk" ? "Кирилл" : "Lotin";
+    const until = u.premiumUntil || 0;
+    const isPremiumActive = until > Date.now();
+    const daysLeft = isPremiumActive ? Math.ceil((until - Date.now()) / (24 * 60 * 60 * 1000)) : 0;
+
+    const premiumControl = isPremiumActive
+      ? `<button class="admin-mini-btn admin-mini-btn--danger" onclick="revokeUserPremium('${u.id}')">⭐ ${daysLeft} kun · bekor qilish</button>`
+      : `<button class="admin-mini-btn" onclick="promptGrantPremium('${u.id}')">⭐ Premium berish</button>`;
+
     return `
       <div class="admin-user-item">
         <div class="admin-user-avatar">${(u.firstName || "?").charAt(0).toUpperCase()}</div>
         <div class="admin-recipe-item-info">
-          <p class="admin-recipe-item-title">${u.firstName || "(nomsiz)"} ${u.isPremium ? "⭐" : ""}</p>
+          <p class="admin-recipe-item-title">${u.firstName || "(nomsiz)"} ${isPremiumActive ? "⭐" : ""}</p>
           <p class="admin-recipe-item-meta">${u.username ? "@" + u.username : "username yo'q"} · ${langLabel} · ${date}</p>
+          ${premiumControl}
         </div>
       </div>
     `;
   }).join("");
+}
+
+async function promptGrantPremium(userId) {
+  const input = prompt("Necha kunga Premium berilsin? (masalan: 30)", "30");
+  if (!input) return;
+  const numDays = Number(input);
+  if (!numDays || numDays <= 0) {
+    alert("Noto'g'ri son kiritildi.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/admin-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({ userId, action: "grant_premium", days: numDays })
+    });
+    if (!res.ok) throw new Error();
+    await loadUsers();
+  } catch {
+    alert("Xatolik yuz berdi.");
+  }
+}
+
+async function revokeUserPremium(userId) {
+  if (!confirm("Bu foydalanuvchidan Premium'ni olib tashlaysizmi?")) return;
+
+  try {
+    const res = await fetch("/api/admin-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
+      body: JSON.stringify({ userId, action: "revoke_premium" })
+    });
+    if (!res.ok) throw new Error();
+    await loadUsers();
+  } catch {
+    alert("Xatolik yuz berdi.");
+  }
 }
 
 document.getElementById("userSearchInput").addEventListener("input", applyUserFilter);

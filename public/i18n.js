@@ -105,6 +105,8 @@ const TRANSLATIONS = {
     ai_free_remaining: "Bugun yana so'rash mumkin: ",
     ai_pay_once_more: "yana 1 marta so'rash",
     ai_loading: "Yuklanmoqda...",
+    stars_buy_prompt: "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling 👇",
+    stars_buy_btn: "⭐ Stars sotib olish",
     ai_greeting_1: "Assalomu alaykum! 👋 Men Taomchi — sizning oshxonadagi yordamchingizman. Uyda nima bor, nima pishirsam bo'ladi — bemalol so'rang! 🍲",
     ai_greeting_2: "Salom-salom! 😊 Bugun nima pishiramiz? Qo'lingizda bor mahsulotlarni ayting, birga o'ylaymiz 👨‍🍳",
     ai_greeting_3: "Xush kelibsiz! 🥘 Ovqat, retsept yoki pishirish bo'yicha savolingiz bo'lsa — men shu yerdaman."
@@ -211,6 +213,8 @@ const TRANSLATIONS = {
     ai_free_remaining: "Бугун яна сўраш мумкин: ",
     ai_pay_once_more: "яна 1 марта сўраш",
     ai_loading: "Юкланмоқда...",
+    stars_buy_prompt: "Stars етарли эмасми? Миллий карта орқали сонияларда сотиб олинг 👇",
+    stars_buy_btn: "⭐ Stars сотиб олиш",
     ai_greeting_1: "Ассалому алайкум! 👋 Мен Taomchi — сизнинг ошхонадаги ёрдамчингизман. Уйда нима бор, нима пиширсам бўлади — бемалол сўранг! 🍲",
     ai_greeting_2: "Салом-салом! 😊 Бугун нима пиширамиз? Қўлингизда бор маҳсулотларни айтинг, бирга ўйлаймиз 👨‍🍳",
     ai_greeting_3: "Хуш келибсиз! 🥘 Овқат, рецепт ёки пишириш бўйича саволингиз бўлса — мен шу ердаман."

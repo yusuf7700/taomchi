@@ -26,6 +26,27 @@ module.exports = async (req, res) => {
       return res.status(200).json(users);
     }
 
+    if (req.method === "POST") {
+      const { userId, action, days } = req.body || {};
+      if (!userId) return res.status(400).json({ error: "userId kerak" });
+
+      const userRef = db.collection("users").doc(String(userId));
+
+      if (action === "grant_premium") {
+        const numDays = Number(days) > 0 ? Number(days) : 30;
+        const until = Date.now() + numDays * 24 * 60 * 60 * 1000;
+        await userRef.set({ premiumUntil: until }, { merge: true });
+        return res.status(200).json({ success: true, until });
+      }
+
+      if (action === "revoke_premium") {
+        await userRef.set({ premiumUntil: 0 }, { merge: true });
+        return res.status(200).json({ success: true });
+      }
+
+      return res.status(400).json({ error: "Noma'lum action" });
+    }
+
     return res.status(405).json({ error: "Usul qo'llab-quvvatlanmaydi" });
   } catch (err) {
     console.error(err);

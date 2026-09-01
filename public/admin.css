@@ -375,3 +375,17 @@
   font-weight: 700;
 }
 
+.admin-mini-btn {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--green-dark);
+  color: var(--cream);
+}
+
+.admin-mini-btn--danger {
+  background: var(--orange);
+}
