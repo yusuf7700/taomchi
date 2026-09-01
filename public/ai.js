@@ -1,14 +1,18 @@
-// ===== Taomchi — AI yordamchi sahifasi =====
+// ===== Taomchi — AI yordamchi sahifasi (chat ko'rinishi) =====
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const STARS_PRICE = 5;
+const MAX_HISTORY_MESSAGES = 6; // ~3 juftlik savol-javob
 
 const aiQuotaText = document.getElementById("aiQuotaText");
 const aiQuestionInput = document.getElementById("aiQuestionInput");
 const aiAskBtn = document.getElementById("aiAskBtn");
-const aiResultArea = document.getElementById("aiResultArea");
+const aiChatMessages = document.getElementById("aiChatMessages");
+
+// Suhbat konteksti — faqat matn juftliklari, xotirada (sahifa yopilsa yo'qoladi).
+let chatHistory = [];
 
 function t(key, fallback) {
   const lang = getCurrentLang();
@@ -22,28 +26,69 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function scrollToBottom() {
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+  });
+}
+
+function addBubble(role, text, extraClass = "") {
+  const bubble = document.createElement("div");
+  bubble.className = `chat-bubble chat-bubble--${role}${extraClass ? " " + extraClass : ""}`;
+  bubble.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
+  aiChatMessages.appendChild(bubble);
+  scrollToBottom();
+  return bubble;
+}
+
+function addTypingIndicator() {
+  const el = document.createElement("div");
+  el.className = "chat-typing";
+  el.id = "aiTypingIndicator";
+  el.innerHTML = "<span></span><span></span><span></span>";
+  aiChatMessages.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function removeTypingIndicator() {
+  document.getElementById("aiTypingIndicator")?.remove();
+}
+
 function updateQuotaText(isPremium, remainingToday) {
   if (isPremium) {
     aiQuotaText.textContent = "⭐ " + t("ai_premium_unlimited", "Premium: cheksiz so'rov");
   } else if (remainingToday === 0) {
     aiQuotaText.textContent = "⏳ " + t("ai_limit_reached_short", "Bugungi limit tugadi");
-  } else {
+  } else if (remainingToday != null) {
     aiQuotaText.textContent = "🆓 " + t("ai_free_remaining", "Bugun yana so'rash mumkin: ") + remainingToday;
   }
 }
 
+function autoResizeInput() {
+  aiQuestionInput.style.height = "auto";
+  aiQuestionInput.style.height = Math.min(aiQuestionInput.scrollHeight, 100) + "px";
+}
+
 async function askQuestion(question) {
   aiAskBtn.disabled = true;
-  aiAskBtn.textContent = t("ai_thinking", "O'ylanmoqda...");
-  aiResultArea.innerHTML = "";
+
+  const typingEl = addTypingIndicator();
 
   try {
     const res = await fetch("/api/ai-chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tg.initData, question, lang: getCurrentLang() })
+      body: JSON.stringify({
+        initData: tg.initData,
+        question,
+        lang: getCurrentLang(),
+        history: chatHistory.slice(-MAX_HISTORY_MESSAGES)
+      })
     });
     const data = await res.json();
+
+    removeTypingIndicator();
 
     if (res.status === 429) {
       renderLimitReached(question);
@@ -51,26 +96,30 @@ async function askQuestion(question) {
     }
     if (!res.ok) throw new Error(data.error || "Server xatosi");
 
-    aiResultArea.innerHTML = `<div class="ai-answer-card">${escapeHtml(data.answer).replace(/\n/g, "<br>")}</div>`;
+    addBubble("bot", data.answer);
+    chatHistory.push({ role: "assistant", content: data.answer });
     updateQuotaText(data.isPremium, data.remainingToday);
-    aiQuestionInput.value = "";
   } catch (err) {
-    aiResultArea.innerHTML = `<p class="empty-text">❌ ${err.message}</p>`;
+    removeTypingIndicator();
+    addBubble("bot", "❌ " + err.message, "chat-bubble--error");
   } finally {
     aiAskBtn.disabled = false;
-    aiAskBtn.textContent = t("ai_ask_btn", "So'rash");
   }
 }
 
 function renderLimitReached(question) {
-  aiResultArea.innerHTML = `
-    <p class="ai-limit-text">⏳ ${t("ai_limit_reached", "Bugungi bepul so'rov limiti tugadi.")}</p>
-    <button id="aiPayBtn" class="ai-ask-btn" style="margin-top:10px;">⭐ ${STARS_PRICE} Stars — ${t("ai_pay_once_more", "yana 1 marta so'rash")}</button>
+  const bubble = document.createElement("div");
+  bubble.className = "chat-bubble chat-bubble--limit";
+  bubble.innerHTML = `
+    <span>⏳ ${escapeHtml(t("ai_limit_reached", "Bugungi bepul so'rov limiti tugadi."))}</span>
+    <button id="aiPayBtn" class="chat-pay-btn">⭐ ${STARS_PRICE} Stars — ${escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash"))}</button>
   `;
-  document.getElementById("aiPayBtn").addEventListener("click", () => payForExtraQuestion(question));
+  aiChatMessages.appendChild(bubble);
+  scrollToBottom();
+  document.getElementById("aiPayBtn").addEventListener("click", () => payForExtraQuestion(question, bubble));
 }
 
-async function payForExtraQuestion(question) {
+async function payForExtraQuestion(question, limitBubble) {
   const payBtn = document.getElementById("aiPayBtn");
   payBtn.disabled = true;
   payBtn.textContent = t("ai_loading", "Yuklanmoqda...");
@@ -86,8 +135,7 @@ async function payForExtraQuestion(question) {
 
     tg.openInvoice(data.link, (status) => {
       if (status === "paid") {
-        // To'lov tasdiqlangach, xuddi shu savolni serverga qayta yuboramiz —
-        // server tomonida endi "bonus" huquq mavjud, shuning uchun o'tadi.
+        limitBubble.remove();
         askQuestion(question);
       } else {
         payBtn.disabled = false;
@@ -95,18 +143,40 @@ async function payForExtraQuestion(question) {
       }
     });
   } catch (err) {
-    aiResultArea.innerHTML = `<p class="empty-text">❌ ${err.message}</p>`;
+    addBubble("bot", "❌ " + err.message, "chat-bubble--error");
   }
 }
 
-aiAskBtn.addEventListener("click", () => {
+function sendMessage() {
   const question = aiQuestionInput.value.trim();
   if (!question) return;
 
   if (!tg?.initData) {
-    aiResultArea.innerHTML = `<p class="empty-text">${t("ai_telegram_only", "Bu funksiya faqat Telegram ilovasi ichida ishlaydi.")}</p>`;
+    addBubble("bot", t("ai_telegram_only", "Bu funksiya faqat Telegram ilovasi ichida ishlaydi."), "chat-bubble--error");
     return;
   }
 
+  addBubble("user", question);
+  chatHistory.push({ role: "user", content: question });
+
+  aiQuestionInput.value = "";
+  autoResizeInput();
+
   askQuestion(question);
+}
+
+aiAskBtn.addEventListener("click", sendMessage);
+
+aiQuestionInput.addEventListener("input", autoResizeInput);
+
+aiQuestionInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
 });
+
+// Boshlang'ich salomlashuv xabari (Taomchi shaxsiyati bilan).
+const greetingKeys = ["ai_greeting_1", "ai_greeting_2", "ai_greeting_3"];
+const greetingKey = greetingKeys[Math.floor(Math.random() * greetingKeys.length)];
+addBubble("bot", t(greetingKey));

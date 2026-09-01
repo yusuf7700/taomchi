@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: "Usul qo'llab-quvvatlanmaydi" });
   }
 
-  const { initData, question, lang } = req.body || {};
+  const { initData, question, lang, history } = req.body || {};
   if (!question || !question.trim()) {
     return res.status(400).json({ error: "Savol bo'sh bo'lmasligi kerak" });
   }
@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
       return res.status(429).json({ error: "limit", message: "Bugungi bepul so'rov limiti tugadi. Premium bilan cheksiz foydalaning." });
     }
 
-    const answer = await askFoodAssistant(question, lang);
+    const answer = await askFoodAssistant(question, lang, history);
     return res.status(200).json({ answer, isPremium: quota.isPremium, remainingToday: quota.remainingToday });
   } catch (err) {
     console.error("AI chat xatosi:", err);

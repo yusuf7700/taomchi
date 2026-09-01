@@ -20,20 +20,21 @@
     <button class="lang-toggle" id="langToggle" aria-label="Tilni almashtirish">UZ</button>
   </header>
 
-  <!-- ===== MAIN ===== -->
-  <main class="main">
-
-    <p class="pantry-intro" data-i18n="ai_intro">Uyingizda bor mahsulotlar yoki ovqat pishirish haqida savolingiz bo'lsa, so'rang 👇</p>
-
-    <p class="ai-quota-text" id="aiQuotaText"></p>
-
-    <textarea id="aiQuestionInput" class="ai-question-input" rows="3" placeholder="Masalan: Tuxum va pomidor bilan nima pishirsam bo'ladi?" data-i18n-placeholder="ai_placeholder"></textarea>
-
-    <button id="aiAskBtn" class="ai-ask-btn" data-i18n="ai_ask_btn">So'rash</button>
-
-    <div id="aiResultArea"></div>
-
+  <!-- ===== MAIN (chat) ===== -->
+  <main class="main ai-chat-main">
+    <div class="ai-chat-messages" id="aiChatMessages"></div>
   </main>
+
+  <!-- ===== INPUT BAR ===== -->
+  <div class="ai-input-bar">
+    <p class="ai-quota-text" id="aiQuotaText"></p>
+    <div class="ai-input-row">
+      <textarea id="aiQuestionInput" class="ai-question-input" rows="1" placeholder="Masalan: Tuxum va pomidor bilan nima pishirsam bo'ladi?" data-i18n-placeholder="ai_placeholder"></textarea>
+      <button id="aiAskBtn" class="ai-send-btn" aria-label="Yuborish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+      </button>
+    </div>
+  </div>
 
   <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottom-nav">
