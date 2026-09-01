@@ -68,9 +68,28 @@ async function processVideoEmbed(r) {
   // Telegram iframe hech qanday qo'shimcha skriptsiz ishlaydi
 }
 
-function renderRecipe(r) {
+// Joriy foydalanuvchi Premium faolmi — server orqali tekshiriladi
+// (client tomonidagi Firestore o'qishni "aylanib o'tish" mumkin bo'lsa ham,
+// bu MVP bosqichida yetarli: oddiy foydalanuvchi uchun to'liq matn
+// ko'rsatilmaydi, texnik bilimga ega odam DevTools orqali aylanib o'tishi
+// mumkin — lekin bu hozircha qabul qilinadigan xavf).
+async function isCurrentUserPremium() {
+  if (!tg?.initData) return false;
+  try {
+    const res = await fetch(`/api/premium?initData=${encodeURIComponent(tg.initData)}`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.active === true;
+  } catch {
+    return false;
+  }
+}
+
+async function renderRecipe(r) {
   const lang = getCurrentLang();
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
+
+  const locked = r.isPremium === true && !(await isCurrentUserPremium());
 
   const ingredientsHtml = (r.ingredients || []).map(ing => `
     <li><span>${displayText(ing.name)}</span><span class="ing-amount">${ing.amount}</span></li>
@@ -80,6 +99,28 @@ function renderRecipe(r) {
     <li><span class="step-num">${i + 1}</span><span>${displayText(step)}</span></li>
   `).join("");
 
+  const bodyHtml = locked
+    ? `
+      <div class="premium-lock-card">
+        <div class="premium-lock-icon">🔒</div>
+        <p class="premium-lock-title" data-i18n="recipe_lock_title">Bu — Premium retsept</p>
+        <p class="premium-lock-text" data-i18n="recipe_lock_text">To'liq tarkib, tayyorlash tartibi va videoni ko'rish uchun Premium'ga obuna bo'ling.</p>
+        <button class="premium-lock-btn" id="premiumLockBtn" data-i18n="recipe_lock_btn">👑 Premium olish</button>
+      </div>
+    `
+    : `
+      <h2 class="detail-section-title" data-i18n="ingredients_title">Kerakli mahsulotlar</h2>
+      <ul class="ingredient-list">${ingredientsHtml}</ul>
+
+      <h2 class="detail-section-title" data-i18n="steps_title">Tayyorlash tartibi</h2>
+      <ol class="step-list">${stepsHtml}</ol>
+
+      ${r.sourceUrl ? `
+      <h2 class="detail-section-title">🎬 Tayyorlanish videosi</h2>
+      <div class="detail-video">${buildVideoEmbedHtml(r)}</div>
+      ` : ""}
+    `;
+
   detailContent.innerHTML = `
     <div class="detail-hero">
       ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}" class="detail-image">` : `<div class="detail-image detail-image--placeholder">🍽️</div>`}
@@ -88,20 +129,12 @@ function renderRecipe(r) {
     <p class="detail-meta">
       <span>⏱ ${formatCookTime(r)}</span>
       ${difficultyBadge(r)}
+      ${r.isPremium ? `<span class="premium-lock-mini-badge">⭐ Premium</span>` : ""}
     </p>
 
-    <h2 class="detail-section-title" data-i18n="ingredients_title">Kerakli mahsulotlar</h2>
-    <ul class="ingredient-list">${ingredientsHtml}</ul>
+    ${bodyHtml}
 
-    <h2 class="detail-section-title" data-i18n="steps_title">Tayyorlash tartibi</h2>
-    <ol class="step-list">${stepsHtml}</ol>
-
-    ${r.sourceUrl ? `
-    <h2 class="detail-section-title">🎬 Tayyorlanish videosi</h2>
-    <div class="detail-video">${buildVideoEmbedHtml(r)}</div>
-    ` : ""}
-
-    ${getChannelLink(r) ? `
+    ${!locked && getChannelLink(r) ? `
     <a href="${getChannelLink(r)}" target="_blank" rel="noopener noreferrer" class="source-card">
       <span class="source-card-icon">${r.videoPlatform === "instagram" ? "📷" : "📡"}</span>
       <span class="source-card-info">
@@ -113,7 +146,13 @@ function renderRecipe(r) {
   `;
 
   applyTranslations(lang);
-  processVideoEmbed(r);
+  if (locked) {
+    document.getElementById("premiumLockBtn").addEventListener("click", () => {
+      window.location.href = "profile.html";
+    });
+  } else {
+    processVideoEmbed(r);
+  }
 }
 
 const urlParams = new URLSearchParams(window.location.search);

@@ -23,6 +23,7 @@ function renderFavorites(recipes) {
     <div class="recipe-card" data-id="${r.id}">
       <div class="recipe-thumb">
         ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}">` : "🍽️"}
+        ${premiumRibbon(r)}
         <button class="card-fav-btn" data-fav-id="${r.id}">❤️</button>
       </div>
       <div class="recipe-info">

@@ -87,6 +87,7 @@ function recipeResultCard(m) {
     <div class="recipe-card" data-id="${r.id}">
       <div class="recipe-thumb">
         ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}">` : "🍽️"}
+        ${premiumRibbon(r)}
       </div>
       <div class="recipe-info">
         <p class="recipe-title">${displayTitle(r)}</p>

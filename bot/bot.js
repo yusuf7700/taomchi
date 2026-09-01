@@ -40,7 +40,7 @@ const BOT_TEXT = {
     premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 oy",
     premiumInvoiceYearlyTitle: "Taomchi Premium — 1 yil",
     premiumInvoiceDescription: "Kuniga 15 marta AI'dan so'rash va boshqa Premium imkoniyatlar",
-    starsBuyPrompt: "⭐ Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling:",
+    starsBuyPrompt: "⭐ Stars yetarli emasmi? Tez va oson sotib oling:",
     starsBuyBtn: "⭐ Stars sotib olish",
     viewRecipe: "📖 Retseptni ko'rish",
     viewShort: "📖 Ko'rish",
@@ -82,7 +82,7 @@ const BOT_TEXT = {
     premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 ой",
     premiumInvoiceYearlyTitle: "Taomchi Premium — 1 йил",
     premiumInvoiceDescription: "Кунига 15 марта AI'дан сўраш ва бошқа Premium имкониятлар",
-    starsBuyPrompt: "⭐ Stars етарли эмасми? Миллий карта орқали сонияларда сотиб олинг:",
+    starsBuyPrompt: "⭐ Stars етарли эмасми? Тез ва осон сотиб олинг:",
     starsBuyBtn: "⭐ Stars сотиб олиш",
     viewRecipe: "📖 Рецептни кўриш",
     viewShort: "📖 Кўриш",
@@ -331,7 +331,14 @@ bot.on("text", async (ctx, next) => {
 
     if (!quota.allowed) {
       pendingPaidQuestion.set(userId, { question, lang });
-      await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiLimitReached);
+      await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiLimitReached, {
+        reply_markup: {
+          inline_keyboard: [[
+            { text: t.premiumMonthlyBtn(MONTHLY_STARS_PRICE), callback_data: "premium_buy_monthly" },
+            { text: t.premiumYearlyBtn(YEARLY_STARS_PRICE), callback_data: "premium_buy_yearly" }
+          ]]
+        }
+      });
       await ctx.replyWithInvoice({
         title: t.aiInvoiceTitle,
         description: t.aiInvoiceDescription,

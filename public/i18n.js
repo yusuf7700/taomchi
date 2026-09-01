@@ -35,7 +35,7 @@ const TRANSLATIONS = {
     premium_gift_title: "🎁 Sizga sovg'a bor!",
     premium_gift_subtitle_suffix: " kunlik Premium — bepul sinab ko'ring",
     premium_buy_subtitle_prefix: "Oyiga ⭐",
-    premium_buy_subtitle_suffix: " — kuniga 15 marta AI'dan so'rang",
+    premium_buy_subtitle_suffix: " — AI so'rovlar + premium retseptlar",
     premium_trial_confirm_suffix: " kunlik Premium sovg'angizni faollashtirasizmi?",
     premium_buy_confirm_text: "👑 Premium bilan kuniga 15 marta AI'dan so'rashingiz mumkin. Muddatni tanlang:",
     premium_cancel_btn: "Bekor qilish",
@@ -43,6 +43,16 @@ const TRANSLATIONS = {
     premium_monthly_btn: "Oylik",
     premium_yearly_btn: "Yillik",
     premium_error: "Xatolik yuz berdi, birozdan keyin qayta urinib ko'ring.",
+    premium_feature_ai: "Kuniga 15 marta AI'dan so'rash",
+    premium_feature_recipes: "Premium retseptlarga to'liq kirish",
+    premium_feature_future: "Kelajakdagi yangi imkoniyatlar birinchilardan",
+    premium_per_month: "oy",
+    premium_per_year: "yil",
+    premium_save: "tejash",
+    premium_buy_cta: "Sotib olish",
+    recipe_lock_title: "Bu — Premium retsept",
+    recipe_lock_text: "To'liq tarkib, tayyorlash tartibi va videoni ko'rish uchun Premium'ga obuna bo'ling.",
+    recipe_lock_btn: "👑 Premium olish",
     settings_title: "Sozlamalar",
     language_label: "Til",
     notifications_label: "Bildirishnomalar",
@@ -105,7 +115,7 @@ const TRANSLATIONS = {
     ai_free_remaining: "Bugun yana so'rash mumkin: ",
     ai_pay_once_more: "yana 1 marta so'rash",
     ai_loading: "Yuklanmoqda...",
-    stars_buy_prompt: "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling 👇",
+    stars_buy_prompt: "Stars yetarli emasmi? Tez va oson sotib oling 👇",
     stars_buy_btn: "⭐ Stars sotib olish",
     ai_greeting_1: "Assalomu alaykum! 👋 Men Taomchi — sizning oshxonadagi yordamchingizman. Uyda nima bor, nima pishirsam bo'ladi — bemalol so'rang! 🍲",
     ai_greeting_2: "Salom-salom! 😊 Bugun nima pishiramiz? Qo'lingizda bor mahsulotlarni ayting, birga o'ylaymiz 👨‍🍳",
@@ -143,7 +153,7 @@ const TRANSLATIONS = {
     premium_gift_title: "🎁 Сизга совға бор!",
     premium_gift_subtitle_suffix: " кунлик Premium — бепул синаб кўринг",
     premium_buy_subtitle_prefix: "Ойига ⭐",
-    premium_buy_subtitle_suffix: " — кунига 15 марта AI'дан сўранг",
+    premium_buy_subtitle_suffix: " — AI сўровлар + premium рецептлар",
     premium_trial_confirm_suffix: " кунлик Premium совғангизни фаоллаштирасизми?",
     premium_buy_confirm_text: "👑 Premium билан кунига 15 марта AI'дан сўрашингиз мумкин. Муддатни танланг:",
     premium_cancel_btn: "Бекор қилиш",
@@ -151,6 +161,16 @@ const TRANSLATIONS = {
     premium_monthly_btn: "Ойлик",
     premium_yearly_btn: "Йиллик",
     premium_error: "Хатолик юз берди, бирозда кейин қайта уриниб кўринг.",
+    premium_feature_ai: "Кунига 15 марта AI'дан сўраш",
+    premium_feature_recipes: "Premium рецептларга тўлиқ кириш",
+    premium_feature_future: "Келажакдаги янги имкониятлар биринчилардан",
+    premium_per_month: "ой",
+    premium_per_year: "йил",
+    premium_save: "тежаш",
+    premium_buy_cta: "Сотиб олиш",
+    recipe_lock_title: "Бу — Premium рецепт",
+    recipe_lock_text: "Тўлиқ таркиб, тайёрлаш тартиби ва видеони кўриш учун Premium'га обуна бўлинг.",
+    recipe_lock_btn: "👑 Premium олиш",
     settings_title: "Созламалар",
     language_label: "Тил",
     notifications_label: "Билдиришномалар",
@@ -213,7 +233,7 @@ const TRANSLATIONS = {
     ai_free_remaining: "Бугун яна сўраш мумкин: ",
     ai_pay_once_more: "яна 1 марта сўраш",
     ai_loading: "Юкланмоқда...",
-    stars_buy_prompt: "Stars етарли эмасми? Миллий карта орқали сонияларда сотиб олинг 👇",
+    stars_buy_prompt: "Stars етарли эмасми? Тез ва осон сотиб олинг 👇",
     stars_buy_btn: "⭐ Stars сотиб олиш",
     ai_greeting_1: "Ассалому алайкум! 👋 Мен Taomchi — сизнинг ошхонадаги ёрдамчингизман. Уйда нима бор, нима пиширсам бўлади — бемалол сўранг! 🍲",
     ai_greeting_2: "Салом-салом! 😊 Бугун нима пиширамиз? Қўлингизда бор маҳсулотларни айтинг, бирга ўйлаймиз 👨‍🍳",
@@ -278,4 +298,9 @@ const DIFFICULTY_LABELS = {
 function difficultyBadge(r) {
   const label = DIFFICULTY_LABELS[r.difficulty];
   return label ? `<span>${label}</span>` : "";
+}
+
+// ===== Premium retsept nishoni (barcha ro'yxatlarda ishlatiladi) =====
+function premiumRibbon(r) {
+  return r.isPremium ? `<span class="premium-ribbon">⭐ Premium</span>` : "";
 }

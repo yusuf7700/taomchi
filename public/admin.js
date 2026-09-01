@@ -309,11 +309,16 @@ async function loadRecipes() {
 function renderCategoryFilters() {
   const wrap = document.getElementById("categoryFilters");
   const counts = {};
+  let premiumCount = 0;
   allAdminRecipes.forEach(r => {
     counts[r.category] = (counts[r.category] || 0) + 1;
+    if (r.isPremium) premiumCount++;
   });
 
   const chips = [`<button class="admin-chip ${activeCategory === "all" ? "active" : ""}" data-cat="all">Barchasi <span class="admin-chip-count">${allAdminRecipes.length}</span></button>`];
+  if (premiumCount > 0) {
+    chips.push(`<button class="admin-chip ${activeCategory === "premium" ? "active" : ""}" data-cat="premium">⭐ Premium <span class="admin-chip-count">${premiumCount}</span></button>`);
+  }
   Object.keys(CATEGORY_LABELS).forEach(cat => {
     if (!counts[cat]) return; // faqat retsepti bor kategoriyalarni ko'rsatamiz
     chips.push(`<button class="admin-chip ${activeCategory === cat ? "active" : ""}" data-cat="${cat}">${CATEGORY_LABELS[cat]} <span class="admin-chip-count">${counts[cat]}</span></button>`);
@@ -332,7 +337,7 @@ function renderCategoryFilters() {
 function applyFilters() {
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
   const filtered = allAdminRecipes.filter(r => {
-    const matchesCategory = activeCategory === "all" || r.category === activeCategory;
+    const matchesCategory = activeCategory === "all" || (activeCategory === "premium" ? r.isPremium === true : r.category === activeCategory);
     const matchesSearch = !q || (r.title || "").toLowerCase().includes(q) || (r.category || "").toLowerCase().includes(q);
     return matchesCategory && matchesSearch;
   });
@@ -352,7 +357,7 @@ function renderAdminList(recipes) {
     <div class="admin-recipe-item">
       ${r.imageUrl ? `<img src="${r.imageUrl}" class="admin-recipe-item-thumb">` : `<div class="admin-recipe-item-thumb admin-recipe-item-thumb--placeholder">🍽️</div>`}
       <div class="admin-recipe-item-info">
-        <p class="admin-recipe-item-title">${r.title || "(nomsiz)"}</p>
+        <p class="admin-recipe-item-title">${r.isPremium ? "⭐ " : ""}${r.title || "(nomsiz)"}</p>
         <p class="admin-recipe-item-meta">${CATEGORY_LABELS[r.category] || r.category || "-"} · ⏱ ${r.cookTimeUnit === "nomalum" ? "Noma'lum" : `${r.cookTime || "-"} ${r.cookTimeUnit === "soat" ? "soat" : "daq"}`}</p>
       </div>
       <div class="admin-recipe-item-actions">

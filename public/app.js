@@ -159,9 +159,9 @@ function renderDailyRecipe(r) {
   const dailyEl = document.getElementById("dailyRecipe");
   if (!dailyEl || !r) return;
 
-  dailyEl.querySelector(".recipe-thumb").innerHTML = r.imageUrl
+  dailyEl.querySelector(".recipe-thumb").innerHTML = (r.imageUrl
     ? `<img src="${r.imageUrl}" alt="${r.title}">`
-    : "🍽️";
+    : "🍽️") + premiumRibbon(r);
   dailyEl.querySelector(".recipe-title").textContent = displayTitle(r);
   dailyEl.querySelector(".recipe-meta").innerHTML =
     `<span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}`;

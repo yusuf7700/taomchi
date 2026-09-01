@@ -530,6 +530,20 @@ html.no-splash .splash {
   font-size: 13px;
 }
 
+.premium-ribbon {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: linear-gradient(135deg, #F5B942, #E8941C);
+  color: var(--white);
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 5px;
+  letter-spacing: 0.2px;
+  line-height: 1.3;
+}
+
 .recipe-info { flex: 1; }
 
 .recipe-title {
@@ -685,10 +699,59 @@ html.no-splash .splash {
 
 .detail-meta {
   display: flex;
+  align-items: center;
   gap: 16px;
   font-size: 14px;
   color: var(--text-muted);
   margin-bottom: 20px;
+}
+
+.premium-lock-mini-badge {
+  background: linear-gradient(135deg, #F5B942, #E8941C);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.premium-lock-card {
+  background: linear-gradient(160deg, var(--green-dark), var(--green));
+  border-radius: var(--radius-md);
+  padding: 28px 20px;
+  text-align: center;
+  margin: 8px 0 20px;
+}
+
+.premium-lock-icon {
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.premium-lock-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+
+.premium-lock-text {
+  font-size: 13.5px;
+  color: #D9EAD9;
+  line-height: 1.5;
+  margin-bottom: 18px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.premium-lock-btn {
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 13px 26px;
+  border-radius: var(--radius-sm);
 }
 
 .detail-section-title {
@@ -877,8 +940,119 @@ html.no-splash .splash {
   background: var(--white);
   border: 1.5px solid var(--border-soft);
   border-radius: var(--radius-md);
-  padding: 14px;
+  padding: 16px;
   margin: -2px 0 16px;
+}
+
+.premium-actions-heading {
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.premium-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.premium-feature-list li {
+  font-size: 13px;
+  color: var(--text-dark);
+  padding-left: 24px;
+  position: relative;
+  line-height: 1.4;
+}
+
+.premium-feature-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  color: var(--cream);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.premium-plan-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.premium-plan-card {
+  position: relative;
+  border: 2px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 14px 8px 12px;
+  text-align: center;
+  background: var(--cream);
+}
+
+.premium-plan-card--selected {
+  border-color: var(--green-dark);
+  background: #EEF7EE;
+}
+
+.premium-plan-badge {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--orange);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.premium-plan-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.premium-plan-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.premium-plan-per {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.premium-buy-cta {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.premium-cancel-link {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 4px;
 }
 
 .premium-actions-text {
