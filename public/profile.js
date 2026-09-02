@@ -337,3 +337,7 @@ async function redeemShopReward(rewardType, btn) {
 document.querySelectorAll("[data-reward-btn]").forEach((btn) => {
   btn.addEventListener("click", () => redeemShopReward(btn.dataset.rewardBtn, btn));
 });
+
+document.getElementById("referralShopRecipeBtn").addEventListener("click", () => {
+  window.location.href = "recipes.html";
+});
