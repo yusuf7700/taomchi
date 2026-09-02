@@ -28,17 +28,17 @@ function renderRecipes(list) {
   }
 
   recipeListEl.innerHTML = list.map(r => `
-    <div class="recipe-card" data-id="${r.id}">
+    <div class="recipe-card" data-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb">
-        ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}">` : "🍽️"}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : "🍽️"}
         ${premiumRibbon(r)}
       </div>
       <div class="recipe-info">
-        <p class="recipe-title">${displayTitle(r)}</p>
+        <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
         <p class="recipe-meta">
           <span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}
         </p>
-        <span class="recipe-category-badge">${categoryLabel(r.category)}</span>
+        <span class="recipe-category-badge">${escapeHtml(categoryLabel(r.category))}</span>
       </div>
       <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
     </div>

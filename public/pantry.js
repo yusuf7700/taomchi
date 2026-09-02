@@ -84,13 +84,13 @@ function recipeResultCard(m) {
     ? `<p class="missing-text">${missingNames(m.missing).join(", ")} ${t("pantry_missing_suffix", "yetishmayapti")}</p>`
     : "";
   return `
-    <div class="recipe-card" data-id="${r.id}">
+    <div class="recipe-card" data-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb">
-        ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}">` : "🍽️"}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : "🍽️"}
         ${premiumRibbon(r)}
       </div>
       <div class="recipe-info">
-        <p class="recipe-title">${displayTitle(r)}</p>
+        <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
         <p class="recipe-meta"><span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}</p>
         ${missingText}
       </div>

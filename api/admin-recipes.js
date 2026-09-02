@@ -8,10 +8,11 @@
 // Vercel'da Environment Variables'ga ADMIN_SECRET qo'shilishi shart.
 
 const { getDb } = require("../lib/firebaseAdmin");
+const { safeCompare } = require("../lib/safeCompare");
 
 module.exports = async (req, res) => {
   const secret = req.headers["x-admin-secret"];
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
+  if (!secret || !process.env.ADMIN_SECRET || !safeCompare(secret, process.env.ADMIN_SECRET)) {
     return res.status(401).json({ error: "Ruxsat yo'q" });
   }
 

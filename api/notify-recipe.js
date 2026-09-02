@@ -8,6 +8,7 @@
 // "x-admin-secret" header orqali himoyalangan.
 
 const { getDb } = require("../lib/firebaseAdmin");
+const { safeCompare } = require("../lib/safeCompare");
 const bot = require("../bot/bot");
 
 const TEXT = {
@@ -23,7 +24,7 @@ const TEXT = {
 
 module.exports = async (req, res) => {
   const secret = req.headers["x-admin-secret"];
-  if (!secret || secret !== process.env.ADMIN_SECRET) {
+  if (!secret || !process.env.ADMIN_SECRET || !safeCompare(secret, process.env.ADMIN_SECRET)) {
     return res.status(401).json({ error: "Ruxsat yo'q" });
   }
 

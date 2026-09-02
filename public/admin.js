@@ -1,5 +1,17 @@
 // ===== Taomchi — Admin panel logikasi =====
 
+// Foydalanuvchi/tashqi manbadan kelgan matnni xavfsiz chiqarish uchun
+// (Telegram ism/username kabi maydonlar ixtiyoriy mazmunda bo'lishi mumkin —
+// XSS'ning oldini olish uchun har doim shu orqali chiqarish kerak).
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const CATEGORY_LABELS = {
   main: "🍲 Asosiy taomlar",
   soup: "🍜 Sho'rvalar",
@@ -363,10 +375,10 @@ function renderAdminList(recipes) {
 
   listEl.innerHTML = recipes.map(r => `
     <div class="admin-recipe-item">
-      ${r.imageUrl ? `<img src="${r.imageUrl}" class="admin-recipe-item-thumb">` : `<div class="admin-recipe-item-thumb admin-recipe-item-thumb--placeholder">🍽️</div>`}
+      ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" class="admin-recipe-item-thumb">` : `<div class="admin-recipe-item-thumb admin-recipe-item-thumb--placeholder">🍽️</div>`}
       <div class="admin-recipe-item-info">
-        <p class="admin-recipe-item-title">${r.isPremium ? "⭐ " : ""}${r.title || "(nomsiz)"}</p>
-        <p class="admin-recipe-item-meta">${CATEGORY_LABELS[r.category] || r.category || "-"} · ⏱ ${r.cookTimeUnit === "nomalum" ? "Noma'lum" : `${r.cookTime || "-"} ${r.cookTimeUnit === "soat" ? "soat" : "daq"}`}</p>
+        <p class="admin-recipe-item-title">${r.isPremium ? "⭐ " : ""}${escapeHtml(r.title || "(nomsiz)")}</p>
+        <p class="admin-recipe-item-meta">${escapeHtml(CATEGORY_LABELS[r.category] || r.category || "-")} · ⏱ ${r.cookTimeUnit === "nomalum" ? "Noma'lum" : `${escapeHtml(r.cookTime || "-")} ${r.cookTimeUnit === "soat" ? "soat" : "daq"}`}</p>
       </div>
       <div class="admin-recipe-item-actions">
         <button class="admin-icon-btn" data-notify="${r.id}" title="Xabar yuborish">📣</button>
@@ -530,10 +542,10 @@ function renderUserList(users) {
 
     return `
       <div class="admin-user-item">
-        <div class="admin-user-avatar">${(u.firstName || "?").charAt(0).toUpperCase()}</div>
+        <div class="admin-user-avatar">${escapeHtml((u.firstName || "?").charAt(0).toUpperCase())}</div>
         <div class="admin-recipe-item-info">
-          <p class="admin-recipe-item-title">${u.firstName || "(nomsiz)"} ${isPremiumActive ? "⭐" : ""}</p>
-          <p class="admin-recipe-item-meta">${u.username ? "@" + u.username : "username yo'q"} · ${langLabel} · ${date}</p>
+          <p class="admin-recipe-item-title">${escapeHtml(u.firstName || "(nomsiz)")} ${isPremiumActive ? "⭐" : ""}</p>
+          <p class="admin-recipe-item-meta">${u.username ? "@" + escapeHtml(u.username) : "username yo'q"} · ${langLabel} · ${date}</p>
           ${premiumControl}
         </div>
       </div>
@@ -672,7 +684,7 @@ function renderChannelList() {
     return `
       <div class="admin-recipe-item">
         <div class="admin-recipe-item-info">
-          <p class="admin-recipe-item-title">📡 ${ch.channelId}${ch.title ? " — " + ch.title : ""}</p>
+          <p class="admin-recipe-item-title">📡 ${escapeHtml(ch.channelId)}${ch.title ? " — " + escapeHtml(ch.title) : ""}</p>
           <p class="admin-recipe-item-meta">${expiryLabel}</p>
           <button class="admin-mini-btn admin-mini-btn--danger" onclick="removeChannelPrompt('${ch.id}')">🗑 O'chirish</button>
         </div>

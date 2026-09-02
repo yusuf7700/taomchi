@@ -155,9 +155,9 @@ function renderMealSlot(day, meal) {
         <p class="weekly-meal-label">${mealLabel}</p>
         <div class="weekly-day-card ${justSet ? "weekly-day-card--pop" : ""}" data-day-select="${day}" data-meal-select="${meal}">
           <div class="recipe-thumb recipe-thumb--sm">
-            ${recipe.imageUrl ? `<img src="${recipe.imageUrl}" alt="${recipe.title}">` : "🍽️"}
+            ${recipe.imageUrl ? `<img src="${escapeHtml(recipe.imageUrl)}" alt="${escapeHtml(recipe.title)}">` : "🍽️"}
           </div>
-          <p class="weekly-day-recipe-title">${displayTitle(recipe)}</p>
+          <p class="weekly-day-recipe-title">${escapeHtml(displayTitle(recipe))}</p>
           <button class="weekly-day-clear" data-day-clear="${day}" data-meal-clear="${meal}">✕</button>
         </div>
       </div>
@@ -244,11 +244,11 @@ function renderPickerList(recipes) {
   }
 
   pickerList.innerHTML = recipes.map(r => `
-    <div class="picker-item" data-picker-id="${r.id}">
+    <div class="picker-item" data-picker-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb recipe-thumb--sm">
-        ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}">` : "🍽️"}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : "🍽️"}
       </div>
-      <p class="picker-item-title">${displayTitle(r)}</p>
+      <p class="picker-item-title">${escapeHtml(displayTitle(r))}</p>
     </div>
   `).join("");
 }

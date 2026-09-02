@@ -3,6 +3,20 @@
 // Foydalanuvchi Kirill tanlasa, shu fayl matnni avtomatik kirillga o'giradi.
 // Qidiruvda esa kirill yozilsa, lotinga o'girib solishtiramiz.
 
+// Xavfsizlik: retsept nomi/rasm manzili kabi maydonlar admin panel orqali
+// kiritiladi — agar admin sessiyasi buzilsa, zararli HTML/JS kiritilishi
+// mumkin. Shuning uchun HAR DOIM shu funksiya orqali chiqarish kerak
+// (ham matn, ham src="..." kabi atribut ichida) — hech qachon
+// to'g'ridan-to'g'ri innerHTML ichiga qo'ymaslik kerak.
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // --- Lotin → Kirill (ko'rsatish uchun) ---
 const LAT_TO_CYR_PAIRS = [
   ["sh", "ш"], ["ch", "ч"], ["yo", "ё"], ["yu", "ю"], ["ya", "я"],

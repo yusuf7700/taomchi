@@ -10,6 +10,7 @@
 // muhit o'zgaruvchisi orqali tasdiqlanadi, boshqa hech kim emas).
 
 const { getDb } = require("../lib/firebaseAdmin");
+const { safeCompare } = require("../lib/safeCompare");
 const bot = require("../bot/bot");
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]; // getUTCDay() tartibida
@@ -36,7 +37,7 @@ function getTashkentDayKey() {
 
 module.exports = async (req, res) => {
   const authHeader = req.headers["authorization"];
-  if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || !safeCompare(authHeader || "", `Bearer ${process.env.CRON_SECRET}`)) {
     return res.status(401).json({ error: "Ruxsat yo'q" });
   }
 

@@ -71,7 +71,7 @@ function showRandomModal(r) {
   const dict = TRANSLATIONS[getCurrentLang()] || TRANSLATIONS.uz;
 
   document.getElementById("randomModalThumb").innerHTML = r.imageUrl
-    ? `<img src="${r.imageUrl}" alt="${r.title}">`
+    ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
     : "🍽️";
   document.getElementById("randomModalTitle").textContent = r.title;
   document.getElementById("randomModalMeta").innerHTML =
@@ -160,7 +160,7 @@ function renderDailyRecipe(r) {
   if (!dailyEl || !r) return;
 
   dailyEl.querySelector(".recipe-thumb").innerHTML = (r.imageUrl
-    ? `<img src="${r.imageUrl}" alt="${r.title}">`
+    ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
     : "🍽️") + premiumRibbon(r);
   dailyEl.querySelector(".recipe-title").textContent = displayTitle(r);
   dailyEl.querySelector(".recipe-meta").innerHTML =

@@ -33,17 +33,32 @@ function getChannelLink(r) {
   const handle = r.author.replace(/^@/, "").trim();
   if (!handle) return null;
   return r.videoPlatform === "instagram"
-    ? `https://instagram.com/${handle}`
-    : `https://t.me/${handle}`;
+    ? `https://instagram.com/${encodeURIComponent(handle)}`
+    : `https://t.me/${encodeURIComponent(handle)}`;
+}
+
+// Faqat ishonchli manbalardan (Telegram, Instagram) kelgan video havolalarini
+// iframe/embed ichiga qo'yamiz — aks holda admin sessiyasi buzilganda
+// tajovuzkor ixtiyoriy tashqi sahifani (fishing) yoki xavfli manzilni
+// ilova ichida ko'rsatishi mumkin edi.
+function isSafeVideoUrl(url) {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && [
+      "t.me", "telegram.me", "instagram.com", "www.instagram.com"
+    ].includes(u.hostname);
+  } catch {
+    return false;
+  }
 }
 
 function buildVideoEmbedHtml(r) {
-  if (!r.sourceUrl) return "";
+  if (!r.sourceUrl || !isSafeVideoUrl(r.sourceUrl)) return "";
   if (r.videoPlatform === "instagram") {
-    return `<blockquote class="instagram-media" data-instgrm-permalink="${r.sourceUrl}" data-instgrm-version="14"></blockquote>`;
+    return `<blockquote class="instagram-media" data-instgrm-permalink="${escapeHtml(r.sourceUrl)}" data-instgrm-version="14"></blockquote>`;
   }
   // Telegram: rasmiy iframe embed (?embed=1) — skript kerak emas, ishonchli ishlaydi
-  return `<div class="video-embed-wrap"><iframe src="${r.sourceUrl}?embed=1" width="100%" height="420" frameborder="0" scrolling="no" allowfullscreen></iframe></div>`;
+  return `<div class="video-embed-wrap"><iframe src="${escapeHtml(r.sourceUrl)}?embed=1" width="100%" height="420" frameborder="0" scrolling="no" allowfullscreen></iframe></div>`;
 }
 
 function loadScriptOnce(src, id) {
@@ -60,7 +75,7 @@ function loadScriptOnce(src, id) {
 }
 
 async function processVideoEmbed(r) {
-  if (!r.sourceUrl) return;
+  if (!r.sourceUrl || !isSafeVideoUrl(r.sourceUrl)) return;
   if (r.videoPlatform === "instagram") {
     await loadScriptOnce("https://www.instagram.com/embed.js", "ig-embed-script");
     if (window.instgrm) window.instgrm.Embeds.process();
@@ -122,11 +137,11 @@ async function renderRecipe(r) {
   const canRedeemWithPoints = locked && unlockStatus.points >= unlockStatus.redeemCost;
 
   const ingredientsHtml = (r.ingredients || []).map(ing => `
-    <li><span>${displayText(ing.name)}</span><span class="ing-amount">${ing.amount}</span></li>
+    <li><span>${escapeHtml(displayText(ing.name))}</span><span class="ing-amount">${escapeHtml(ing.amount)}</span></li>
   `).join("");
 
   const stepsHtml = (r.steps || []).map((step, i) => `
-    <li><span class="step-num">${i + 1}</span><span>${displayText(step)}</span></li>
+    <li><span class="step-num">${i + 1}</span><span>${escapeHtml(displayText(step))}</span></li>
   `).join("");
 
   const bodyHtml = locked
@@ -156,9 +171,9 @@ async function renderRecipe(r) {
 
   detailContent.innerHTML = `
     <div class="detail-hero">
-      ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}" class="detail-image">` : `<div class="detail-image detail-image--placeholder">🍽️</div>`}
+      ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}" class="detail-image">` : `<div class="detail-image detail-image--placeholder">🍽️</div>`}
     </div>
-    <h1 class="detail-title">${displayTitle(r)}</h1>
+    <h1 class="detail-title">${escapeHtml(displayTitle(r))}</h1>
     <p class="detail-meta">
       <span>⏱ ${formatCookTime(r)}</span>
       ${difficultyBadge(r)}
@@ -168,11 +183,11 @@ async function renderRecipe(r) {
     ${bodyHtml}
 
     ${!locked && getChannelLink(r) ? `
-    <a href="${getChannelLink(r)}" target="_blank" rel="noopener noreferrer" class="source-card">
+    <a href="${escapeHtml(getChannelLink(r))}" target="_blank" rel="noopener noreferrer" class="source-card">
       <span class="source-card-icon">${r.videoPlatform === "instagram" ? "📷" : "📡"}</span>
       <span class="source-card-info">
         <span class="source-card-label">Manba kanali</span>
-        <span class="source-card-name">${r.author}</span>
+        <span class="source-card-name">${escapeHtml(r.author)}</span>
       </span>
       <span class="source-card-arrow">↗</span>
     </a>` : ""}
