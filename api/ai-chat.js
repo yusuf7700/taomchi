@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
     db = getDb();
   } catch (err) {
     console.error("Firebase Admin xatosi:", err);
-    return res.status(500).json({ error: "Server xatosi. Birozdan keyin urinib ko''ring." });
+    return res.status(500).json({ error: "Server xatosi. Birozdan keyin urinib ko'ring." });
   }
 
   try {
@@ -40,6 +40,6 @@ module.exports = async (req, res) => {
     return res.status(200).json({ answer, isPremium: quota.isPremium, remainingToday: quota.remainingToday });
   } catch (err) {
     console.error("AI chat xatosi:", err);
-    return res.status(500).json({ error: "Server xatosi. Birozdan keyin urinib ko''ring." });
+    return res.status(500).json({ error: "Server xatosi. Birozdan keyin urinib ko'ring." });
   }
 };

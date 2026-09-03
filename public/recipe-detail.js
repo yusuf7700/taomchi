@@ -128,6 +128,17 @@ async function redeemRecipeWithPoints(r) {
   }
 }
 
+async function fetchRecipeContent(recipeId) {
+  if (!tg?.initData) return { content: null, error: "no_telegram" };
+  try {
+    const res = await fetch(`/api/premium?initData=${encodeURIComponent(tg.initData)}&recipeId=${encodeURIComponent(recipeId)}`);
+    if (!res.ok) return { content: null, error: "fetch_failed" };
+    return { content: await res.json(), error: null };
+  } catch {
+    return { content: null, error: "fetch_failed" };
+  }
+}
+
 async function renderRecipe(r) {
   const lang = getCurrentLang();
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
@@ -136,11 +147,23 @@ async function renderRecipe(r) {
   const locked = r.isPremium === true && !(unlockStatus.premium || unlockStatus.alreadyUnlocked);
   const canRedeemWithPoints = locked && unlockStatus.points >= unlockStatus.redeemCost;
 
-  const ingredientsHtml = (r.ingredients || []).map(ing => `
+  // Retseptning to'liq tarkibi (ingredientlar, tayyorlash tartibi, video)
+  // endi faqat SERVERDAN, ochilgan bo'lsagina olinadi — Firestore orqali
+  // to'g'ridan-to'g'ri o'qib, paywall'ni chetlab o'tish endi mumkin emas.
+  let content = {};
+  let contentError = null;
+  if (!locked) {
+    const result = await fetchRecipeContent(r.id);
+    content = result.content || {};
+    contentError = result.error;
+  }
+  const full = { ...r, ...content };
+
+  const ingredientsHtml = (content.ingredients || []).map(ing => `
     <li><span>${escapeHtml(displayText(ing.name))}</span><span class="ing-amount">${escapeHtml(ing.amount)}</span></li>
   `).join("");
 
-  const stepsHtml = (r.steps || []).map((step, i) => `
+  const stepsHtml = (content.steps || []).map((step, i) => `
     <li><span class="step-num">${i + 1}</span><span>${escapeHtml(displayText(step))}</span></li>
   `).join("");
 
@@ -156,6 +179,8 @@ async function renderRecipe(r) {
           : `<p class="premium-lock-points-hint">${dict.recipe_redeem_hint_prefix || "Ballaringiz: "}${unlockStatus.points}/${unlockStatus.redeemCost}${dict.recipe_redeem_hint_suffix || " — do'st taklif qilib ball to'plang!"}</p>`}
       </div>
     `
+    : contentError
+    ? `<p class="empty-text">Tarkibni yuklashda xatolik yuz berdi. Sahifani qayta oching.</p>`
     : `
       <h2 class="detail-section-title" data-i18n="ingredients_title">Kerakli mahsulotlar</h2>
       <ul class="ingredient-list">${ingredientsHtml}</ul>
@@ -163,9 +188,9 @@ async function renderRecipe(r) {
       <h2 class="detail-section-title" data-i18n="steps_title">Tayyorlash tartibi</h2>
       <ol class="step-list">${stepsHtml}</ol>
 
-      ${r.sourceUrl ? `
+      ${full.sourceUrl ? `
       <h2 class="detail-section-title">🎬 Tayyorlanish videosi</h2>
-      <div class="detail-video">${buildVideoEmbedHtml(r)}</div>
+      <div class="detail-video">${buildVideoEmbedHtml(full)}</div>
       ` : ""}
     `;
 
@@ -182,12 +207,12 @@ async function renderRecipe(r) {
 
     ${bodyHtml}
 
-    ${!locked && getChannelLink(r) ? `
-    <a href="${escapeHtml(getChannelLink(r))}" target="_blank" rel="noopener noreferrer" class="source-card">
-      <span class="source-card-icon">${r.videoPlatform === "instagram" ? "📷" : "📡"}</span>
+    ${!locked && getChannelLink(full) ? `
+    <a href="${escapeHtml(getChannelLink(full))}" target="_blank" rel="noopener noreferrer" class="source-card">
+      <span class="source-card-icon">${full.videoPlatform === "instagram" ? "📷" : "📡"}</span>
       <span class="source-card-info">
         <span class="source-card-label">Manba kanali</span>
-        <span class="source-card-name">${escapeHtml(r.author)}</span>
+        <span class="source-card-name">${escapeHtml(full.author)}</span>
       </span>
       <span class="source-card-arrow">↗</span>
     </a>` : ""}
@@ -200,7 +225,7 @@ async function renderRecipe(r) {
     });
     document.getElementById("premiumRedeemBtn")?.addEventListener("click", () => redeemRecipeWithPoints(r));
   } else {
-    processVideoEmbed(r);
+    processVideoEmbed(full);
   }
 }
 

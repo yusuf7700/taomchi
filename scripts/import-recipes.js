@@ -17,6 +17,8 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const recipes = require("./recipes-sample.json");
 const serviceAccount = require("./serviceAccountKey.json");
+const { splitRecipeFields } = require("../lib/recipeFields");
+const { computeIngredientKeywordIds } = require("../lib/pantryKeywords");
 
 initializeApp({
   credential: cert(serviceAccount)
@@ -29,7 +31,12 @@ async function importRecipes() {
 
   recipes.forEach(recipe => {
     const ref = db.collection("recipes").doc(); // avtomatik ID
-    batch.set(ref, recipe);
+    const { publicFields, privateFields } = splitRecipeFields(recipe);
+    publicFields.ingredientKeywordIds = computeIngredientKeywordIds(privateFields.ingredients);
+    publicFields.createdAt = Date.now();
+
+    batch.set(ref, publicFields);
+    batch.set(db.collection("recipeContent").doc(ref.id), privateFields);
   });
 
   await batch.commit();

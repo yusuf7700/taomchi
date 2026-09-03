@@ -32,6 +32,16 @@ function containsPhrase(textWords, keywordWords) {
 // Retseptning ingredient matnlaridan qaysi asosiy mahsulotlar (id) borligini
 // aniqlaydi. Natija — Set(masalan: {"tovuq", "kartoshka", "piyoz"})
 function getRecipeIngredientIds(recipe) {
+  // Retsept serverda saqlanganda kalit so'zlar oldindan hisoblab, ochiq
+  // maydonga yozib qo'yiladi (Premium ingredient matnini oshkor qilmaslik
+  // uchun to'liq matn endi faqat serverda saqlanadi). Shu bo'lsa, o'shani
+  // ishlatamiz — tezroq va xavfsizroq.
+  if (Array.isArray(recipe.ingredientKeywordIds)) {
+    return new Set(recipe.ingredientKeywordIds);
+  }
+
+  // Orqaga moslik: agar biror sababdan to'liq ingredient matni mavjud bo'lsa
+  // (masalan hali migratsiya qilinmagan eski ma'lumot), shu yerda hisoblaymiz.
   const ids = new Set();
   const lines = (recipe.ingredients || []).map(i => i.name || "");
 
