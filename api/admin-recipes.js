@@ -8,9 +8,8 @@
 // Vercel'da Environment Variables'ga ADMIN_SECRET qo'shilishi shart.
 
 const { getDb } = require("../lib/firebaseAdmin");
-const { FieldValue } = require("firebase-admin/firestore");
 const { safeCompare } = require("../lib/safeCompare");
-const { PRIVATE_FIELDS, splitRecipeFields } = require("../lib/recipeFields");
+const { splitRecipeFields, migrateLegacyRecipeContent } = require("../lib/recipeFields");
 const { computeIngredientKeywordIds } = require("../lib/pantryKeywords");
 
 module.exports = async (req, res) => {
@@ -29,30 +28,8 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === "POST" && req.body?.action === "migrate_legacy_content") {
-      // BIR MARTALIK migratsiya: eski retseptlarda hali ham `recipes/{id}`
-      // hujjatining o'zida saqlangan ingredient/steps/sourceUrl kabi maydonlarni
-      // `recipeContent/{id}`ga ko'chiradi va asl hujjatdan olib tashlaydi.
-      // Xavfsiz — allaqachon ko'chirilgan retseptlarni qayta ishlamaydi.
-      const snapshot = await db.collection("recipes").get();
-      let migrated = 0, skipped = 0;
-
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        const hasLegacyFields = PRIVATE_FIELDS.some(f => f in data);
-        if (!hasLegacyFields) { skipped++; continue; }
-
-        const { publicFields, privateFields } = splitRecipeFields(data);
-        publicFields.ingredientKeywordIds = computeIngredientKeywordIds(privateFields.ingredients);
-
-        const deletions = {};
-        PRIVATE_FIELDS.forEach(f => { deletions[f] = FieldValue.delete(); });
-
-        await db.collection("recipes").doc(doc.id).set({ ...publicFields, ...deletions }, { merge: true });
-        await db.collection("recipeContent").doc(doc.id).set(privateFields, { merge: true });
-        migrated++;
-      }
-
-      return res.status(200).json({ success: true, migrated, skipped });
+      const result = await migrateLegacyRecipeContent(db);
+      return res.status(200).json({ success: true, ...result });
     }
 
     if (req.method === "GET") {

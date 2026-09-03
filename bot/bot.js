@@ -786,6 +786,21 @@ async function broadcastToAll(ctx, sendOne) {
 }
 
 // Matnli xabar: /xabar Matn...
+bot.command("migrate_recipes", async (ctx) => {
+  if (!isAdmin(ctx)) return;
+
+  await ctx.reply("⏳ Migratsiya boshlandi...");
+  try {
+    const db = getDb();
+    const { migrateLegacyRecipeContent } = require("../lib/recipeFields");
+    const { migrated, skipped } = await migrateLegacyRecipeContent(db);
+    await ctx.reply(`✅ Tugadi!\nKo'chirilgan: ${migrated}\nO'tkazib yuborilgan (allaqachon yangi holatda): ${skipped}`);
+  } catch (err) {
+    console.error("Migratsiya xatosi:", err);
+    await ctx.reply("❌ Xatolik yuz berdi: " + err.message);
+  }
+});
+
 bot.command("xabar", async (ctx) => {
   if (!isAdmin(ctx)) return;
 
