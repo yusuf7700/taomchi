@@ -76,7 +76,7 @@ let premiumState = { active: false, daysLeft: 0, trialAvailable: false, monthlyS
 
 // Server javobi kelgunicha statik "Tez orada..." matni bir lahzaga
 // ko'rinib qolmasligi uchun — darhol "Yuklanmoqda..." holatini qo'yamiz.
-premiumTitle.textContent = tp("premium_title", "Taomchi Premium");
+premiumTitle.textContent = tp("premium_title", "OvqatY Premium");
 premiumSubtitle.textContent = tp("ai_loading", "Yuklanmoqda...");
 premiumBanner.style.cursor = "default";
 premiumBanner.onclick = null;
@@ -120,7 +120,7 @@ function renderPremiumBanner() {
     premiumSubtitle.textContent = premiumState.trialDays + tp("premium_gift_subtitle_suffix", " kunlik Premium — bepul sinab ko'ring");
     premiumBanner.onclick = showTrialOffer;
   } else {
-    premiumTitle.textContent = tp("premium_title", "Taomchi Premium");
+    premiumTitle.textContent = tp("premium_title", "OvqatY Premium");
     premiumSubtitle.textContent = tp("premium_buy_subtitle_prefix", "Oyiga ⭐") + premiumState.monthlyStarsPrice + tp("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang");
     premiumBanner.onclick = showPurchaseOffer;
   }
@@ -171,7 +171,7 @@ function showPurchaseOffer() {
   const yearlySavingsPct = Math.round((1 - premiumState.yearlyStarsPrice / (premiumState.monthlyStarsPrice * 12)) * 100);
 
   premiumActions.innerHTML = `
-    <p class="premium-actions-heading">👑 ${tp("premium_title", "Taomchi Premium")}</p>
+    <p class="premium-actions-heading">👑 ${tp("premium_title", "OvqatY Premium")}</p>
     <ul class="premium-feature-list">
       <li>${tp("premium_feature_ai", "Kuniga 15 marta AI'dan so'rash")}</li>
       <li>${tp("premium_feature_recipes", "Premium retseptlarga to'liq kirish")}</li>
@@ -270,7 +270,7 @@ async function loadReferralStatus() {
 
 function shareReferralLink() {
   if (!referralState.referralLink) return;
-  const text = tp("referral_share_text", "Taomchi — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇");
+  const text = tp("referral_share_text", "OvqatY — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇");
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralState.referralLink)}&text=${encodeURIComponent(text)}`;
   if (tg?.openTelegramLink) {
     tg.openTelegramLink(shareUrl);
