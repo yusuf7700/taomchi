@@ -70,8 +70,8 @@ async function sendSubscriptionRequired(ctx, lang, missingChannels) {
 // ===== Bot matnlari (Lotin / Kirill) =====
 const BOT_TEXT = {
   uz: {
-    welcome: "Assalomu alaykum! Taomchi'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
-    openApp: "🍲 Taomchini ochish",
+    welcome: "Assalomu alaykum! Ovqaty'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
+    openApp: "🍲 Ovqatyni ochish",
     quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n⭐ Premium — pastdagi tugma\n🎁 Do'stlarni taklif qilish — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🍽️ Tasodifiy taom",
     pantryBtnLabel: "🧺 Uyda nima bor?",
@@ -87,7 +87,7 @@ const BOT_TEXT = {
     aiInvoiceTitle: "Qo'shimcha AI so'rovi",
     aiInvoiceDescription: "1 marta qo'shimcha AI'dan savol so'rash huquqi",
     aiPaymentThanks: "✅ To'lov qabul qilindi! Javobingiz tayyorlanmoqda...",
-    premiumPaymentThanks: "✅ To'lov qabul qilindi! Taomchi Premium faollashtirildi 🎉",
+    premiumPaymentThanks: "✅ To'lov qabul qilindi! Ovqaty Premium faollashtirildi 🎉",
     premiumActiveStatus: (days) => `⭐ Premium faol — yana ${days} kun qoldi.`,
     premiumGiftPrompt: (days) => `🎁 Sizga sovg'a bor! ${days} kunlik Premium'ni bepul sinab ko'ring.`,
     premiumBuyPrompt: "👑 Premium bilan kuniga 15 marta AI'dan so'rashingiz mumkin. Muddatni tanlang:",
@@ -96,14 +96,14 @@ const BOT_TEXT = {
     premiumYearlyBtn: (price) => `Yillik — ⭐${price}`,
     premiumTrialClaimed: "🎉 3 kunlik Premium faollashtirildi! Endi kuniga 15 marta AI'dan so'rashingiz mumkin.",
     premiumTrialAlreadyUsed: "Siz sovg'ani allaqachon ishlatgansiz.",
-    premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 oy",
-    premiumInvoiceYearlyTitle: "Taomchi Premium — 1 yil",
+    premiumInvoiceMonthlyTitle: "Ovqaty Premium — 1 oy",
+    premiumInvoiceYearlyTitle: "Ovqaty Premium — 1 yil",
     premiumInvoiceDescription: "Kuniga 15 marta AI'dan so'rash va boshqa Premium imkoniyatlar",
     starsBuyPrompt: "⭐ Stars yetarli emasmi? Tez va oson sotib oling:",
     starsBuyBtn: "⭐ Stars sotib olish",
-    referralIntro: (points, link) => `🎁 Do'stlaringizni Taomchi'ga taklif qiling!\n\nHar bir yangi do'st — 1 ball. To'plagan ballaringizni quyidagi mukofotlarga almashtirishingiz mumkin: qo'shimcha AI so'rov, Premium retseptlar, hatto bir necha kunlik yoki oylik Premium obuna!\n\n⭐ Sizning ballaringiz: ${points}\n\n🔗 Havolangiz:\n${link}`,
+    referralIntro: (points, link) => `🎁 Do'stlaringizni Ovqaty'ga taklif qiling!\n\nHar bir yangi do'st — 1 ball. To'plagan ballaringizni quyidagi mukofotlarga almashtirishingiz mumkin: qo'shimcha AI so'rov, Premium retseptlar, hatto bir necha kunlik yoki oylik Premium obuna!\n\n⭐ Sizning ballaringiz: ${points}\n\n🔗 Havolangiz:\n${link}`,
     referralShareBtn: "📤 Ulashish",
-    referralShareText: "Taomchi — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇",
+    referralShareText: "Ovqaty — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇",
     referralShopAiBtn: "🤖 2 ball — +1 AI so'rov",
     referralShopPremium3dBtn: "⭐ 8 ball — 3 kunlik Premium",
     referralShopPremium30dBtn: "👑 20 ball — 1 oylik Premium",
@@ -125,8 +125,8 @@ const BOT_TEXT = {
     difficulty: { oson: "🟢 Oson", orta: "🟡 O'rta", qiyin: "🔴 Qiyin" }
   },
   uzk: {
-    welcome: "Ассалому алайкум! Taomchi'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
-    openApp: "🍲 Taomchini очиш",
+    welcome: "Ассалому алайкум! Ovqaty'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
+    openApp: "🍲 Ovqatyni очиш",
     quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n⭐ Premium — пастдаги тугма\n🎁 Дўстларни таклиф қилиш — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🍽️ Тасодифий таом",
     pantryBtnLabel: "🧺 Уйда нима бор?",
@@ -142,7 +142,7 @@ const BOT_TEXT = {
     aiInvoiceTitle: "Қўшимча AI сўрови",
     aiInvoiceDescription: "1 марта қўшимча AI'дан савол сўраш ҳуқуқи",
     aiPaymentThanks: "✅ Тўлов қабул қилинди! Жавобингиз тайёрланмоқда...",
-    premiumPaymentThanks: "✅ Тўлов қабул қилинди! Taomchi Premium фаоллаштирилди 🎉",
+    premiumPaymentThanks: "✅ Тўлов қабул қилинди! Ovqaty Premium фаоллаштирилди 🎉",
     premiumActiveStatus: (days) => `⭐ Premium фаол — яна ${days} кун қолди.`,
     premiumGiftPrompt: (days) => `🎁 Сизга совға бор! ${days} кунлик Premium'ни бепул синаб кўринг.`,
     premiumBuyPrompt: "👑 Premium билан кунига 15 марта AI'дан сўрашингиз мумкин. Муддатни танланг:",
@@ -151,14 +151,14 @@ const BOT_TEXT = {
     premiumYearlyBtn: (price) => `Йиллик — ⭐${price}`,
     premiumTrialClaimed: "🎉 3 кунлик Premium фаоллаштирилди! Энди кунига 15 марта AI'дан сўрашингиз мумкин.",
     premiumTrialAlreadyUsed: "Сиз совғани аллақачон ишлатгансиз.",
-    premiumInvoiceMonthlyTitle: "Taomchi Premium — 1 ой",
-    premiumInvoiceYearlyTitle: "Taomchi Premium — 1 йил",
+    premiumInvoiceMonthlyTitle: "Ovqaty Premium — 1 ой",
+    premiumInvoiceYearlyTitle: "Ovqaty Premium — 1 йил",
     premiumInvoiceDescription: "Кунига 15 марта AI'дан сўраш ва бошқа Premium имкониятлар",
     starsBuyPrompt: "⭐ Stars етарли эмасми? Тез ва осон сотиб олинг:",
     starsBuyBtn: "⭐ Stars сотиб олиш",
-    referralIntro: (points, link) => `🎁 Дўстларингизни Taomchi'га таклиф қилинг!\n\nҲар бир янги дўст — 1 балл. Тўплаган баллларингизни қуйидаги мукофотларга алмаштиришингиз мумкин: қўшимча AI сўров, Premium рецептлар, ҳатто бир неча кунлик ёки ойлик Premium обуна!\n\n⭐ Сизнинг баллларингиз: ${points}\n\n🔗 Ҳаволангиз:\n${link}`,
+    referralIntro: (points, link) => `🎁 Дўстларингизни Ovqaty'га таклиф қилинг!\n\nҲар бир янги дўст — 1 балл. Тўплаган баллларингизни қуйидаги мукофотларга алмаштиришингиз мумкин: қўшимча AI сўров, Premium рецептлар, ҳатто бир неча кунлик ёки ойлик Premium обуна!\n\n⭐ Сизнинг баллларингиз: ${points}\n\n🔗 Ҳаволангиз:\n${link}`,
     referralShareBtn: "📤 Улашиш",
-    referralShareText: "Taomchi — овқат рецептлари ва AI ёрдамчи билан! Менга қўшилинг 👇",
+    referralShareText: "Ovqaty — овқат рецептлари ва AI ёрдамчи билан! Менга қўшилинг 👇",
     referralShopAiBtn: "🤖 2 балл — +1 AI сўров",
     referralShopPremium3dBtn: "⭐ 8 балл — 3 кунлик Premium",
     referralShopPremium30dBtn: "👑 20 балл — 1 ойлик Premium",
@@ -658,7 +658,7 @@ bot.action(["premium_buy_monthly", "premium_buy_yearly"], async (ctx) => {
       payload: `premium_${plan}_${userId}`,
       provider_token: "", // Telegram Stars uchun bo'sh qoldiriladi
       currency: "XTR",
-      prices: [{ label: "Taomchi Premium", amount: plan === "yearly" ? YEARLY_STARS_PRICE : MONTHLY_STARS_PRICE }]
+      prices: [{ label: "Ovqaty Premium", amount: plan === "yearly" ? YEARLY_STARS_PRICE : MONTHLY_STARS_PRICE }]
     });
   } catch (err) {
     console.error("Premium invoice xatosi:", err);
