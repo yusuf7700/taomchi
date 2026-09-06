@@ -6,14 +6,34 @@ if (tg) { tg.ready(); tg.expand(); }
 const STARS_PRICE = 5;
 const PREMIUM_MONTHLY_PRICE = 77;
 const STARS_BOT_URL = "https://t.me/milliystar_bot?start=ref_7603550866";
-const MAX_HISTORY_MESSAGES = 6; // ~3 juftlik savol-javob
+const MAX_HISTORY_MESSAGES = 6; // ~3 juftlik savol-javob (AI kontekst uchun)
+const CHAT_STORAGE_KEY = "taomchi_ai_chat_history";
+const MAX_STORED_MESSAGES = 30; // brauzerda saqlanadigan xabarlar chegarasi
+
+function loadStoredChatHistory() {
+  try {
+    const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredChatHistory() {
+  try {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_STORED_MESSAGES)));
+  } catch {
+    // localStorage to'lgan yoki mavjud bo'lmasa — jim o'tkazib yuboramiz
+  }
+}
 
 const aiQuotaText = document.getElementById("aiQuotaText");
 const aiQuestionInput = document.getElementById("aiQuestionInput");
 const aiAskBtn = document.getElementById("aiAskBtn");
 const aiChatMessages = document.getElementById("aiChatMessages");
 
-// Suhbat konteksti — faqat matn juftliklari, xotirada (sahifa yopilsa yo'qoladi).
+// Suhbat konteksti — endi brauzer localStorage'ida saqlanadi (qayta kirganda ko'rinadi).
 let chatHistory = [];
 
 function t(key, fallback) {
@@ -100,6 +120,7 @@ async function askQuestion(question) {
 
     addBubble("bot", data.answer);
     chatHistory.push({ role: "assistant", content: data.answer });
+    saveStoredChatHistory();
     updateQuotaText(data.isPremium, data.remainingToday);
   } catch (err) {
     removeTypingIndicator();
@@ -201,6 +222,7 @@ function sendMessage() {
 
   addBubble("user", question);
   chatHistory.push({ role: "user", content: question });
+  saveStoredChatHistory();
 
   aiQuestionInput.value = "";
   autoResizeInput();
@@ -219,7 +241,15 @@ aiQuestionInput.addEventListener("keydown", (e) => {
   }
 });
 
-// Boshlang'ich salomlashuv xabari (Taomchi shaxsiyati bilan).
-const greetingKeys = ["ai_greeting_1", "ai_greeting_2", "ai_greeting_3"];
-const greetingKey = greetingKeys[Math.floor(Math.random() * greetingKeys.length)];
-addBubble("bot", t(greetingKey));
+// Oldingi suhbatni tiklash (agar mavjud bo'lsa), aks holda yangi salomlashuv.
+const restoredHistory = loadStoredChatHistory();
+if (restoredHistory.length > 0) {
+  chatHistory = restoredHistory;
+  chatHistory.forEach((msg) => {
+    addBubble(msg.role === "user" ? "user" : "bot", msg.content);
+  });
+} else {
+  const greetingKeys = ["ai_greeting_1", "ai_greeting_2", "ai_greeting_3"];
+  const greetingKey = greetingKeys[Math.floor(Math.random() * greetingKeys.length)];
+  addBubble("bot", t(greetingKey));
+}
