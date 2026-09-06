@@ -66,12 +66,12 @@ module.exports = async (req, res) => {
         const selectedPlan = plan === "yearly" ? "yearly" : "monthly";
         const bot = require("../bot/bot");
         const link = await bot.telegram.createInvoiceLink({
-          title: selectedPlan === "yearly" ? "Taomchi Premium — 1 yil" : "Taomchi Premium — 1 oy",
+          title: selectedPlan === "yearly" ? "Ovqaty Premium — 1 yil" : "Ovqaty Premium — 1 oy",
           description: "Kuniga 15 marta AI'dan so'rash va boshqa Premium imkoniyatlar",
           payload: `premium_${selectedPlan}_${tgUser.id}`,
           provider_token: "", // Telegram Stars uchun bo'sh qoldiriladi
           currency: "XTR",
-          prices: [{ label: "Taomchi Premium", amount: planStarsPrice(selectedPlan) }]
+          prices: [{ label: "Ovqaty Premium", amount: planStarsPrice(selectedPlan) }]
         });
         return res.status(200).json({ link });
       }
