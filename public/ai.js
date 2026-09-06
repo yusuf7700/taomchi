@@ -7,34 +7,83 @@ const STARS_PRICE = 5;
 const PREMIUM_MONTHLY_PRICE = 77;
 const STARS_BOT_URL = "https://t.me/milliystar_bot?start=ref_7603550866";
 const MAX_HISTORY_MESSAGES = 6; // ~3 juftlik savol-javob (AI kontekst uchun)
-const CHAT_STORAGE_KEY = "taomchi_ai_chat_history";
-const MAX_STORED_MESSAGES = 30; // brauzerda saqlanadigan xabarlar chegarasi
+const CONV_STORAGE_KEY = "taomchi_ai_conversations";
+const LEGACY_CHAT_KEY = "taomchi_ai_chat_history"; // eski bitta-suhbatli versiyadan
+const MAX_STORED_MESSAGES_PER_CONV = 40;
+const MAX_CONVERSATIONS = 30;
 
-function loadStoredChatHistory() {
-  try {
-    const raw = localStorage.getItem(CHAT_STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-function saveStoredChatHistory() {
+function loadConversations() {
   try {
-    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatHistory.slice(-MAX_STORED_MESSAGES)));
+    const raw = localStorage.getItem(CONV_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    // davom etamiz, pastda bo'sh massiv qaytadi
+  }
+
+  // Eski (bitta suhbatli) versiyadan migratsiya — bir martalik.
+  try {
+    const legacyRaw = localStorage.getItem(LEGACY_CHAT_KEY);
+    const legacy = legacyRaw ? JSON.parse(legacyRaw) : null;
+    if (Array.isArray(legacy) && legacy.length > 0) {
+      const firstUserMsg = legacy.find((m) => m.role === "user");
+      const migrated = [{
+        id: genId(),
+        title: firstUserMsg ? truncateTitle(firstUserMsg.content) : null,
+        messages: legacy,
+        updatedAt: Date.now()
+      }];
+      localStorage.removeItem(LEGACY_CHAT_KEY);
+      return migrated;
+    }
+  } catch {
+    // e'tibor bermaymiz
+  }
+  return [];
+}
+
+function persistConversations() {
+  try {
+    const trimmed = conversations
+      .filter((c) => c.messages.length > 0)
+      .slice(-MAX_CONVERSATIONS)
+      .map((c) => ({ ...c, messages: c.messages.slice(-MAX_STORED_MESSAGES_PER_CONV) }));
+    localStorage.setItem(CONV_STORAGE_KEY, JSON.stringify(trimmed));
   } catch {
     // localStorage to'lgan yoki mavjud bo'lmasa — jim o'tkazib yuboramiz
   }
+}
+
+function truncateTitle(text) {
+  const clean = text.trim().replace(/\s+/g, " ");
+  return clean.length > 38 ? clean.slice(0, 38) + "…" : clean;
+}
+
+function ensureConversationSaved() {
+  if (!conversations.includes(activeConversation)) {
+    conversations.push(activeConversation);
+  }
+  activeConversation.updatedAt = Date.now();
+  persistConversations();
 }
 
 const aiQuotaText = document.getElementById("aiQuotaText");
 const aiQuestionInput = document.getElementById("aiQuestionInput");
 const aiAskBtn = document.getElementById("aiAskBtn");
 const aiChatMessages = document.getElementById("aiChatMessages");
+const chatHistoryBtn = document.getElementById("chatHistoryBtn");
+const newChatBtn = document.getElementById("newChatBtn");
+const chatHistoryOverlay = document.getElementById("chatHistoryOverlay");
+const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+const chatHistoryList = document.getElementById("chatHistoryList");
 
-// Suhbat konteksti — endi brauzer localStorage'ida saqlanadi (qayta kirganda ko'rinadi).
-let chatHistory = [];
+// Barcha suhbatlar ro'yxati (localStorage'da saqlanadi) va hozir ochiq turgani.
+let conversations = loadConversations();
+let activeConversation = null;
 
 function t(key, fallback) {
   const lang = getCurrentLang();
@@ -105,7 +154,7 @@ async function askQuestion(question) {
         initData: tg.initData,
         question,
         lang: getCurrentLang(),
-        history: chatHistory.slice(-MAX_HISTORY_MESSAGES)
+        history: activeConversation.messages.slice(-MAX_HISTORY_MESSAGES)
       })
     });
     const data = await res.json();
@@ -119,8 +168,8 @@ async function askQuestion(question) {
     if (!res.ok) throw new Error(data.error || "Server xatosi");
 
     addBubble("bot", data.answer);
-    chatHistory.push({ role: "assistant", content: data.answer });
-    saveStoredChatHistory();
+    activeConversation.messages.push({ role: "assistant", content: data.answer });
+    ensureConversationSaved();
     updateQuotaText(data.isPremium, data.remainingToday);
   } catch (err) {
     removeTypingIndicator();
@@ -221,8 +270,9 @@ function sendMessage() {
   }
 
   addBubble("user", question);
-  chatHistory.push({ role: "user", content: question });
-  saveStoredChatHistory();
+  activeConversation.messages.push({ role: "user", content: question });
+  if (!activeConversation.title) activeConversation.title = truncateTitle(question);
+  ensureConversationSaved();
 
   aiQuestionInput.value = "";
   autoResizeInput();
@@ -241,15 +291,125 @@ aiQuestionInput.addEventListener("keydown", (e) => {
   }
 });
 
-// Oldingi suhbatni tiklash (agar mavjud bo'lsa), aks holda yangi salomlashuv.
-const restoredHistory = loadStoredChatHistory();
-if (restoredHistory.length > 0) {
-  chatHistory = restoredHistory;
-  chatHistory.forEach((msg) => {
-    addBubble(msg.role === "user" ? "user" : "bot", msg.content);
-  });
-} else {
+function renderGreeting() {
   const greetingKeys = ["ai_greeting_1", "ai_greeting_2", "ai_greeting_3"];
   const greetingKey = greetingKeys[Math.floor(Math.random() * greetingKeys.length)];
   addBubble("bot", t(greetingKey));
+}
+
+function renderActiveConversation() {
+  aiChatMessages.innerHTML = "";
+  if (activeConversation.messages.length === 0) {
+    renderGreeting();
+    return;
+  }
+  activeConversation.messages.forEach((msg) => {
+    addBubble(msg.role === "user" ? "user" : "bot", msg.content);
+  });
+}
+
+function startNewConversation() {
+  activeConversation = { id: genId(), title: null, messages: [], updatedAt: Date.now() };
+  renderActiveConversation();
+  closeHistoryPanel();
+}
+
+function formatConvDate(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return d.toLocaleTimeString(getCurrentLang() === "uz" ? "uz-UZ" : "ru-RU", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleDateString(getCurrentLang() === "uz" ? "uz-UZ" : "ru-RU", { day: "2-digit", month: "2-digit" });
+}
+
+function renderHistoryList() {
+  chatHistoryList.innerHTML = "";
+  const sorted = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt);
+
+  if (sorted.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "chat-history-empty";
+    empty.textContent = t("ai_history_empty", "Hali suhbatlar yo'q");
+    chatHistoryList.appendChild(empty);
+    return;
+  }
+
+  sorted.forEach((conv) => {
+    const item = document.createElement("div");
+    item.className = "chat-history-item" + (conv.id === activeConversation.id ? " active" : "");
+
+    const main = document.createElement("div");
+    main.className = "chat-history-item-main";
+    const title = document.createElement("div");
+    title.className = "chat-history-item-title";
+    title.textContent = conv.title || t("ai_history_untitled", "Suhbat");
+    const date = document.createElement("div");
+    date.className = "chat-history-item-date";
+    date.textContent = formatConvDate(conv.updatedAt);
+    main.appendChild(title);
+    main.appendChild(date);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "chat-history-delete-btn";
+    delBtn.setAttribute("aria-label", "O'chirish");
+    delBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>';
+    delBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteConversation(conv.id);
+    });
+
+    item.appendChild(main);
+    item.appendChild(delBtn);
+    item.addEventListener("click", () => openConversation(conv.id));
+    chatHistoryList.appendChild(item);
+  });
+}
+
+function openConversation(id) {
+  const conv = conversations.find((c) => c.id === id);
+  if (!conv) return;
+  activeConversation = conv;
+  renderActiveConversation();
+  closeHistoryPanel();
+}
+
+function deleteConversation(id) {
+  conversations = conversations.filter((c) => c.id !== id);
+  persistConversations();
+  if (activeConversation.id === id) {
+    if (conversations.length > 0) {
+      activeConversation = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt)[0];
+      renderActiveConversation();
+    } else {
+      startNewConversation();
+    }
+  }
+  renderHistoryList();
+}
+
+function openHistoryPanel() {
+  renderHistoryList();
+  chatHistoryOverlay.classList.add("open");
+}
+
+function closeHistoryPanel() {
+  chatHistoryOverlay.classList.remove("open");
+}
+
+chatHistoryBtn.addEventListener("click", openHistoryPanel);
+closeHistoryBtn.addEventListener("click", closeHistoryPanel);
+chatHistoryOverlay.addEventListener("click", (e) => {
+  if (e.target === chatHistoryOverlay) closeHistoryPanel();
+});
+newChatBtn.addEventListener("click", () => {
+  if (activeConversation && activeConversation.messages.length === 0) return; // allaqachon bo'sh suhbatdamiz
+  startNewConversation();
+});
+
+// Boshlash: eng oxirgi suhbatni ochamiz, bo'lmasa yangisini boshlaymiz.
+if (conversations.length > 0) {
+  activeConversation = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt)[0];
+  renderActiveConversation();
+} else {
+  startNewConversation();
 }

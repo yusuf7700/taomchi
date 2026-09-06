@@ -141,7 +141,10 @@ const TRANSLATIONS = {
     stars_buy_btn: "⭐ Stars sotib olish",
     ai_greeting_1: "Assalomu alaykum! 👋 Men Ovqaty — sizning oshxonadagi yordamchingizman. Uyda nima bor, nima pishirsam bo'ladi — bemalol so'rang! 🍲",
     ai_greeting_2: "Salom-salom! 😊 Bugun nima pishiramiz? Qo'lingizda bor mahsulotlarni ayting, birga o'ylaymiz 👨‍🍳",
-    ai_greeting_3: "Xush kelibsiz! 🥘 Ovqat, retsept yoki pishirish bo'yicha savolingiz bo'lsa — men shu yerdaman."
+    ai_greeting_3: "Xush kelibsiz! 🥘 Ovqat, retsept yoki pishirish bo'yicha savolingiz bo'lsa — men shu yerdaman.",
+    ai_history_title: "Suhbatlar tarixi",
+    ai_history_empty: "Hali suhbatlar yo'q",
+    ai_history_untitled: "Suhbat"
   },
   uzk: { // Kirill
     hero_title: "Бугун нима пиширамиз?",
@@ -281,7 +284,10 @@ const TRANSLATIONS = {
     stars_buy_btn: "⭐ Stars сотиб олиш",
     ai_greeting_1: "Ассалому алайкум! 👋 Мен Ovqaty — сизнинг ошхонадаги ёрдамчингизман. Уйда нима бор, нима пиширсам бўлади — бемалол сўранг! 🍲",
     ai_greeting_2: "Салом-салом! 😊 Бугун нима пиширамиз? Қўлингизда бор маҳсулотларни айтинг, бирга ўйлаймиз 👨‍🍳",
-    ai_greeting_3: "Хуш келибсиз! 🥘 Овқат, рецепт ёки пишириш бўйича саволингиз бўлса — мен шу ердаман."
+    ai_greeting_3: "Хуш келибсиз! 🥘 Овқат, рецепт ёки пишириш бўйича саволингиз бўлса — мен шу ердаман.",
+    ai_history_title: "Суҳбатлар тарихи",
+    ai_history_empty: "Ҳали суҳбатлар йўқ",
+    ai_history_untitled: "Суҳбат"
   }
 };
 

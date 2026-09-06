@@ -17,8 +17,29 @@
       </button>
       <span class="page-title" data-i18n="action_ai">AI'dan so'rash</span>
     </div>
-    <button class="lang-toggle" id="langToggle" aria-label="Tilni almashtirish">UZ</button>
+    <div class="header-actions">
+      <button class="icon-btn" id="chatHistoryBtn" aria-label="Suhbatlar tarixi">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      </button>
+      <button class="icon-btn" id="newChatBtn" aria-label="Yangi suhbat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="lang-toggle" id="langToggle" aria-label="Tilni almashtirish">UZ</button>
+    </div>
   </header>
+
+  <!-- ===== SUHBATLAR TARIXI PANELI ===== -->
+  <div class="chat-history-overlay" id="chatHistoryOverlay">
+    <div class="chat-history-panel">
+      <div class="chat-history-header">
+        <span data-i18n="ai_history_title">Suhbatlar tarixi</span>
+        <button class="icon-btn" id="closeHistoryBtn" aria-label="Yopish">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="chat-history-list" id="chatHistoryList"></div>
+    </div>
+  </div>
 
   <!-- ===== MAIN (chat) ===== -->
   <main class="main ai-chat-main">
