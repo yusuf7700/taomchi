@@ -173,12 +173,3 @@ if (document.getElementById("dailyRecipe")) {
     renderDailyRecipe(pickDailyRecipe(recipes));
   });
 }
-
-const dailyRecipe = document.getElementById("dailyRecipe");
-if (dailyRecipe) {
-  dailyRecipe.addEventListener("click", () => {
-    console.log("Retsept ochilmoqda...");
-    // TODO: retsept detali sahifasiga o'tish
-  });
-    }
-                        
