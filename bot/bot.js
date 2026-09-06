@@ -105,6 +105,7 @@ const BOT_TEXT = {
     referralShareBtn: "📤 Ulashish",
     referralShareText: "Ovqaty — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇",
     referralShopAiBtn: "🤖 2 ball — +1 AI so'rov",
+    referralShopRecipeBtn: "🔓 3 ball — Premium retsept ochish",
     referralShopPremium3dBtn: "⭐ 8 ball — 3 kunlik Premium",
     referralShopPremium30dBtn: "👑 20 ball — 1 oylik Premium",
     referralShopSuccess: "Muvaffaqiyatli olindi! 🎉",
@@ -160,6 +161,7 @@ const BOT_TEXT = {
     referralShareBtn: "📤 Улашиш",
     referralShareText: "Ovqaty — овқат рецептлари ва AI ёрдамчи билан! Менга қўшилинг 👇",
     referralShopAiBtn: "🤖 2 балл — +1 AI сўров",
+    referralShopRecipeBtn: "🔓 3 балл — Premium рецепт очиш",
     referralShopPremium3dBtn: "⭐ 8 балл — 3 кунлик Premium",
     referralShopPremium30dBtn: "👑 20 балл — 1 ойлик Premium",
     referralShopSuccess: "Муваффақиятли олинди! 🎉",
@@ -512,6 +514,7 @@ async function sendReferralInfo(ctx, lang) {
       reply_markup: {
         inline_keyboard: [
           [{ text: t.referralShareBtn, url: shareUrl }],
+          [{ text: t.referralShopRecipeBtn, web_app: { url: `${process.env.MINI_APP_URL}/recipes.html` } }],
           [{ text: t.referralShopAiBtn, callback_data: "redeem_ai_bonus" }],
           [{ text: t.referralShopPremium3dBtn, callback_data: "redeem_premium_3d" }],
           [{ text: t.referralShopPremium30dBtn, callback_data: "redeem_premium_30d" }]
