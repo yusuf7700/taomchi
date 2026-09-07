@@ -196,17 +196,23 @@ const pendingPaidQuestion = new Map(); // userId -> { question, lang }
 // Firestore'ga qayta-qayta murojaat qilmaslik uchun (tezlik uchun muhim)
 const langCache = new Map();
 
-// Foydalanuvchini Firestore'ga yozish (birinchi marta kirganda)
+// Foydalanuvchini Firestore'ga yozish (birinchi marta kirganda) va
+// ism/username'ni har safar yangilab turish (eski yozuvlarda bo'sh
+// qolib ketgan yoki keyin o'zgargan bo'lishi mumkin).
 async function ensureUser(ctx) {
   const db = getDb();
   const userId = String(ctx.from.id);
   const userRef = db.collection("users").doc(userId);
   const doc = await userRef.get();
 
+  const freshNameFields = {
+    firstName: ctx.from.first_name || "",
+    username: ctx.from.username || ""
+  };
+
   if (!doc.exists) {
     await userRef.set({
-      firstName: ctx.from.first_name || "",
-      username: ctx.from.username || "",
+      ...freshNameFields,
       createdAt: Date.now(),
       isPremium: false,
       premiumUntil: null,
@@ -217,7 +223,13 @@ async function ensureUser(ctx) {
     return { isNew: true, language: null };
   }
 
-  const language = doc.data().language || null;
+  // Mavjud foydalanuvchi — ism/username eskirgan yoki bo'sh bo'lsa yangilaymiz.
+  const data = doc.data();
+  if (data.firstName !== freshNameFields.firstName || data.username !== freshNameFields.username) {
+    await userRef.set(freshNameFields, { merge: true });
+  }
+
+  const language = data.language || null;
   if (language) langCache.set(userId, language);
   return { isNew: false, language };
 }
