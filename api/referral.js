@@ -5,6 +5,7 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
+const { ensureUserIdentity } = require("../lib/ensureUserIdentity");
 const { getReferralStatus, redeemRecipeUnlock, redeemAiBonus, redeemPremiumDays, PREMIUM_3D_DAYS, PREMIUM_3D_COST, PREMIUM_30D_DAYS, PREMIUM_30D_COST } = require("../lib/referral");
 
 let cachedBotUsername = null;
@@ -29,6 +30,7 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const tgUser = verifyTelegramInitData(req.query.initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
+      await ensureUserIdentity(db, tgUser);
 
       const [status, botUsername] = await Promise.all([
         getReferralStatus(db, tgUser.id),
@@ -45,6 +47,7 @@ module.exports = async (req, res) => {
       const { initData, action, recipeId, rewardType } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
+      await ensureUserIdentity(db, tgUser);
 
       if (action === "redeem_recipe") {
         if (!recipeId) return res.status(400).json({ error: "recipeId kerak" });

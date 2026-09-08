@@ -8,6 +8,7 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
+const { ensureUserIdentity } = require("../lib/ensureUserIdentity");
 
 module.exports = async (req, res) => {
   let db;
@@ -23,6 +24,7 @@ module.exports = async (req, res) => {
       const initData = req.query.initData;
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
+      await ensureUserIdentity(db, tgUser);
 
       const doc = await db.collection("users").doc(String(tgUser.id)).get();
       const notificationsEnabled = doc.exists ? doc.data().notificationsEnabled !== false : true;
@@ -33,6 +35,7 @@ module.exports = async (req, res) => {
       const { initData, notificationsEnabled } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
+      await ensureUserIdentity(db, tgUser);
 
       await db.collection("users").doc(String(tgUser.id)).set(
         { notificationsEnabled: !!notificationsEnabled },

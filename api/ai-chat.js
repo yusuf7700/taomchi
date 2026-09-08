@@ -7,6 +7,7 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
+const { ensureUserIdentity } = require("../lib/ensureUserIdentity");
 const { checkAndConsumeAiQuota, askFoodAssistant } = require("../lib/aiAssistant");
 
 module.exports = async (req, res) => {
@@ -31,6 +32,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    await ensureUserIdentity(db, tgUser);
     const quota = await checkAndConsumeAiQuota(db, tgUser.id);
     if (!quota.allowed) {
       return res.status(429).json({ error: "limit", message: "Bugungi bepul so'rov limiti tugadi. Premium bilan kuniga 15 marta so'rashingiz mumkin." });

@@ -6,6 +6,7 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
+const { ensureUserIdentity } = require("../lib/ensureUserIdentity");
 const { getPremiumStatus, claimPremiumTrial, planStarsPrice } = require("../lib/premium");
 const { getReferralStatus } = require("../lib/referral");
 
@@ -22,6 +23,7 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const tgUser = verifyTelegramInitData(req.query.initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
+      await ensureUserIdentity(db, tgUser);
 
       // Retsept kontenti (ingredientlar, tayyorlash tartibi, video) — faqat
       // shu yerdan, tekshiruvdan o'tgandan keyin beriladi. Bu Premium
@@ -55,6 +57,7 @@ module.exports = async (req, res) => {
       const { initData, action, plan } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
+      await ensureUserIdentity(db, tgUser);
 
       if (action === "claim_trial") {
         const result = await claimPremiumTrial(db, tgUser.id);
