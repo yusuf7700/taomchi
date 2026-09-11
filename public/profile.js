@@ -239,6 +239,15 @@ async function buyPremium(plan) {
     tg.openInvoice(data.link, (status) => {
       if (status === "paid") {
         loadPremiumStatus();
+        window.showPurchaseCelebration?.(plan, {
+          title: tp("celebrate_title", "Tabriklaymiz!"),
+          subtitle: plan === "yearly"
+            ? tp("celebrate_subtitle_yearly", "Sizda endi 1 yillik Premium faol")
+            : tp("celebrate_subtitle_monthly", "Sizda endi 1 oylik Premium faol"),
+          feature1: tp("premium_feature_ai", "Kuniga 15 marta AI'dan so'rash"),
+          feature2: tp("premium_feature_recipes", "Premium retseptlarga to'liq kirish"),
+          closeBtn: tp("celebrate_close_btn", "Ajoyib!")
+        });
       } else {
         btn.disabled = false;
         btn.textContent = originalText;

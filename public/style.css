@@ -2143,3 +2143,90 @@ html.no-splash .splash {
   font-size: 14px;
   padding: 30px 10px;
 }
+
+/* ===== Xarid muvaffaqiyat animatsiyasi ===== */
+.celebrate-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 44, 42, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease, background-color 0.25s ease;
+}
+
+.celebrate-overlay--visible {
+  opacity: 1;
+  background: rgba(44, 44, 42, 0.6);
+}
+
+.celebrate-box {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px 26px;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+  transform: scale(0.85) translateY(10px);
+  opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.celebrate-overlay--visible .celebrate-box {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.celebrate-crown {
+  font-size: 52px;
+  margin-bottom: 6px;
+  display: inline-block;
+  animation: celebrateCrownPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes celebrateCrownPop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(6deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.celebrate-title {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 6px;
+}
+
+.celebrate-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.celebrate-feature-list {
+  list-style: none;
+  text-align: left;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.celebrate-feature-list li {
+  font-size: 13.5px;
+  color: var(--text-dark);
+  padding: 4px 0;
+}
+
+.celebrate-feature-list li::before {
+  content: "✓ ";
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.celebrate-close-btn {
+  width: 100%;
+}
