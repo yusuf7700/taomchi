@@ -108,10 +108,16 @@ function renderPremiumBanner() {
     premiumSubtitle.textContent = premiumState.daysLeft + tp("premium_days_left_suffix", " kun qoldi");
     premiumBanner.onclick = null;
     premiumBanner.style.cursor = "default";
+    premiumBanner.classList.add("premium-banner--active");
+    const iconEl = document.getElementById("premiumBannerIcon");
+    if (iconEl) iconEl.textContent = "👑";
     chevron.style.display = "none";
     return;
   }
 
+  premiumBanner.classList.remove("premium-banner--active");
+  const iconElInactive = document.getElementById("premiumBannerIcon");
+  if (iconElInactive) iconElInactive.textContent = "⭐";
   premiumBanner.style.cursor = "pointer";
   chevron.style.display = "block";
 

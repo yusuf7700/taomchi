@@ -1102,6 +1102,16 @@ html.no-splash .splash {
   background: rgba(255,255,255,0.06);
 }
 
+.premium-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.22) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: premiumBannerShimmer 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
 .premium-banner-icon {
   font-size: 20px;
   flex-shrink: 0;
@@ -1136,6 +1146,55 @@ html.no-splash .splash {
   height: 18px;
   color: rgba(255,255,255,0.7);
   flex-shrink: 0;
+  animation: premiumChevronNudge 2.2s ease-in-out infinite;
+}
+
+/* Premium faol holat — oltin gradient + davriy shimmer o'tishi */
+.premium-banner--active {
+  background: linear-gradient(135deg, #8A6417, #D9A62E 45%, #8A6417);
+  box-shadow: 0 4px 14px rgba(154, 116, 26, 0.35);
+}
+
+.premium-banner--active .premium-banner-subtitle {
+  color: #F5E4B8;
+}
+
+.premium-banner--active::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.35) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: premiumBannerShimmer 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes premiumBannerShimmer {
+  0%, 45% { transform: translateX(-120%); }
+  65%, 100% { transform: translateX(120%); }
+}
+
+@keyframes premiumChevronNudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
+.premium-banner--active .premium-banner-icon {
+  animation: premiumIconPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes premiumIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-banner::before,
+  .premium-banner-chevron,
+  .premium-banner--active::before,
+  .premium-banner--active .premium-banner-icon {
+    animation: none;
+  }
 }
 
 .premium-actions {
