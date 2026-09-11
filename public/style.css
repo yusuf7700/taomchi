@@ -34,6 +34,32 @@ body {
   line-height: 1.5;
   padding-bottom: 90px; /* bottom nav uchun joy */
   -webkit-tap-highlight-color: transparent;
+  animation: pageFadeIn 0.22s ease;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Barcha oddiy tugmalar uchun bosilganda silliq "bosish" effekti */
+button:active,
+.recipe-card:active,
+.filter-chip:active,
+.nav-item:active {
+  transform: scale(0.97);
+}
+
+button,
+.recipe-card,
+.filter-chip,
+.nav-item {
+  transition: transform 0.1s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
+  button, .recipe-card, .filter-chip, .nav-item { transition: none; }
 }
 
 button {
@@ -532,6 +558,45 @@ html.no-splash .splash {
   font-size: 13px;
 }
 
+/* ===== Skeleton loader (retseptlar yuklanayotganda) ===== */
+.recipe-card--skeleton {
+  pointer-events: none;
+}
+
+.skeleton-block,
+.skeleton-line {
+  background: var(--cream-soft);
+  border-radius: var(--radius-sm);
+  animation: skeletonPulse 1.3s ease-in-out infinite;
+}
+
+.recipe-info .skeleton-line {
+  border-radius: 5px;
+}
+
+.skeleton-line--title {
+  height: 14px;
+  width: 68%;
+  margin-bottom: 10px;
+}
+
+.skeleton-line--meta {
+  height: 11px;
+  width: 42%;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block,
+  .skeleton-line {
+    animation: none;
+  }
+}
+
 .premium-ribbon {
   position: absolute;
   top: 4px;
@@ -544,6 +609,26 @@ html.no-splash .splash {
   border-radius: 5px;
   letter-spacing: 0.2px;
   line-height: 1.3;
+  overflow: hidden;
+}
+
+.premium-ribbon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.75) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: premiumRibbonShine 1.2s ease-out 0.4s 1 both;
+}
+
+@keyframes premiumRibbonShine {
+  to { transform: translateX(120%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-ribbon::after {
+    animation: none;
+  }
 }
 
 .recipe-info { flex: 1; }
@@ -715,6 +800,24 @@ html.no-splash .splash {
   font-weight: 800;
   padding: 3px 9px;
   border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+.premium-lock-mini-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.75) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: premiumRibbonShine 1.2s ease-out 0.4s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-lock-mini-badge::after {
+    animation: none;
+  }
 }
 
 .premium-lock-card {
@@ -723,11 +826,31 @@ html.no-splash .splash {
   padding: 28px 20px;
   text-align: center;
   margin: 8px 0 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-lock-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.16) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: premiumBannerShimmer 5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .premium-lock-icon {
   font-size: 34px;
   margin-bottom: 10px;
+  animation: premiumIconPulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-lock-card::before,
+  .premium-lock-icon {
+    animation: none;
+  }
 }
 
 .premium-lock-title {
@@ -754,6 +877,11 @@ html.no-splash .splash {
   font-size: 14.5px;
   padding: 13px 26px;
   border-radius: var(--radius-sm);
+  transition: transform 0.12s ease;
+}
+
+.premium-lock-btn:active {
+  transform: scale(0.96);
 }
 
 .premium-lock-btn--points {
