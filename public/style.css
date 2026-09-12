@@ -1700,6 +1700,13 @@ html.no-splash .splash {
   margin-bottom: 14px;
 }
 
+.pantry-category-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
 .pantry-clear-btn {
   font-size: 12.5px;
   font-weight: 600;
