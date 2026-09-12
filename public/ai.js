@@ -75,6 +75,7 @@ const aiQuotaText = document.getElementById("aiQuotaText");
 const aiQuestionInput = document.getElementById("aiQuestionInput");
 const aiAskBtn = document.getElementById("aiAskBtn");
 const aiChatMessages = document.getElementById("aiChatMessages");
+const aiEmptyState = document.getElementById("aiEmptyState");
 const chatHistoryBtn = document.getElementById("chatHistoryBtn");
 const newChatBtn = document.getElementById("newChatBtn");
 const chatHistoryOverlay = document.getElementById("chatHistoryOverlay");
@@ -275,6 +276,7 @@ function sendMessage() {
     return;
   }
 
+  aiEmptyState.classList.add("screen-hidden");
   addBubble("user", question);
   activeConversation.messages.push({ role: "user", content: question });
   if (!activeConversation.title) activeConversation.title = truncateTitle(question);
@@ -285,6 +287,15 @@ function sendMessage() {
 
   askQuestion(question);
 }
+
+// "Bosh holat"dagi tezkor tugmalar va mashhur so'rov chiplari — bosilganda
+// mos savolni to'ldirib, darhol yuboradi.
+document.querySelectorAll("[data-prompt-key]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    aiQuestionInput.value = t(btn.getAttribute("data-prompt-key"));
+    sendMessage();
+  });
+});
 
 aiAskBtn.addEventListener("click", sendMessage);
 
@@ -297,18 +308,13 @@ aiQuestionInput.addEventListener("keydown", (e) => {
   }
 });
 
-function renderGreeting() {
-  const greetingKeys = ["ai_greeting_1", "ai_greeting_2", "ai_greeting_3"];
-  const greetingKey = greetingKeys[Math.floor(Math.random() * greetingKeys.length)];
-  addBubble("bot", t(greetingKey));
-}
-
 function renderActiveConversation() {
   aiChatMessages.innerHTML = "";
   if (activeConversation.messages.length === 0) {
-    renderGreeting();
+    aiEmptyState.classList.remove("screen-hidden");
     return;
   }
+  aiEmptyState.classList.add("screen-hidden");
   activeConversation.messages.forEach((msg) => {
     addBubble(msg.role === "user" ? "user" : "bot", msg.content);
   });

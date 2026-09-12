@@ -43,6 +43,69 @@
 
   <!-- ===== MAIN (chat) ===== -->
   <main class="main ai-chat-main">
+
+    <!-- Suhbat hali bo'sh bo'lganda ko'rinadigan "bosh holat" -->
+    <div id="aiEmptyState" class="ai-empty-state">
+      <div class="ai-hero-illustration">
+        <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="120" rx="85" ry="16" fill="var(--cream-soft)"/>
+          <ellipse cx="100" cy="85" rx="72" ry="68" fill="var(--cream-soft)" opacity="0.55"/>
+          <ellipse cx="34" cy="82" rx="10" ry="18" fill="#DCEEDC" stroke="var(--green-dark)" stroke-width="2" transform="rotate(-25 34 82)"/>
+          <ellipse cx="166" cy="82" rx="10" ry="18" fill="#DCEEDC" stroke="var(--green-dark)" stroke-width="2" transform="rotate(25 166 82)"/>
+          <path d="M100 8 C95 -2,80 -2,80 10 C80 20,100 30,100 30 C100 30,120 20,120 10 C120 -2,105 -2,100 8 Z" fill="var(--orange)"/>
+          <rect x="97" y="28" width="6" height="18" rx="3" fill="var(--green-dark)"/>
+          <circle cx="100" cy="46" r="7" fill="var(--green-dark)"/>
+          <path d="M32 102 A68 68 0 0 1 168 102 Z" fill="var(--green-dark)"/>
+          <rect x="24" y="100" width="152" height="11" rx="5.5" fill="var(--green-dark)"/>
+          <circle cx="152" cy="108" r="9" fill="var(--orange)"/>
+        </svg>
+      </div>
+      <p class="ai-hero-title" data-i18n="ai_hero_title">Bugun oshxonada nima bor?</p>
+      <p class="ai-hero-subtitle" data-i18n="ai_hero_subtitle">Qo'lingizdagi mahsulotlarni yozing, men sizga mos taomlarni topib beraman.</p>
+
+      <div class="ai-quick-grid">
+        <button class="ai-quick-card" data-prompt-key="ai_prompt_quick">
+          <span class="ai-quick-icon">⚡</span>
+          <span>
+            <span class="ai-quick-title" data-i18n="ai_quick_title">Tez ovqat</span>
+            <span class="ai-quick-desc" data-i18n="ai_quick_desc">30 daqiqalik taomlar</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="ai-quick-card" data-prompt-key="ai_prompt_idea">
+          <span class="ai-quick-icon">✨</span>
+          <span>
+            <span class="ai-quick-title" data-i18n="ai_idea_title">Menga g'oya ber</span>
+            <span class="ai-quick-desc" data-i18n="ai_idea_desc">Kayfiyat va vaqtga qarab tanlaymiz</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="ai-quick-card" data-prompt-key="ai_prompt_lowbudget">
+          <span class="ai-quick-icon">💰</span>
+          <span>
+            <span class="ai-quick-title" data-i18n="ai_lowbudget_title">Arzon va sodda</span>
+            <span class="ai-quick-desc" data-i18n="ai_lowbudget_desc">Kam mahsulot bilan</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+        <button class="ai-quick-card" data-prompt-key="ai_prompt_guest">
+          <span class="ai-quick-icon">🎉</span>
+          <span>
+            <span class="ai-quick-title" data-i18n="ai_guest_title">Mehmon kutaman</span>
+            <span class="ai-quick-desc" data-i18n="ai_guest_desc">Bayram uchun taklif</span>
+          </span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <p class="ai-popular-label" data-i18n="ai_popular_label">Mashhur so'rovlar</p>
+      <div class="ai-popular-chips">
+        <button class="ai-popular-chip" data-prompt-key="ai_prompt_egg" data-i18n="ai_chip_egg">Tuxum bilan</button>
+        <button class="ai-popular-chip" data-prompt-key="ai_prompt_potato" data-i18n="ai_chip_potato">Kartoshka bilan</button>
+        <button class="ai-popular-chip" data-prompt-key="ai_prompt_veg" data-i18n="ai_chip_veg">Go'shtsiz</button>
+      </div>
+    </div>
+
     <div class="ai-chat-messages" id="aiChatMessages"></div>
   </main>
 

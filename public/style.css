@@ -2274,6 +2274,112 @@ html.no-splash .splash {
   padding-top: 4px;
 }
 
+/* ===== AI sahifasi — suhbat hali bo'sh bo'lgandagi "bosh holat" ===== */
+.ai-empty-state {
+  padding-top: 8px;
+}
+
+.ai-hero-illustration {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.ai-hero-illustration svg {
+  width: 170px;
+  height: auto;
+}
+
+.ai-hero-title {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--text-dark);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.ai-hero-subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0 auto 20px;
+  max-width: 280px;
+}
+
+.ai-quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ai-quick-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 12px 10px;
+  text-align: left;
+}
+
+.ai-quick-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.ai-quick-card > span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.ai-quick-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.ai-quick-desc {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.ai-quick-card .chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ai-popular-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.ai-popular-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ai-popular-chip {
+  background: var(--cream-soft);
+  border: 1.5px solid var(--border-soft);
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
 .chat-bubble {
   max-width: 84%;
   padding: 12px 14px;
