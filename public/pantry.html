@@ -27,6 +27,13 @@
 
     <p class="pantry-intro" data-i18n="pantry_intro">Uyingizda bor mahsulotlarni tanlang, biz mos retseptlarni topamiz 👇</p>
 
+    <div class="search-box search-box--light" style="margin-bottom: 14px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="pantrySearchInput" data-i18n-placeholder="search_placeholder_short" placeholder="Qidirish..." autocomplete="off">
+    </div>
+
+    <div id="pantrySelectedRow" class="pantry-selected-row screen-hidden"></div>
+
     <div class="pantry-toolbar">
       <span class="pantry-selected-count"><span id="selectedCount">0</span> <span data-i18n="pantry_selected">ta mahsulot tanlandi</span></span>
       <button class="pantry-clear-btn" id="clearPantryBtn" data-i18n="pantry_clear">Tozalash</button>
@@ -37,6 +44,8 @@
     <section class="section" id="pantryResults"></section>
 
   </main>
+
+  <button id="pantryResultsFloatBtn" class="pantry-results-float-btn screen-hidden"></button>
 
   <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottom-nav">
