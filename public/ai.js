@@ -99,7 +99,13 @@ function escapeHtml(str) {
 
 function scrollToBottom() {
   requestAnimationFrame(() => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    // Xabarlarning haqiqiy oxirigacha skroll qilamiz (input panel uchun
+    // ajratilgan pastki bo'sh joygacha emas) — aks holda qisqa suhbatlarda
+    // (masalan yangi ochilganda) bo'sh joy ustida "osilib" qolamiz va
+    // salomlashuv xabari ekrandan chiqib ketadi.
+    const messagesBottom = aiChatMessages.getBoundingClientRect().bottom + window.scrollY;
+    const targetTop = Math.max(0, messagesBottom - window.innerHeight + 90);
+    window.scrollTo({ top: targetTop, behavior: "smooth" });
   });
 }
 
