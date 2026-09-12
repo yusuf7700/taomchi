@@ -48,10 +48,128 @@ document.getElementById("skipTrialBtn")?.addEventListener("click", closeOnboardi
 
 // --- Bosh sahifadagi qidiruv (Enter bosilsa, Retseptlar sahifasiga o'tkazadi) ---
 const homeSearchInput = document.getElementById("homeSearchInput");
+const searchSuggestionsEl = document.getElementById("searchSuggestions");
+const RECENT_SEARCHES_KEY = "taomchi_recent_searches";
+const QUICK_CATEGORIES = ["main", "soup", "salad"];
+let searchRecipesCache = [];
+
+function getRecentSearches() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function addRecentSearch(term) {
+  const clean = term.trim();
+  if (!clean) return;
+  const list = getRecentSearches().filter(t => t.toLowerCase() !== clean.toLowerCase());
+  list.unshift(clean);
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(list.slice(0, 4)));
+  } catch {
+    // localStorage yopiq bo'lishi mumkin, e'tiborsiz qoldiramiz
+  }
+}
+
+function categoryLabelHome(cat) {
+  const lang = getCurrentLang();
+  const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
+  return dict["cat_" + cat] || cat;
+}
+
+function goToRecipes(query) {
+  addRecentSearch(query);
+  window.location.href = `recipes.html?q=${encodeURIComponent(query)}`;
+}
+
+function renderSearchSuggestions() {
+  if (!searchSuggestionsEl) return;
+  const query = homeSearchInput.value.trim();
+
+  if (query) {
+    const q = cyrillicToLatin(query.toLowerCase());
+    const matches = searchRecipesCache
+      .filter(r => cyrillicToLatin((r.title || "").toLowerCase()).includes(q))
+      .slice(0, 5);
+
+    if (matches.length === 0) {
+      searchSuggestionsEl.classList.add("screen-hidden");
+      searchSuggestionsEl.innerHTML = "";
+      return;
+    }
+
+    searchSuggestionsEl.innerHTML = matches.map(r => `
+      <div class="search-suggestion-item" data-id="${escapeHtml(r.id)}">
+        <span class="s-icon">🍽️</span>
+        <span>${escapeHtml(displayTitle(r))}</span>
+      </div>
+    `).join("");
+
+    searchSuggestionsEl.querySelectorAll(".search-suggestion-item").forEach(item => {
+      item.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        window.location.href = `recipe-detail.html?id=${item.getAttribute("data-id")}`;
+      });
+    });
+
+    searchSuggestionsEl.classList.remove("screen-hidden");
+    return;
+  }
+
+  // Qidiruv bo'sh — so'nggi qidiruvlar va mashhur kategoriyalar ko'rsatiladi
+  const recent = getRecentSearches();
+  let html = "";
+
+  if (recent.length > 0) {
+    html += `<p class="search-suggestions-label" data-i18n="recent_searches">So'nggi qidiruvlar</p>`;
+    html += recent.map(term => `
+      <div class="search-suggestion-item" data-term="${escapeHtml(term)}">
+        <span class="s-icon">🕘</span>
+        <span>${escapeHtml(term)}</span>
+      </div>
+    `).join("");
+  }
+
+  html += `<p class="search-suggestions-label" data-i18n="popular_categories">Mashhur kategoriyalar</p>`;
+  html += QUICK_CATEGORIES.map(cat => `
+    <div class="search-suggestion-item" data-cat="${cat}">
+      <span class="s-icon">🔥</span>
+      <span>${escapeHtml(categoryLabelHome(cat))}</span>
+    </div>
+  `).join("");
+
+  searchSuggestionsEl.innerHTML = html;
+
+  searchSuggestionsEl.querySelectorAll(".search-suggestion-item[data-term]").forEach(item => {
+    item.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      goToRecipes(item.getAttribute("data-term"));
+    });
+  });
+  searchSuggestionsEl.querySelectorAll(".search-suggestion-item[data-cat]").forEach(item => {
+    item.addEventListener("mousedown", (e) => {
+      e.preventDefault();
+      window.location.href = `recipes.html?cat=${item.getAttribute("data-cat")}`;
+    });
+  });
+
+  searchSuggestionsEl.classList.remove("screen-hidden");
+}
+
 if (homeSearchInput) {
+  loadRecipesWithCache((recipes) => { searchRecipesCache = recipes; });
+
+  homeSearchInput.addEventListener("focus", renderSearchSuggestions);
+  homeSearchInput.addEventListener("input", renderSearchSuggestions);
+  homeSearchInput.addEventListener("blur", () => {
+    setTimeout(() => searchSuggestionsEl?.classList.add("screen-hidden"), 120);
+  });
+
   homeSearchInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && homeSearchInput.value.trim()) {
-      window.location.href = `recipes.html?q=${encodeURIComponent(homeSearchInput.value.trim())}`;
+      goToRecipes(homeSearchInput.value.trim());
     }
   });
 }
@@ -159,12 +277,20 @@ function renderDailyRecipe(r) {
   const dailyEl = document.getElementById("dailyRecipe");
   if (!dailyEl || !r) return;
 
-  dailyEl.querySelector(".recipe-thumb").innerHTML = (r.imageUrl
+  const thumbEl = dailyEl.querySelector(".recipe-thumb");
+  thumbEl.classList.remove("skeleton-block");
+  thumbEl.innerHTML = (r.imageUrl
     ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
     : "🍽️") + premiumRibbon(r);
-  dailyEl.querySelector(".recipe-title").textContent = displayTitle(r);
-  dailyEl.querySelector(".recipe-meta").innerHTML =
-    `<span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}`;
+
+  const titleEl = dailyEl.querySelector(".recipe-title");
+  titleEl.classList.remove("skeleton-line", "skeleton-line--title");
+  titleEl.textContent = displayTitle(r);
+
+  const metaEl = dailyEl.querySelector(".recipe-meta");
+  metaEl.classList.remove("skeleton-line", "skeleton-line--meta");
+  metaEl.innerHTML = `<span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}`;
+
   dailyEl.onclick = () => { window.location.href = `recipe-detail.html?id=${r.id}`; };
 }
 

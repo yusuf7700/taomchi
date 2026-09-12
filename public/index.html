@@ -31,9 +31,9 @@
       <h2 data-i18n="onboarding_title">Ovqaty'ga xush kelibsiz!</h2>
       <p data-i18n="onboarding_subtitle">Siz uchun 7 kunlik Premium sovg'a qilamiz. Barcha imkoniyatlarni sinab ko'ring.</p>
       <ul class="onboarding-features">
-        <li>🤖 <span data-i18n="onboarding_f1">AI'dan so'rash — cheksiz savol-javob</span></li>
-        <li>📅 <span data-i18n="onboarding_f2">Haftalik menyu — AI yordamida</span></li>
-        <li>⭐ <span data-i18n="onboarding_f3">Premium retseptlar</span></li>
+        <li><span class="of-icon">🤖</span> <span data-i18n="onboarding_f1">AI'dan so'rash — cheksiz savol-javob</span></li>
+        <li><span class="of-icon">📅</span> <span data-i18n="onboarding_f2">Haftalik menyu — AI yordamida</span></li>
+        <li><span class="of-icon">⭐</span> <span data-i18n="onboarding_f3">Premium retseptlar</span></li>
       </ul>
       <button class="onboarding-btn-primary" id="startTrialBtn" data-i18n="onboarding_start">Premiumdan foydalanishni boshlash</button>
       <button class="onboarding-btn-secondary" id="skipTrialBtn" data-i18n="onboarding_skip">Keyinroq</button>
@@ -80,9 +80,12 @@
       <div class="hero-content">
         <h1 data-i18n="hero_title">Bugun nima pishiramiz?</h1>
         <p data-i18n="hero_subtitle">Sizga mos taomni topamiz 👩‍🍳</p>
-        <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" id="homeSearchInput" data-i18n-placeholder="search_placeholder" placeholder="Taom yoki mahsulot qidiring...">
+        <div class="search-box-wrap">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="homeSearchInput" data-i18n-placeholder="search_placeholder" placeholder="Taom yoki mahsulot qidiring..." autocomplete="off">
+          </div>
+          <div class="search-suggestions screen-hidden" id="searchSuggestions"></div>
         </div>
         <button class="random-card" id="randomBtn">
           <span class="random-icon">🍽️</span>
@@ -118,10 +121,10 @@
         <a href="recipes.html" class="section-link" data-i18n="see_all">Barchasi ›</a>
       </div>
       <div class="recipe-card featured" id="dailyRecipe">
-        <div class="recipe-thumb">🍽️</div>
+        <div class="recipe-thumb skeleton-block"></div>
         <div class="recipe-info">
-          <p class="recipe-title">Yuklanmoqda...</p>
-          <p class="recipe-meta"></p>
+          <p class="recipe-title skeleton-line skeleton-line--title">&nbsp;</p>
+          <p class="recipe-meta skeleton-line skeleton-line--meta">&nbsp;</p>
         </div>
         <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
       </div>

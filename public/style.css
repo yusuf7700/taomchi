@@ -184,18 +184,34 @@ html.no-splash .splash {
 .onboarding-features {
   list-style: none;
   margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .onboarding-features li {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--text-dark);
-  padding: 9px 0;
-  border-bottom: 1px solid var(--border-soft);
+  padding: 10px 12px;
+  background: var(--cream);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  line-height: 1.35;
 }
-.onboarding-features li:last-child { border-bottom: none; }
+
+.onboarding-features .of-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
 
 .onboarding-btn-primary {
   width: 100%;
@@ -422,7 +438,7 @@ html.no-splash .splash {
   padding: 0 18px;
 }
 
-.section { margin-top: 26px; }
+.section { margin-top: 38px; }
 
 .section h2 {
   font-size: 18px;
@@ -478,6 +494,50 @@ html.no-splash .splash {
 }
 
 .search-box input::placeholder { color: var(--text-muted); }
+
+.search-box-wrap {
+  position: relative;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-soft);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  z-index: 20;
+  overflow: hidden;
+}
+
+.search-suggestions-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 10px 14px 4px;
+  text-transform: none;
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+
+.search-suggestion-item:active {
+  background: var(--cream-soft);
+}
+
+.search-suggestion-item .s-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
 
 /* ===== Quick actions (3 ta katta tugma) ===== */
 .quick-actions {
@@ -568,6 +628,9 @@ html.no-splash .splash {
   background: var(--cream-soft);
   border-radius: var(--radius-sm);
   animation: skeletonPulse 1.3s ease-in-out infinite;
+  color: transparent;
+  overflow: hidden;
+  line-height: 1;
 }
 
 .recipe-info .skeleton-line {
