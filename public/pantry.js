@@ -22,7 +22,7 @@ const ctaBtn = document.getElementById("pantryCtaBtn");
 
 let selectedIds = new Set(loadSelected());
 let allRecipes = [];
-let activeCategory = "all";
+let activeCategory = PANTRY_GROUPS[0].id;
 
 function loadSelected() {
   try {
@@ -49,8 +49,9 @@ function t(key, fallback) {
 
 // ===== Kategoriya tab'lari ("Barchasi" + har bir guruh) =====
 function renderCategoryTabs() {
-  const tabs = [{ id: "all", label: t("pantry_all_category", "Barchasi") }]
-    .concat(PANTRY_GROUPS.map(g => ({ id: g.id, label: displayText(g.label) })));
+  const tabs = PANTRY_GROUPS
+    .map(g => ({ id: g.id, label: `${g.emoji} ${displayText(g.shortLabel)}` }))
+    .concat([{ id: "all", label: t("pantry_all_category", "Barchasi") }]);
 
   categoryTabsEl.innerHTML = tabs.map(tab => `
     <button class="filter-chip ${activeCategory === tab.id ? "active" : ""}" data-cat="${tab.id}">${tab.label}</button>

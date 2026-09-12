@@ -6,6 +6,8 @@
 const PANTRY_GROUPS = [
   {
     id: "meat",
+    shortLabel: "Go'sht",
+    emoji: "🥩",
     label: "Go'sht, baliq va tuxum",
     items: [
       { id: "tovuq", label: "Tovuq go'shti", emoji: "🍗", keywords: ["tovuq"] },
@@ -17,6 +19,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "veg",
+    shortLabel: "Sabzavot",
+    emoji: "🥕",
     label: "Sabzavotlar",
     items: [
       { id: "kartoshka", label: "Kartoshka", emoji: "🥔", keywords: ["kartoshka"] },
@@ -36,6 +40,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "herbs",
+    shortLabel: "Ko'katlar",
+    emoji: "🌿",
     label: "Ko'katlar",
     items: [
       { id: "kashnich", label: "Kashnich", emoji: "🌿", keywords: ["kashnich"] },
@@ -47,6 +53,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "grains",
+    shortLabel: "Don",
+    emoji: "🌾",
     label: "Don va yormalar",
     items: [
       { id: "guruch", label: "Guruch", emoji: "🍚", keywords: ["guruch"] },
@@ -61,6 +69,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "dairy",
+    shortLabel: "Sut",
+    emoji: "🥛",
     label: "Sut mahsulotlari",
     items: [
       { id: "sut", label: "Sut", emoji: "🥛", keywords: ["sut"] },
@@ -74,6 +84,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "fruit",
+    shortLabel: "Meva",
+    emoji: "🍎",
     label: "Mevalar",
     items: [
       { id: "limon", label: "Limon", emoji: "🍋", keywords: ["limon"] },
@@ -88,6 +100,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "dessert",
+    shortLabel: "Shirinlik",
+    emoji: "🍰",
     label: "Shirinlik mahsulotlari",
     items: [
       { id: "qaymoq", label: "Qaymoq", emoji: "🍦", keywords: ["qaymoq"] },
@@ -102,6 +116,8 @@ const PANTRY_GROUPS = [
   },
   {
     id: "other",
+    shortLabel: "Boshqa",
+    emoji: "🧂",
     label: "Boshqa mahsulotlar",
     items: [
       { id: "osimlik_yogi", label: "O'simlik yog'i", emoji: "🛢️", keywords: ["o'simlik yog'i", "kungaboqar yog'i"] },
