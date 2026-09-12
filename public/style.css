@@ -6,6 +6,7 @@
   --cream: #FDF2EB;
   --cream-soft: #F6E4D9;
   --orange: #EA260B;
+  --orange-deep: #C81E08;
   --white: #FFFFFF;
   --text-dark: #2C2C2A;
   --text-muted: #6B6B60;
@@ -282,7 +283,7 @@ html.no-splash .splash {
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: var(--orange);
+  background: var(--green-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -425,8 +426,8 @@ html.no-splash .splash {
 .icon-btn svg { width: 20px; height: 20px; }
 
 .icon-btn.active {
-  background: var(--orange);
-  border-color: var(--orange);
+  background: var(--orange-deep);
+  border-color: var(--orange-deep);
 }
 .icon-btn.active svg {
   color: var(--white);
@@ -594,7 +595,7 @@ html.no-splash .splash {
 .recipe-thumb {
   width: 84px;
   height: 84px;
-  background: var(--orange);
+  background: var(--green-dark);
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -606,16 +607,16 @@ html.no-splash .splash {
 
 .card-fav-btn {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 26px;
-  height: 26px;
+  top: 3px;
+  right: 3px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255,255,255,0.92);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ===== Skeleton loader (retseptlar yuklanayotganda) ===== */
@@ -658,6 +659,12 @@ html.no-splash .splash {
   .skeleton-line {
     animation: none;
   }
+}
+
+.detail-image-skeleton {
+  width: 100%;
+  height: 220px;
+  border-radius: var(--radius-lg);
 }
 
 .premium-ribbon {
@@ -830,7 +837,7 @@ html.no-splash .splash {
   height: 220px;
   border-radius: var(--radius-lg);
   object-fit: cover;
-  background: var(--orange);
+  background: var(--green-dark);
 }
 
 .detail-image--placeholder {
@@ -934,7 +941,7 @@ html.no-splash .splash {
 }
 
 .premium-lock-btn {
-  background: var(--orange);
+  background: var(--orange-deep);
   color: var(--white);
   font-weight: 700;
   font-size: 14.5px;
@@ -1464,7 +1471,7 @@ html.no-splash .splash {
   top: -9px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--orange);
+  background: var(--orange-deep);
   color: var(--white);
   font-size: 10px;
   font-weight: 700;
@@ -1534,7 +1541,7 @@ html.no-splash .splash {
 }
 
 .premium-btn--secondary {
-  background: var(--orange);
+  background: var(--orange-deep);
   color: var(--white);
 }
 
@@ -1699,7 +1706,7 @@ html.no-splash .splash {
 .pantry-clear-btn {
   font-size: 13px;
   font-weight: 600;
-  color: var(--orange);
+  color: var(--text-muted);
   padding: 6px 10px;
 }
 
@@ -1750,7 +1757,7 @@ html.no-splash .splash {
 .missing-text {
   font-size: 12px;
   font-weight: 600;
-  color: var(--orange);
+  color: var(--green);
   margin-top: 2px;
 }
 
@@ -2166,7 +2173,7 @@ html.no-splash .splash {
 .chat-pay-btn {
   margin-top: 10px;
   width: 100%;
-  background: var(--orange);
+  background: var(--orange-deep);
   color: var(--white);
   border-radius: var(--radius-sm);
   padding: 12px;
@@ -2354,7 +2361,7 @@ html.no-splash .splash {
 
 .chat-history-item.active {
   background: var(--cream-soft);
-  border: 1.5px solid var(--orange);
+  border: 1.5px solid var(--green-dark);
 }
 
 .chat-history-item-main {

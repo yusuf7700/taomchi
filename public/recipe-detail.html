@@ -26,7 +26,14 @@
 
   <!-- ===== MAIN ===== -->
   <main class="main" id="detailContent">
-    <p class="loading-text" data-i18n="loading">Yuklanmoqda...</p>
+    <div class="detail-skeleton" aria-hidden="true">
+      <div class="skeleton-block detail-image-skeleton"></div>
+      <div class="skeleton-line skeleton-line--title" style="width: 60%; height: 20px; margin: 16px 0 10px;"></div>
+      <div class="skeleton-line skeleton-line--meta" style="width: 40%; margin-bottom: 20px;"></div>
+      <div class="skeleton-line" style="width: 100%; height: 12px; margin-bottom: 8px;"></div>
+      <div class="skeleton-line" style="width: 95%; height: 12px; margin-bottom: 8px;"></div>
+      <div class="skeleton-line" style="width: 80%; height: 12px;"></div>
+    </div>
   </main>
 
   <script src="firebase-config.js"></script>
