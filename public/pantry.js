@@ -1,20 +1,28 @@
 // ===== Taomchi — "Uyda nima bor?" sahifasi =====
+// 2 bosqichli oqim: 1) mahsulot tanlash (kategoriya tab + qidiruv +
+// grid), 2) natijalar (alohida ekran, "Retseptlarni ko'rish" tugmasi
+// orqali ochiladi). Bu naycha 72 ta mahsulotni bitta uzun ro'yxatda
+// ko'rsatish o'rniga, kategoriya bo'yicha bo'lib beradi.
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const PANTRY_STORAGE_KEY = "taomchi_pantry_selected";
+
+const selectionView = document.getElementById("selectionView");
+const resultsView = document.getElementById("resultsView");
+const resultsBackBtn = document.getElementById("resultsBackBtn");
 const chipContainer = document.getElementById("pantryChips");
+const categoryTabsEl = document.getElementById("pantryCategoryTabs");
 const resultSection = document.getElementById("pantryResults");
-const selectedCountEl = document.getElementById("selectedCount");
-const clearBtn = document.getElementById("clearPantryBtn");
 const searchInput = document.getElementById("pantrySearchInput");
 const selectedRowEl = document.getElementById("pantrySelectedRow");
-const floatBtn = document.getElementById("pantryResultsFloatBtn");
+const ctaBar = document.getElementById("pantryCtaBar");
+const ctaBtn = document.getElementById("pantryCtaBtn");
 
 let selectedIds = new Set(loadSelected());
 let allRecipes = [];
-let lastMatchCount = 0;
+let activeCategory = "all";
 
 function loadSelected() {
   try {
@@ -39,60 +47,69 @@ function t(key, fallback) {
   return dict[key] || fallback || key;
 }
 
-// ===== Mahsulot chip'larini chizish =====
-function renderChips() {
-  chipContainer.innerHTML = PANTRY_GROUPS.map(group => `
-    <div class="pantry-group" data-group-id="${group.id}">
-      <p class="pantry-group-title">${displayText(group.label)}</p>
-      <div class="pantry-chip-row">
-        ${group.items.map(item => `
-          <button class="ingredient-chip ${selectedIds.has(item.id) ? "selected" : ""}" data-id="${item.id}" data-label="${displayText(item.label).toLowerCase()}">
-            <span>${item.emoji}</span> ${displayText(item.label)}
-          </button>
-        `).join("")}
-      </div>
-    </div>
+// ===== Kategoriya tab'lari ("Barchasi" + har bir guruh) =====
+function renderCategoryTabs() {
+  const tabs = [{ id: "all", label: t("pantry_all_category", "Barchasi") }]
+    .concat(PANTRY_GROUPS.map(g => ({ id: g.id, label: displayText(g.label) })));
+
+  categoryTabsEl.innerHTML = tabs.map(tab => `
+    <button class="filter-chip ${activeCategory === tab.id ? "active" : ""}" data-cat="${tab.id}">${tab.label}</button>
   `).join("");
 
-  chipContainer.querySelectorAll(".ingredient-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const id = chip.getAttribute("data-id");
-      if (selectedIds.has(id)) {
-        selectedIds.delete(id);
-      } else {
-        selectedIds.add(id);
-      }
-      chip.classList.toggle("selected");
-      saveSelected();
-      updateSelectedCount();
-      renderSelectedRow();
-      renderResults();
+  categoryTabsEl.querySelectorAll("[data-cat]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.getAttribute("data-cat");
+      renderCategoryTabs();
+      renderGrid();
     });
   });
-
-  applyPantrySearch();
 }
 
-function updateSelectedCount() {
-  selectedCountEl.textContent = selectedIds.size;
-}
-
-// ===== Qidiruv (72 ta mahsulot orasidan tez topish uchun) =====
-function applyPantrySearch() {
+// ===== Mahsulot grid'i (tanlangan kategoriya + qidiruv bo'yicha) =====
+function getVisibleItems() {
   const q = cyrillicToLatin((searchInput.value || "").trim().toLowerCase());
-  chipContainer.querySelectorAll(".pantry-group").forEach(groupEl => {
-    let visibleCount = 0;
-    groupEl.querySelectorAll(".ingredient-chip").forEach(chip => {
-      const label = cyrillicToLatin(chip.getAttribute("data-label"));
-      const match = !q || label.includes(q);
-      chip.classList.toggle("screen-hidden", !match);
-      if (match) visibleCount++;
-    });
-    groupEl.classList.toggle("screen-hidden", visibleCount === 0);
+
+  let groups = PANTRY_GROUPS;
+  if (!q && activeCategory !== "all") {
+    groups = PANTRY_GROUPS.filter(g => g.id === activeCategory);
+  }
+
+  const items = groups.flatMap(g => g.items);
+  if (!q) return items;
+
+  return items.filter(item => cyrillicToLatin(displayText(item.label).toLowerCase()).includes(q));
+}
+
+function renderGrid() {
+  const items = getVisibleItems();
+
+  if (items.length === 0) {
+    chipContainer.innerHTML = `<p class="empty-text">${t("weekly_no_results", "Hech narsa topilmadi")}</p>`;
+    return;
+  }
+
+  chipContainer.innerHTML = items.map(item => `
+    <button class="pantry-grid-item ${selectedIds.has(item.id) ? "selected" : ""}" data-id="${item.id}">
+      <span class="pantry-grid-emoji">${item.emoji}</span>
+      <span class="pantry-grid-label">${displayText(item.label)}</span>
+    </button>
+  `).join("");
+
+  chipContainer.querySelectorAll(".pantry-grid-item").forEach(el => {
+    el.addEventListener("click", () => toggleItem(el.getAttribute("data-id")));
   });
 }
 
-searchInput.addEventListener("input", applyPantrySearch);
+function toggleItem(id) {
+  if (selectedIds.has(id)) selectedIds.delete(id);
+  else selectedIds.add(id);
+  saveSelected();
+  renderGrid();
+  renderSelectedRow();
+  renderCta();
+}
+
+searchInput.addEventListener("input", renderGrid);
 
 // ===== Tanlangan mahsulotlar qatori (doim yuqorida ko'rinadi) =====
 function renderSelectedRow() {
@@ -103,7 +120,8 @@ function renderSelectedRow() {
   }
 
   selectedRowEl.classList.remove("screen-hidden");
-  selectedRowEl.innerHTML = [...selectedIds].map(id => {
+
+  const chipsHtml = [...selectedIds].map(id => {
     const item = PANTRY_INGREDIENTS.find(i => i.id === id);
     if (!item) return "";
     return `
@@ -114,20 +132,56 @@ function renderSelectedRow() {
     `;
   }).join("");
 
+  selectedRowEl.innerHTML = `
+    <div class="pantry-selected-header">
+      <span>${selectedIds.size} ${t("pantry_selected", "ta mahsulot tanlandi")}</span>
+      <button id="clearPantryBtn" class="pantry-clear-btn">${t("pantry_clear", "Tozalash")}</button>
+    </div>
+    <div class="pantry-selected-chips">${chipsHtml}</div>
+  `;
+
   selectedRowEl.querySelectorAll("[data-remove-id]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-remove-id");
-      selectedIds.delete(id);
-      saveSelected();
-      updateSelectedCount();
-      renderSelectedRow();
-      renderChips();
-      renderResults();
-    });
+    btn.addEventListener("click", () => toggleItem(btn.getAttribute("data-remove-id")));
+  });
+
+  document.getElementById("clearPantryBtn").addEventListener("click", () => {
+    selectedIds.clear();
+    saveSelected();
+    renderGrid();
+    renderSelectedRow();
+    renderCta();
   });
 }
 
-// ===== Natijalarni chizish =====
+// ===== Moslikni hisoblash (tanlash va natijalar ekrani baham ko'radi) =====
+function computeMatches() {
+  const matched = [];
+  for (const r of allRecipes) {
+    const m = matchRecipe(r, selectedIds);
+    if (m) matched.push({ recipe: r, ...m });
+  }
+  const fullMatches = matched.filter(m => m.status === "full");
+  const partialMatches = matched
+    .filter(m => m.status === "partial" && m.missing.length <= 3)
+    .sort((a, b) => a.missing.length - b.missing.length);
+  return { fullMatches, partialMatches };
+}
+
+// ===== Pastki chaqiruv paneli =====
+function renderCta() {
+  if (selectedIds.size === 0) {
+    ctaBar.classList.add("screen-hidden");
+    return;
+  }
+  ctaBar.classList.remove("screen-hidden");
+  const { fullMatches, partialMatches } = computeMatches();
+  const count = fullMatches.length + partialMatches.length;
+  ctaBtn.textContent = count > 0
+    ? `${count} ${t("pantry_results_found", "ta retsept topildi")} →`
+    : t("pantry_view_results", "Retseptlarni ko'rish");
+}
+
+// ===== Natijalar ekrani =====
 function missingNames(ids) {
   return ids.map(id => {
     const item = PANTRY_INGREDIENTS.find(i => i.id === id);
@@ -156,27 +210,11 @@ function recipeResultCard(m) {
   `;
 }
 
-function renderResults() {
-  if (selectedIds.size === 0) {
-    resultSection.innerHTML = `<p class="empty-text">${t("pantry_empty_hint")}</p>`;
-    updateFloatBtn(0);
-    return;
-  }
-
-  const matched = [];
-  for (const r of allRecipes) {
-    const m = matchRecipe(r, selectedIds);
-    if (m) matched.push({ recipe: r, ...m });
-  }
-
-  const fullMatches = matched.filter(m => m.status === "full");
-  const partialMatches = matched
-    .filter(m => m.status === "partial" && m.missing.length <= 3)
-    .sort((a, b) => a.missing.length - b.missing.length);
+function renderResultsContent() {
+  const { fullMatches, partialMatches } = computeMatches();
 
   if (fullMatches.length === 0 && partialMatches.length === 0) {
     resultSection.innerHTML = `<p class="empty-text">${t("pantry_no_match")}</p>`;
-    updateFloatBtn(0);
     return;
   }
 
@@ -196,41 +234,39 @@ function renderResults() {
       window.location.href = `recipe-detail.html?id=${card.getAttribute("data-id")}`;
     });
   });
-
-  updateFloatBtn(fullMatches.length + partialMatches.length);
 }
 
-// ===== Pastda suzuvchi "Natijalarni ko'rish" tugmasi =====
-function updateFloatBtn(count) {
-  lastMatchCount = count;
-  if (count === 0) {
-    floatBtn.classList.add("screen-hidden");
-    return;
-  }
-  floatBtn.textContent = `${count} ${t("pantry_results_found", "ta retsept topildi")} →`;
-  floatBtn.classList.remove("screen-hidden");
+// ===== Ekranlar orasida o'tish =====
+function showResultsView() {
+  renderResultsContent();
+  selectionView.classList.add("screen-hidden");
+  ctaBar.classList.add("screen-hidden");
+  resultsView.classList.remove("screen-hidden");
+  resultsView.classList.remove("view-enter");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => resultsView.classList.add("view-enter"));
+  });
+  window.scrollTo(0, 0);
 }
 
-floatBtn.addEventListener("click", () => {
-  resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
-});
+function showSelectionView() {
+  resultsView.classList.add("screen-hidden");
+  resultsView.classList.remove("view-enter");
+  selectionView.classList.remove("screen-hidden");
+  renderCta();
+}
 
-clearBtn.addEventListener("click", () => {
-  selectedIds.clear();
-  saveSelected();
-  renderChips();
-  renderSelectedRow();
-  updateSelectedCount();
-  renderResults();
-});
+ctaBtn.addEventListener("click", showResultsView);
+resultsBackBtn.addEventListener("click", showSelectionView);
 
 // ===== Boshlang'ich yuklash =====
-renderChips();
+renderCategoryTabs();
+renderGrid();
 renderSelectedRow();
-updateSelectedCount();
-renderResults();
+renderCta();
 
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
-  renderResults();
+  renderCta();
+  if (!resultsView.classList.contains("screen-hidden")) renderResultsContent();
 });

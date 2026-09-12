@@ -25,27 +25,37 @@
   <!-- ===== MAIN ===== -->
   <main class="main">
 
-    <p class="pantry-intro" data-i18n="pantry_intro">Uyingizda bor mahsulotlarni tanlang, biz mos retseptlarni topamiz 👇</p>
+    <!-- 1-BOSQICH: Mahsulot tanlash -->
+    <div id="selectionView">
+      <p class="pantry-intro" data-i18n="pantry_intro">Uyingizda bor mahsulotlarni tanlang, biz mos retseptlarni topamiz 👇</p>
 
-    <div class="search-box search-box--light" style="margin-bottom: 14px;">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      <input type="text" id="pantrySearchInput" data-i18n-placeholder="search_placeholder_short" placeholder="Qidirish..." autocomplete="off">
+      <div class="search-box search-box--light" style="margin-bottom: 12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="pantrySearchInput" data-i18n-placeholder="search_placeholder_short" placeholder="Qidirish..." autocomplete="off">
+      </div>
+
+      <div id="pantrySelectedRow" class="pantry-selected-row screen-hidden"></div>
+
+      <div class="filter-row" id="pantryCategoryTabs" style="margin-top: 0;"></div>
+
+      <div id="pantryChips" class="pantry-grid"></div>
     </div>
 
-    <div id="pantrySelectedRow" class="pantry-selected-row screen-hidden"></div>
-
-    <div class="pantry-toolbar">
-      <span class="pantry-selected-count"><span id="selectedCount">0</span> <span data-i18n="pantry_selected">ta mahsulot tanlandi</span></span>
-      <button class="pantry-clear-btn" id="clearPantryBtn" data-i18n="pantry_clear">Tozalash</button>
+    <!-- 2-BOSQICH: Natijalar (tugma bosilganda shu ko'rinadi) -->
+    <div id="resultsView" class="screen-hidden view-transition">
+      <button id="resultsBackBtn" class="picker-back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+        <span data-i18n="pantry_back_to_selection">Tanlashga qaytish</span>
+      </button>
+      <section id="pantryResults"></section>
     </div>
-
-    <div id="pantryChips"></div>
-
-    <section class="section" id="pantryResults"></section>
 
   </main>
 
-  <button id="pantryResultsFloatBtn" class="pantry-results-float-btn screen-hidden"></button>
+  <!-- Pastki chaqiruv paneli (faqat 1-bosqichda ko'rinadi) -->
+  <div id="pantryCtaBar" class="pantry-cta-bar screen-hidden">
+    <button id="pantryCtaBtn" class="pantry-cta-btn"></button>
+  </div>
 
   <!-- ===== BOTTOM NAV ===== -->
   <nav class="bottom-nav">
