@@ -1790,7 +1790,7 @@ html.no-splash .splash {
 
 .weekly-meal-grid--today {
   background: var(--cream-soft);
-  border: 1.5px solid var(--orange);
+  border: 1.5px solid var(--green-dark);
 }
 
 .weekly-meal-slot {
@@ -1983,8 +1983,8 @@ html.no-splash .splash {
 .weekly-today-badge {
   display: inline-block;
   margin-left: 8px;
-  background: var(--orange);
-  color: var(--white);
+  background: var(--green-dark);
+  color: var(--cream);
   font-size: 10px;
   font-weight: 700;
   padding: 2px 8px;
@@ -1993,12 +1993,12 @@ html.no-splash .splash {
 }
 
 .weekly-day-card--today {
-  border: 1.5px solid var(--orange);
+  border: 1.5px solid var(--green-dark);
 }
 
 .weekly-day-empty--today {
-  border-color: var(--orange);
-  color: var(--orange);
+  border-color: var(--green-dark);
+  color: var(--green-dark);
 }
 
 /* Retsept yangi tanlanganda kichik "pop" animatsiyasi */
@@ -2066,7 +2066,7 @@ html.no-splash .splash {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--orange);
+  background: var(--green-dark);
   flex-shrink: 0;
 }
 
@@ -2086,8 +2086,8 @@ html.no-splash .splash {
 }
 
 .weekly-tab-dot--partial {
-  background: var(--orange);
-  opacity: 0.6;
+  background: var(--green);
+  opacity: 0.7;
 }
 
 /* Tanlangan kunning paneli */
@@ -2480,7 +2480,7 @@ html.no-splash .splash {
 
 .celebrate-feature-list li::before {
   content: "✓ ";
-  color: var(--orange);
+  color: var(--green-dark);
   font-weight: 700;
 }
 
