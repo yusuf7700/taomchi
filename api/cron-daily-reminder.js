@@ -12,6 +12,7 @@
 const { getDb } = require("../lib/firebaseAdmin");
 const { safeCompare } = require("../lib/safeCompare");
 const bot = require("../bot/bot");
+const { getTodayDateKey } = require("../lib/weeklyMenuDates");
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]; // getUTCDay() tartibida
 
@@ -28,11 +29,20 @@ const TEXT = {
   }
 };
 
-// O'zbekiston vaqti bo'yicha bugungi kun kalitini hisoblaydi (UTC+5,
-// yozgi vaqtga o'tish yo'q, shuning uchun doimiy siljish yetarli).
+// O'zbekiston vaqti bo'yicha bugungi kun NOMINI qaytaradi (eski, hali
+// migratsiya qilinmagan hujjatlar uchun zaxira sifatida ishlatiladi).
 function getTashkentDayKey() {
   const shifted = new Date(Date.now() + 5 * 60 * 60 * 1000);
   return DAY_KEYS[shifted.getUTCDay()];
+}
+
+// Hujjat kunlaridan bugungi kunga tayinlangan retseptni topadi.
+// Avval yangi (sana-nomli) formatni tekshiradi, topilmasa — hali
+// migratsiya qilinmagan eski (kun-nomli) formatga qaraydi.
+function findTodayRecipeId(days, meal) {
+  const byDate = (days[getTodayDateKey()] || {})[meal];
+  if (byDate) return byDate;
+  return (days[getTashkentDayKey()] || {})[meal] || null;
 }
 
 module.exports = async (req, res) => {
@@ -52,8 +62,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const todayKey = getTashkentDayKey();
-
     const [menusSnap, usersSnap] = await Promise.all([
       db.collection("weeklyMenus").get(),
       db.collection("users").get()
@@ -67,7 +75,7 @@ module.exports = async (req, res) => {
 
     for (const menuDoc of menusSnap.docs) {
       const userId = menuDoc.id;
-      const recipeId = ((menuDoc.data().days || {})[todayKey] || {})[meal];
+      const recipeId = findTodayRecipeId(menuDoc.data().days || {}, meal);
       if (!recipeId) { skipped++; continue; }
 
       const user = usersById.get(userId);
@@ -99,7 +107,7 @@ module.exports = async (req, res) => {
       await new Promise(resolve => setTimeout(resolve, 40)); // Telegram limitidan chiqmaslik uchun
     }
 
-    return res.status(200).json({ meal, day: todayKey, sent, skipped, failed });
+    return res.status(200).json({ meal, day: getTodayDateKey(), sent, skipped, failed });
   } catch (err) {
     console.error("Kunlik eslatma xatosi:", err);
     return res.status(500).json({ error: err.message });

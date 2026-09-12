@@ -1,7 +1,7 @@
 // ===== Taomchi — Haftalik ovqat rejasi ("Bitta kunga e'tibor" ko'rinishi) =====
-// Barcha 7 kun bir vaqtda ko'rsatilmaydi (uzun surish talab qilardi).
-// Buning o'rniga: tepada kichik kun tugmalari, pastda faqat TANLANGAN
-// kunning 2ta ovqati (Tushlik, Kechki ovqat) ko'rinadi.
+// Bu reja endi kun NOMIGA emas, haqiqiy SANAGA bog'langan (masalan
+// "2026-09-14"), shuning uchun har hafta boshqa taom rejalashtirish mumkin.
+// Foydalanuvchi "◀ / ▶" tugmalari orqali haftalar orasida o'tadi.
 
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
@@ -22,7 +22,12 @@ const MEAL_ICONS = { lunch: "🍽️", dinner: "🌙" };
 // Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi.
 const WEEKLY_CATEGORIES = ["main", "soup"];
 
-const WEEKLY_CACHE_KEY = "taomchi_weekly_menu_cache";
+const WEEKLY_CACHE_KEY = "taomchi_weekly_menu_cache_v2";
+
+// Haftalar orasida qanchagacha siljish mumkinligi (haddan tashqari
+// uzoqqa ketib, ma'lumotlar bazasini keraksiz to'ldirmaslik uchun)
+const MIN_WEEK_OFFSET = -8;
+const MAX_WEEK_OFFSET = 12;
 
 const dayListView = document.getElementById("dayListView");
 const pickerView = document.getElementById("pickerView");
@@ -34,13 +39,17 @@ const pickerTitleText = document.getElementById("pickerTitleText");
 const pickerSearch = document.getElementById("pickerSearch");
 const progressFill = document.getElementById("weeklyProgressFill");
 const progressText = document.getElementById("weeklyProgressText");
+const weekLabelEl = document.getElementById("weekLabel");
+const weekPrevBtn = document.getElementById("weekPrevBtn");
+const weekNextBtn = document.getElementById("weekNextBtn");
 
-let currentMenu = {}; // { mon: { lunch: recipeId, dinner: recipeId }, ... }
+let currentMenu = {}; // { "2026-09-14": { lunch: recipeId, dinner: recipeId }, ... }
 let allRecipes = [];
-let selectedDay = null; // hozir "fokusda" turgan kun (tab orqali tanlanadi)
-let activeDay = null;   // retsept tanlash oynasi qaysi kun uchun ochilgan
+let weekOffset = 0;       // 0 = joriy hafta, 1 = keyingi hafta, -1 = o'tgan hafta ...
+let selectedDayIndex = null; // 0(Dush)..6(Yak) — joriy ko'rsatilayotgan haftada tanlangan kun
+let activeDateKey = null; // retsept tanlash oynasi qaysi sana uchun ochilgan
 let activeMeal = null;
-let lastSet = null; // { day, meal } — animatsiya uchun
+let lastSet = null; // { dateKey, meal } — animatsiya uchun
 
 function t(key, fallback) {
   const lang = getCurrentLang();
@@ -56,11 +65,47 @@ function getPickableRecipes() {
   return allRecipes.filter(r => WEEKLY_CATEGORIES.includes(r.category));
 }
 
-// O'zbekiston vaqti bo'yicha bugungi kun kalitini hisoblaydi (UTC+5)
-function getTodayKey() {
-  const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-  const shifted = new Date(Date.now() + 5 * 60 * 60 * 1000);
-  return DAY_KEYS[shifted.getUTCDay()];
+// ===== Sana yordamchilari (O'zbekiston vaqti, UTC+5) =====
+function tashkentNow() {
+  return new Date(Date.now() + 5 * 60 * 60 * 1000);
+}
+
+function dateKeyOf(d) {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Berilgan weekOffset uchun o'sha haftaning Dushanba sanasini qaytaradi
+function getMondayForOffset(offset) {
+  const now = tashkentNow();
+  const dow = now.getUTCDay(); // 0=Yak..6=Shan
+  const diffToMonday = dow === 0 ? -6 : 1 - dow;
+  const monday = new Date(now);
+  monday.setUTCHours(0, 0, 0, 0);
+  monday.setUTCDate(monday.getUTCDate() + diffToMonday + offset * 7);
+  return monday;
+}
+
+// Joriy weekOffset uchun 7 ta sanani (Dush..Yak) qaytaradi
+function getCurrentWeekDates() {
+  const monday = getMondayForOffset(weekOffset);
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setUTCDate(monday.getUTCDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function getTodayDateKey() {
+  return dateKeyOf(tashkentNow());
+}
+
+function formatShortDate(d) {
+  return `${d.getUTCDate()}.${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
 }
 
 // ===== Mahalliy kesh (darrov ko'rsatish uchun) =====
@@ -81,41 +126,71 @@ function setCachedMenu(days) {
   }
 }
 
-function isDayFilled(day) {
-  const d = currentMenu[day] || {};
+function isDayFilled(dateKey) {
+  const d = currentMenu[dateKey] || {};
   return !!(d.lunch && d.dinner);
 }
 
-function isDayPartial(day) {
-  const d = currentMenu[day] || {};
-  return !!(d.lunch || d.dinner) && !isDayFilled(day);
+function isDayPartial(dateKey) {
+  const d = currentMenu[dateKey] || {};
+  return !!(d.lunch || d.dinner) && !isDayFilled(dateKey);
 }
 
 function updateProgress() {
+  const weekDates = getCurrentWeekDates();
   let filled = 0;
-  DAYS.forEach(day => {
-    const d = currentMenu[day] || {};
-    if (d.lunch) filled++;
-    if (d.dinner) filled++;
+  weekDates.forEach(d => {
+    const dk = dateKeyOf(d);
+    const dd = currentMenu[dk] || {};
+    if (dd.lunch) filled++;
+    if (dd.dinner) filled++;
   });
-  const total = DAYS.length * MEALS.length;
+  const total = weekDates.length * MEALS.length;
   progressFill.style.width = `${Math.round((filled / total) * 100)}%`;
   progressText.textContent = `${filled}/${total}`;
 }
 
+// ===== Hafta almashtirish qatori =====
+function renderWeekNav() {
+  if (weekOffset === 0) weekLabelEl.textContent = t("weekly_this_week", "Bu hafta");
+  else if (weekOffset === 1) weekLabelEl.textContent = t("weekly_next_week", "Keyingi hafta");
+  else if (weekOffset === -1) weekLabelEl.textContent = t("weekly_prev_week", "O'tgan hafta");
+  else {
+    const dates = getCurrentWeekDates();
+    weekLabelEl.textContent = `${formatShortDate(dates[0])} – ${formatShortDate(dates[6])}`;
+  }
+  weekPrevBtn.disabled = weekOffset <= MIN_WEEK_OFFSET;
+  weekNextBtn.disabled = weekOffset >= MAX_WEEK_OFFSET;
+}
+
+function changeWeek(delta) {
+  const next = weekOffset + delta;
+  if (next < MIN_WEEK_OFFSET || next > MAX_WEEK_OFFSET) return;
+  weekOffset = next;
+  renderWeekNav();
+  renderDayTabs();
+  renderDayPanel({ animate: true });
+}
+
+weekPrevBtn.addEventListener("click", () => changeWeek(-1));
+weekNextBtn.addEventListener("click", () => changeWeek(1));
+
 // ===== Kun tugmalari (tepadagi tab'lar) =====
 function renderDayTabs() {
-  const todayKey = getTodayKey();
+  const weekDates = getCurrentWeekDates();
+  const todayKey = getTodayDateKey();
 
-  dayTabsEl.innerHTML = DAYS.map(day => {
-    const isActive = day === selectedDay;
-    const isToday = day === todayKey;
+  dayTabsEl.innerHTML = weekDates.map((d, i) => {
+    const dk = dateKeyOf(d);
+    const day = DAYS[i];
+    const isActive = i === selectedDayIndex;
+    const isToday = dk === todayKey;
     let dotClass = "";
-    if (isDayFilled(day)) dotClass = "weekly-tab-dot--full";
-    else if (isDayPartial(day)) dotClass = "weekly-tab-dot--partial";
+    if (isDayFilled(dk)) dotClass = "weekly-tab-dot--full";
+    else if (isDayPartial(dk)) dotClass = "weekly-tab-dot--partial";
 
     return `
-      <button class="weekly-day-tab ${isActive ? "weekly-day-tab--active" : ""}" data-tab-day="${day}">
+      <button class="weekly-day-tab ${isActive ? "weekly-day-tab--active" : ""}" data-tab-index="${i}">
         ${isToday ? `<span class="weekly-tab-today-mark"></span>` : ""}
         <span>${t(DAY_SHORT_KEYS[day])}</span>
         ${dotClass ? `<span class="weekly-tab-dot ${dotClass}"></span>` : ""}
@@ -123,42 +198,41 @@ function renderDayTabs() {
     `;
   }).join("");
 
-  // Tanlangan tab ko'rinadigan qismga suriladi (agar chekkada bo'lsa)
   const activeTabEl = dayTabsEl.querySelector(".weekly-day-tab--active");
   if (activeTabEl) activeTabEl.scrollIntoView({ inline: "center", block: "nearest" });
 }
 
 dayTabsEl.addEventListener("click", (e) => {
-  const tab = e.target.closest("[data-tab-day]");
+  const tab = e.target.closest("[data-tab-index]");
   if (!tab) return;
-  selectDay(tab.getAttribute("data-tab-day"));
+  selectDayIndex(Number(tab.getAttribute("data-tab-index")));
 });
 
-function selectDay(day) {
-  if (day === selectedDay) return;
-  selectedDay = day;
+function selectDayIndex(index) {
+  if (index === selectedDayIndex) return;
+  selectedDayIndex = index;
   renderDayTabs();
   renderDayPanel({ animate: true });
 }
 
 // ===== Tanlangan kunning paneli (Tushlik + Kechki ovqat) =====
-function renderMealSlot(day, meal) {
-  const dayData = currentMenu[day] || {};
+function renderMealSlot(dateKey, meal) {
+  const dayData = currentMenu[dateKey] || {};
   const recipeId = dayData[meal];
   const recipe = recipeId ? findRecipe(recipeId) : null;
-  const justSet = lastSet && lastSet.day === day && lastSet.meal === meal;
+  const justSet = lastSet && lastSet.dateKey === dateKey && lastSet.meal === meal;
   const mealLabel = `${MEAL_ICONS[meal]} ${t(MEAL_LABEL_KEYS[meal])}`;
 
   if (recipe) {
     return `
       <div class="weekly-meal-slot">
         <p class="weekly-meal-label">${mealLabel}</p>
-        <div class="weekly-day-card ${justSet ? "weekly-day-card--pop" : ""}" data-day-select="${day}" data-meal-select="${meal}">
+        <div class="weekly-day-card ${justSet ? "weekly-day-card--pop" : ""}" data-date-select="${dateKey}" data-meal-select="${meal}">
           <div class="recipe-thumb recipe-thumb--sm">
             ${recipe.imageUrl ? `<img src="${escapeHtml(recipe.imageUrl)}" alt="${escapeHtml(recipe.title)}">` : "🍽️"}
           </div>
           <p class="weekly-day-recipe-title">${escapeHtml(displayTitle(recipe))}</p>
-          <button class="weekly-day-clear" data-day-clear="${day}" data-meal-clear="${meal}">✕</button>
+          <button class="weekly-day-clear" data-date-clear="${dateKey}" data-meal-clear="${meal}">✕</button>
         </div>
       </div>
     `;
@@ -167,20 +241,23 @@ function renderMealSlot(day, meal) {
   return `
     <div class="weekly-meal-slot">
       <p class="weekly-meal-label">${mealLabel}</p>
-      <button class="weekly-day-empty" data-day-select="${day}" data-meal-select="${meal}">+ ${t("weekly_choose", "Retsept tanlash")}</button>
+      <button class="weekly-day-empty" data-date-select="${dateKey}" data-meal-select="${meal}">+ ${t("weekly_choose", "Retsept tanlash")}</button>
     </div>
   `;
 }
 
 function renderDayPanel(opts = {}) {
-  const day = selectedDay;
-  const todayKey = getTodayKey();
-  const isToday = day === todayKey;
+  const weekDates = getCurrentWeekDates();
+  const day = DAYS[selectedDayIndex];
+  const date = weekDates[selectedDayIndex];
+  const dk = dateKeyOf(date);
+  const todayKey = getTodayDateKey();
+  const isToday = dk === todayKey;
 
   dayPanelEl.innerHTML = `
-    <p class="weekly-panel-title">${t(DAY_LABEL_KEYS[day])}${isToday ? `<span class="weekly-today-badge">${t("weekly_today", "Bugun")}</span>` : ""}</p>
-    ${renderMealSlot(day, "lunch")}
-    ${renderMealSlot(day, "dinner")}
+    <p class="weekly-panel-title">${t(DAY_LABEL_KEYS[day])} <span class="weekly-panel-date">${formatShortDate(date)}</span>${isToday ? `<span class="weekly-today-badge">${t("weekly_today", "Bugun")}</span>` : ""}</p>
+    ${renderMealSlot(dk, "lunch")}
+    ${renderMealSlot(dk, "dinner")}
   `;
 
   if (opts.animate) {
@@ -198,23 +275,22 @@ function renderDayPanel(opts = {}) {
 }
 
 // Event delegation: panel har safar qayta chizilsa ham, bitta doimiy
-// listener orqali bosishlarni ushlaymiz. "click" ishlatiladi — brauzer
-// buni faqat haqiqiy bosishda ishga tushiradi, surishda esa bekor qiladi.
+// listener orqali bosishlarni ushlaymiz.
 dayPanelEl.addEventListener("click", (e) => {
-  const clearBtn = e.target.closest("[data-day-clear]");
+  const clearBtn = e.target.closest("[data-date-clear]");
   if (clearBtn) {
-    setMeal(clearBtn.getAttribute("data-day-clear"), clearBtn.getAttribute("data-meal-clear"), null);
+    setMeal(clearBtn.getAttribute("data-date-clear"), clearBtn.getAttribute("data-meal-clear"), null);
     return;
   }
-  const selectEl = e.target.closest("[data-day-select]");
+  const selectEl = e.target.closest("[data-date-select]");
   if (selectEl) {
-    openPicker(selectEl.getAttribute("data-day-select"), selectEl.getAttribute("data-meal-select"));
+    openPicker(selectEl.getAttribute("data-date-select"), selectEl.getAttribute("data-meal-select"));
   }
 });
 
 // ===== Retsept tanlash ko'rinishi (sahifa ichida, oyna emas) =====
-function openPicker(day, meal) {
-  activeDay = day;
+function openPicker(dateKey, meal) {
+  activeDateKey = dateKey;
   activeMeal = meal;
   pickerTitleText.textContent = `${t(MEAL_LABEL_KEYS[meal])} ${getCurrentLang() === "uzk" ? "танлаш" : "tanlash"}`;
   pickerSearch.value = "";
@@ -233,7 +309,7 @@ function closePicker() {
   pickerView.classList.add("screen-hidden");
   pickerView.classList.remove("view-enter");
   dayListView.classList.remove("screen-hidden");
-  activeDay = null;
+  activeDateKey = null;
   activeMeal = null;
 }
 
@@ -266,21 +342,24 @@ pickerSearch.addEventListener("input", () => {
 
 pickerList.addEventListener("click", (e) => {
   const item = e.target.closest("[data-picker-id]");
-  if (!item || !activeDay || !activeMeal) return;
-  setMeal(activeDay, activeMeal, item.getAttribute("data-picker-id"));
+  if (!item || !activeDateKey || !activeMeal) return;
+  setMeal(activeDateKey, activeMeal, item.getAttribute("data-picker-id"));
   closePicker();
 });
 
 pickerBackBtn.addEventListener("click", closePicker);
 
 // ===== Saqlash (server bilan sinxron) =====
-async function setMeal(day, meal, recipeId) {
+async function setMeal(dateKey, meal, recipeId) {
   currentMenu = {
     ...currentMenu,
-    [day]: { ...(currentMenu[day] || {}), [meal]: recipeId }
+    [dateKey]: { ...(currentMenu[dateKey] || {}), [meal]: recipeId }
   };
-  lastSet = recipeId ? { day, meal } : null;
-  if (day === selectedDay) renderDayPanel({ animate: false });
+  lastSet = recipeId ? { dateKey, meal } : null;
+
+  const weekDates = getCurrentWeekDates();
+  const selectedKey = selectedDayIndex !== null ? dateKeyOf(weekDates[selectedDayIndex]) : null;
+  if (dateKey === selectedKey) renderDayPanel({ animate: false });
   else { renderDayTabs(); updateProgress(); }
   setCachedMenu(currentMenu);
 
@@ -289,7 +368,7 @@ async function setMeal(day, meal, recipeId) {
     await fetch("/api/weekly-menu", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tg.initData, day, meal, recipeId })
+      body: JSON.stringify({ initData: tg.initData, date: dateKey, meal, recipeId })
     });
   } catch {
     // Internet yo'q bo'lishi mumkin — UI holati saqlanadi, keyingi ochilishda qayta yuklanadi
@@ -301,14 +380,21 @@ async function setMeal(day, meal, recipeId) {
 const cachedMenu = getCachedMenu();
 if (cachedMenu) currentMenu = cachedMenu;
 
-selectedDay = getTodayKey(); // har doim BUGUNGI kundan boshlanadi
+// Har doim BUGUNGI kundan (joriy haftaning mos ustunidan) boshlanadi
+(function initSelectedDay() {
+  const now = tashkentNow();
+  const dow = now.getUTCDay(); // 0=Yak..6=Shan
+  selectedDayIndex = dow === 0 ? 6 : dow - 1; // 0=Dush index bilan mos
+})();
+
+renderWeekNav();
 renderDayTabs();
 renderDayPanel();
 
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
   renderDayPanel();
-  if (activeDay) renderPickerList(applyPickerFilter());
+  if (activeDateKey) renderPickerList(applyPickerFilter());
 });
 
 if (tg?.initData) {
@@ -317,6 +403,7 @@ if (tg?.initData) {
     .then(data => {
       currentMenu = data.days || {};
       setCachedMenu(currentMenu);
+      renderWeekNav();
       renderDayTabs();
       renderDayPanel();
     })

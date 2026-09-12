@@ -1,10 +1,15 @@
 // ===== Taomchi — Haftalik ovqat rejasi =====
-// GET  /api/weekly-menu?initData=...                                    -> joriy hafta rejasi
-// POST /api/weekly-menu  body: { initData, day, meal, recipeId }        -> bitta ovqatni saqlash/tozalash
-//   meal: "lunch" | "dinner"; recipeId: null yuborilsa — o'sha ovqat tozalanadi
+// GET  /api/weekly-menu?initData=...                                    -> barcha saqlangan kunlar (sana bo'yicha)
+// POST /api/weekly-menu  body: { initData, date, meal, recipeId }       -> bitta ovqatni saqlash/tozalash
+//   date: "YYYY-MM-DD"; meal: "lunch" | "dinner"; recipeId: null yuborilsa — o'sha ovqat tozalanadi
 //
-// Ma'lumot tuzilishi: days.{day}.{meal} = recipeId
-// (masalan days.mon.lunch = "abc123")
+// Ma'lumot tuzilishi: days.{YYYY-MM-DD}.{meal} = recipeId
+// (masalan days["2026-09-14"].lunch = "abc123")
+//
+// Eslatma: ilgari reja kun NOMIGA (mon/tue/...) bog'langan abadiy shablon
+// edi. Endi haqiqiy sanaga bog'langan — shuning uchun har hafta boshqacha
+// reja tuzish mumkin. Eski formatdagi hujjatlar birinchi GET so'rovida
+// avtomatik joriy haftaga ko'chiriladi (bir martalik migratsiya).
 //
 // Reja Telegram akkauntga bog'liq (Firestore "weeklyMenus/{telegram_id}"),
 // shuning uchun foydalanuvchi istalgan qurilmadan o'zining rejasini ko'radi.
@@ -13,9 +18,10 @@
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
+const { hasLegacyKeys, migrateLegacyDays } = require("../lib/weeklyMenuDates");
 
-const VALID_DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const VALID_MEALS = ["lunch", "dinner"];
+const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 module.exports = async (req, res) => {
   let db;
@@ -32,18 +38,26 @@ module.exports = async (req, res) => {
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
 
-      const doc = await db.collection("weeklyMenus").doc(String(tgUser.id)).get();
-      const days = doc.exists ? (doc.data().days || {}) : {};
+      const ref = db.collection("weeklyMenus").doc(String(tgUser.id));
+      const doc = await ref.get();
+      let days = doc.exists ? (doc.data().days || {}) : {};
+
+      // Eski (kun-nomli) format aniqlansa — joriy haftaga ko'chirib, saqlab qo'yamiz
+      if (hasLegacyKeys(days)) {
+        days = migrateLegacyDays(days);
+        await ref.set({ days, updatedAt: Date.now() }, { merge: false });
+      }
+
       return res.status(200).json({ days });
     }
 
     if (req.method === "POST") {
-      const { initData, day, meal, recipeId } = req.body || {};
+      const { initData, date, meal, recipeId } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
 
-      if (!VALID_DAYS.includes(day)) {
-        return res.status(400).json({ error: "Noto'g'ri kun: " + day });
+      if (!DATE_KEY_RE.test(date || "")) {
+        return res.status(400).json({ error: "Noto'g'ri sana: " + date });
       }
       if (!VALID_MEALS.includes(meal)) {
         return res.status(400).json({ error: "Noto'g'ri ovqat turi: " + meal });
@@ -52,7 +66,7 @@ module.exports = async (req, res) => {
       const ref = db.collection("weeklyMenus").doc(String(tgUser.id));
       await ref.set(
         {
-          days: { [day]: { [meal]: recipeId || null } },
+          days: { [date]: { [meal]: recipeId || null } },
           updatedAt: Date.now()
         },
         { merge: true }

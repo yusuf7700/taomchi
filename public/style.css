@@ -2036,6 +2036,42 @@ html.no-splash .splash {
 
 /* ===== Haftalik reja — "Bitta kunga e'tibor" ko'rinishi ===== */
 
+/* Hafta almashtirish qatori */
+.weekly-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.weekly-nav-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1.5px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dark);
+  flex-shrink: 0;
+}
+
+.weekly-nav-arrow svg { width: 18px; height: 18px; }
+
+.weekly-nav-arrow:disabled {
+  opacity: 0.35;
+}
+
+.weekly-nav-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  min-width: 150px;
+  text-align: center;
+}
+
 /* Tepadagi kun tugmalari (gorizontal suriladigan) */
 .weekly-day-tabs {
   display: flex;
@@ -2120,6 +2156,12 @@ html.no-splash .splash {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.weekly-panel-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 /* ===== AI yordamchi sahifasi (chat ko'rinishi) ===== */
