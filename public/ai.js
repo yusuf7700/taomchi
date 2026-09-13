@@ -74,6 +74,11 @@ function ensureConversationSaved() {
 const aiQuotaText = document.getElementById("aiQuotaText");
 const aiQuestionInput = document.getElementById("aiQuestionInput");
 const aiAskBtn = document.getElementById("aiAskBtn");
+const aiAttachBtn = document.getElementById("aiAttachBtn");
+const aiImageInput = document.getElementById("aiImageInput");
+const aiImagePreviewRow = document.getElementById("aiImagePreviewRow");
+const aiImagePreviewImg = document.getElementById("aiImagePreviewImg");
+const aiImageRemoveBtn = document.getElementById("aiImageRemoveBtn");
 const aiChatMessages = document.getElementById("aiChatMessages");
 const aiEmptyState = document.getElementById("aiEmptyState");
 const chatHistoryBtn = document.getElementById("chatHistoryBtn");
@@ -110,10 +115,11 @@ function scrollToBottom() {
   });
 }
 
-function addBubble(role, text, extraClass = "") {
+function addBubble(role, text, extraClass = "", imageDataUrl = null) {
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble chat-bubble--${role}${extraClass ? " " + extraClass : ""}`;
-  bubble.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
+  const imgHtml = imageDataUrl ? `<img class="chat-bubble-image" src="${imageDataUrl}" alt="">` : "";
+  bubble.innerHTML = imgHtml + escapeHtml(text || "").replace(/\n/g, "<br>");
   aiChatMessages.appendChild(bubble);
   scrollToBottom();
   return bubble;
@@ -148,7 +154,62 @@ function autoResizeInput() {
   aiQuestionInput.style.height = Math.min(aiQuestionInput.scrollHeight, 100) + "px";
 }
 
-async function askQuestion(question) {
+// ===== Rasm biriktirish (faqat Premium, kuniga cheklangan) =====
+let pendingImage = null; // tayyorlangan (siqilgan) rasm — "data:image/jpeg;base64,..."
+
+function resizeImageFile(file, maxDim = 800, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) {
+            height = Math.round(height * (maxDim / width));
+            width = maxDim;
+          } else {
+            width = Math.round(width * (maxDim / height));
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => reject(new Error("Rasmni ochib bo'lmadi"));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("Faylni o'qib bo'lmadi"));
+    reader.readAsDataURL(file);
+  });
+}
+
+aiAttachBtn.addEventListener("click", () => aiImageInput.click());
+
+aiImageInput.addEventListener("change", async () => {
+  const file = aiImageInput.files?.[0];
+  if (!file) return;
+  try {
+    pendingImage = await resizeImageFile(file);
+    aiImagePreviewImg.src = pendingImage;
+    aiImagePreviewRow.classList.remove("screen-hidden");
+  } catch {
+    pendingImage = null;
+  } finally {
+    aiImageInput.value = "";
+  }
+});
+
+aiImageRemoveBtn.addEventListener("click", () => {
+  pendingImage = null;
+  aiImagePreviewRow.classList.add("screen-hidden");
+  aiImagePreviewImg.src = "";
+});
+
+async function askQuestion(question, imageDataUrl = null) {
   aiAskBtn.disabled = true;
 
   const typingEl = addTypingIndicator();
@@ -161,13 +222,18 @@ async function askQuestion(question) {
         initData: tg.initData,
         question,
         lang: getCurrentLang(),
-        history: activeConversation.messages.slice(-MAX_HISTORY_MESSAGES)
+        history: activeConversation.messages.slice(-MAX_HISTORY_MESSAGES),
+        image: imageDataUrl || undefined
       })
     });
     const data = await res.json();
 
     removeTypingIndicator();
 
+    if (res.status === 403 && data.error === "premium_required") {
+      renderImagePremiumRequired();
+      return;
+    }
     if (res.status === 429) {
       renderLimitReached(question);
       return;
@@ -177,13 +243,25 @@ async function askQuestion(question) {
     addBubble("bot", data.answer);
     activeConversation.messages.push({ role: "assistant", content: data.answer });
     ensureConversationSaved();
-    updateQuotaText(data.isPremium, data.remainingToday);
+    if (!imageDataUrl) updateQuotaText(data.isPremium, data.remainingToday);
   } catch (err) {
     removeTypingIndicator();
     addBubble("bot", "❌ " + err.message, "chat-bubble--error");
   } finally {
     aiAskBtn.disabled = false;
   }
+}
+
+function renderImagePremiumRequired() {
+  const bubble = document.createElement("div");
+  bubble.className = "chat-bubble chat-bubble--limit";
+  bubble.innerHTML = `
+    <p>🔒 ${escapeHtml(t("ai_image_premium_required", "Rasm orqali savol berish faqat Premium foydalanuvchilar uchun."))}</p>
+    <button id="aiImagePremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
+  `;
+  aiChatMessages.appendChild(bubble);
+  scrollToBottom();
+  document.getElementById("aiImagePremiumBtn").addEventListener("click", () => buyPremiumMonthly(bubble, null, "aiImagePremiumBtn"));
 }
 
 function openStarsBot() {
@@ -211,8 +289,8 @@ function renderLimitReached(question) {
   document.getElementById("aiStarsLinkBtn").addEventListener("click", openStarsBot);
 }
 
-async function buyPremiumMonthly(limitBubble, question) {
-  const btn = document.getElementById("aiPremiumBtn");
+async function buyPremiumMonthly(limitBubble, question, btnId = "aiPremiumBtn") {
+  const btn = document.getElementById(btnId);
   btn.disabled = true;
   btn.textContent = t("ai_loading", "Yuklanmoqda...");
 
@@ -228,7 +306,7 @@ async function buyPremiumMonthly(limitBubble, question) {
     tg.openInvoice(data.link, (status) => {
       if (status === "paid") {
         limitBubble.remove();
-        askQuestion(question);
+        if (question) askQuestion(question);
       } else {
         btn.disabled = false;
         btn.textContent = `👑 ${t("premium_buy_subtitle_prefix", "Oyiga ⭐")}${PREMIUM_MONTHLY_PRICE}${t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang")}`;
@@ -269,7 +347,8 @@ async function payForExtraQuestion(question, limitBubble) {
 
 function sendMessage() {
   const question = aiQuestionInput.value.trim();
-  if (!question) return;
+  const imageToSend = pendingImage;
+  if (!question && !imageToSend) return;
 
   if (!tg?.initData) {
     addBubble("bot", t("ai_telegram_only", "Bu funksiya faqat Telegram ilovasi ichida ishlaydi."), "chat-bubble--error");
@@ -277,15 +356,20 @@ function sendMessage() {
   }
 
   aiEmptyState.classList.add("screen-hidden");
-  addBubble("user", question);
-  activeConversation.messages.push({ role: "user", content: question });
-  if (!activeConversation.title) activeConversation.title = truncateTitle(question);
+  addBubble("user", question, "", imageToSend);
+  // Eslatma: rasmning o'zi suhbat tarixida saqlanmaydi (faqat matn) — xotira
+  // hajmini kichik saqlash uchun. Rasm faqat shu so'rov uchun AI'ga yuboriladi.
+  activeConversation.messages.push({ role: "user", content: question || t("ai_image_only_placeholder", "[rasm yuborildi]") });
+  if (!activeConversation.title) activeConversation.title = truncateTitle(question || "🖼️");
   ensureConversationSaved();
 
   aiQuestionInput.value = "";
   autoResizeInput();
+  pendingImage = null;
+  aiImagePreviewRow.classList.add("screen-hidden");
+  aiImagePreviewImg.src = "";
 
-  askQuestion(question);
+  askQuestion(question, imageToSend);
 }
 
 // "Bosh holat"dagi tezkor tugmalar va mashhur so'rov chiplari — bosilganda

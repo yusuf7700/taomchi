@@ -176,6 +176,8 @@ const TRANSLATIONS = {
     ai_prompt_egg: "Tuxum bilan nima pishirsam bo'ladi?",
     ai_prompt_potato: "Kartoshka bilan nima pishirsam bo'ladi?",
     ai_prompt_veg: "Go'shtsiz, faqat sabzavotdan taom tavsiya qil",
+    ai_image_premium_required: "Rasm orqali savol berish faqat Premium foydalanuvchilar uchun.",
+    ai_image_only_placeholder: "[rasm yuborildi]",
     ai_history_title: "Suhbatlar tarixi",
     ai_history_empty: "Hali suhbatlar yo'q",
     ai_history_untitled: "Suhbat"
@@ -353,6 +355,8 @@ const TRANSLATIONS = {
     ai_prompt_egg: "Тухум билан нима пиширсам бўлади?",
     ai_prompt_potato: "Картошка билан нима пиширсам бўлади?",
     ai_prompt_veg: "Гўштсиз, фақат сабзавотдан таом тавсия қил",
+    ai_image_premium_required: "Расм орқали савол бериш фақат Premium фойдаланувчилар учун.",
+    ai_image_only_placeholder: "[расм юборилди]",
     ai_history_title: "Суҳбатлар тарихи",
     ai_history_empty: "Ҳали суҳбатлар йўқ",
     ai_history_untitled: "Суҳбат"
