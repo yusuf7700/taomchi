@@ -112,17 +112,12 @@
   <!-- ===== INPUT BAR ===== -->
   <div class="ai-input-bar">
     <p class="ai-quota-text" id="aiQuotaText"></p>
-    <div id="aiImagePreviewRow" class="ai-image-preview-row screen-hidden">
-      <div class="ai-image-preview-thumb">
-        <img id="aiImagePreviewImg" alt="Tanlangan rasm">
-        <button id="aiImageRemoveBtn" aria-label="Rasmni olib tashlash">✕</button>
-      </div>
-    </div>
+    <div id="aiImagePreviewRow" class="ai-image-preview-row screen-hidden"></div>
     <div class="ai-input-row">
       <button id="aiAttachBtn" class="ai-attach-btn" aria-label="Rasm biriktirish">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
       </button>
-      <input type="file" id="aiImageInput" accept="image/*" class="screen-hidden">
+      <input type="file" id="aiImageInput" accept="image/*" multiple class="screen-hidden">
       <textarea id="aiQuestionInput" class="ai-question-input" rows="1" placeholder="Masalan: Tuxum va pomidor bilan nima pishirsam bo'ladi?" data-i18n-placeholder="ai_placeholder"></textarea>
       <button id="aiAskBtn" class="ai-send-btn" aria-label="Yuborish">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>

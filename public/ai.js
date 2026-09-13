@@ -77,8 +77,6 @@ const aiAskBtn = document.getElementById("aiAskBtn");
 const aiAttachBtn = document.getElementById("aiAttachBtn");
 const aiImageInput = document.getElementById("aiImageInput");
 const aiImagePreviewRow = document.getElementById("aiImagePreviewRow");
-const aiImagePreviewImg = document.getElementById("aiImagePreviewImg");
-const aiImageRemoveBtn = document.getElementById("aiImageRemoveBtn");
 const aiChatMessages = document.getElementById("aiChatMessages");
 const aiEmptyState = document.getElementById("aiEmptyState");
 const chatHistoryBtn = document.getElementById("chatHistoryBtn");
@@ -115,11 +113,13 @@ function scrollToBottom() {
   });
 }
 
-function addBubble(role, text, extraClass = "", imageDataUrl = null) {
+function addBubble(role, text, extraClass = "", images = []) {
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble chat-bubble--${role}${extraClass ? " " + extraClass : ""}`;
-  const imgHtml = imageDataUrl ? `<img class="chat-bubble-image" src="${imageDataUrl}" alt="">` : "";
-  bubble.innerHTML = imgHtml + escapeHtml(text || "").replace(/\n/g, "<br>");
+  const imgsHtml = images.length > 0
+    ? `<div class="chat-bubble-image-grid">${images.map(src => `<img class="chat-bubble-image" src="${src}" alt="">`).join("")}</div>`
+    : "";
+  bubble.innerHTML = imgsHtml + escapeHtml(text || "").replace(/\n/g, "<br>");
   aiChatMessages.appendChild(bubble);
   scrollToBottom();
   return bubble;
@@ -155,7 +155,8 @@ function autoResizeInput() {
 }
 
 // ===== Rasm biriktirish (faqat Premium, kuniga cheklangan) =====
-let pendingImage = null; // tayyorlangan (siqilgan) rasm — "data:image/jpeg;base64,..."
+const MAX_IMAGES_PER_MESSAGE = 4;
+let pendingImages = []; // tayyorlangan (siqilgan) rasmlar — ["data:image/jpeg;base64,...", ...]
 
 function resizeImageFile(file, maxDim = 800, quality = 0.7) {
   return new Promise((resolve, reject) => {
@@ -187,29 +188,44 @@ function resizeImageFile(file, maxDim = 800, quality = 0.7) {
   });
 }
 
+function renderImagePreviewRow() {
+  if (pendingImages.length === 0) {
+    aiImagePreviewRow.classList.add("screen-hidden");
+    aiImagePreviewRow.innerHTML = "";
+    return;
+  }
+  aiImagePreviewRow.classList.remove("screen-hidden");
+  aiImagePreviewRow.innerHTML = pendingImages.map((src, i) => `
+    <div class="ai-image-preview-thumb">
+      <img src="${src}" alt="">
+      <button data-remove-index="${i}" aria-label="Rasmni olib tashlash">✕</button>
+    </div>
+  `).join("");
+  aiImagePreviewRow.querySelectorAll("[data-remove-index]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      pendingImages.splice(Number(btn.getAttribute("data-remove-index")), 1);
+      renderImagePreviewRow();
+    });
+  });
+}
+
 aiAttachBtn.addEventListener("click", () => aiImageInput.click());
 
 aiImageInput.addEventListener("change", async () => {
-  const file = aiImageInput.files?.[0];
-  if (!file) return;
+  const files = [...(aiImageInput.files || [])].slice(0, MAX_IMAGES_PER_MESSAGE - pendingImages.length);
+  aiImageInput.value = "";
+  if (files.length === 0) return;
+
   try {
-    pendingImage = await resizeImageFile(file);
-    aiImagePreviewImg.src = pendingImage;
-    aiImagePreviewRow.classList.remove("screen-hidden");
+    const resized = await Promise.all(files.map((f) => resizeImageFile(f)));
+    pendingImages.push(...resized);
+    renderImagePreviewRow();
   } catch {
-    pendingImage = null;
-  } finally {
-    aiImageInput.value = "";
+    // Rasmlardan biri o'qilmadi — jimgina e'tiborsiz qoldiramiz
   }
 });
 
-aiImageRemoveBtn.addEventListener("click", () => {
-  pendingImage = null;
-  aiImagePreviewRow.classList.add("screen-hidden");
-  aiImagePreviewImg.src = "";
-});
-
-async function askQuestion(question, imageDataUrl = null) {
+async function askQuestion(question, images = []) {
   aiAskBtn.disabled = true;
 
   const typingEl = addTypingIndicator();
@@ -223,7 +239,7 @@ async function askQuestion(question, imageDataUrl = null) {
         question,
         lang: getCurrentLang(),
         history: activeConversation.messages.slice(-MAX_HISTORY_MESSAGES),
-        image: imageDataUrl || undefined
+        images: images.length > 0 ? images : undefined
       })
     });
     const data = await res.json();
@@ -243,7 +259,7 @@ async function askQuestion(question, imageDataUrl = null) {
     addBubble("bot", data.answer);
     activeConversation.messages.push({ role: "assistant", content: data.answer });
     ensureConversationSaved();
-    if (!imageDataUrl) updateQuotaText(data.isPremium, data.remainingToday);
+    if (images.length === 0) updateQuotaText(data.isPremium, data.remainingToday);
   } catch (err) {
     removeTypingIndicator();
     addBubble("bot", "❌ " + err.message, "chat-bubble--error");
@@ -347,8 +363,8 @@ async function payForExtraQuestion(question, limitBubble) {
 
 function sendMessage() {
   const question = aiQuestionInput.value.trim();
-  const imageToSend = pendingImage;
-  if (!question && !imageToSend) return;
+  const imagesToSend = pendingImages;
+  if (!question && imagesToSend.length === 0) return;
 
   if (!tg?.initData) {
     addBubble("bot", t("ai_telegram_only", "Bu funksiya faqat Telegram ilovasi ichida ishlaydi."), "chat-bubble--error");
@@ -356,20 +372,20 @@ function sendMessage() {
   }
 
   aiEmptyState.classList.add("screen-hidden");
-  addBubble("user", question, "", imageToSend);
-  // Eslatma: rasmning o'zi suhbat tarixida saqlanmaydi (faqat matn) — xotira
-  // hajmini kichik saqlash uchun. Rasm faqat shu so'rov uchun AI'ga yuboriladi.
+  addBubble("user", question, "", imagesToSend);
+  // Eslatma: rasmlarning o'zi suhbat tarixida saqlanmaydi (faqat matn) —
+  // xotira hajmini kichik saqlash uchun. Rasmlar faqat shu so'rov uchun
+  // AI'ga yuboriladi.
   activeConversation.messages.push({ role: "user", content: question || t("ai_image_only_placeholder", "[rasm yuborildi]") });
   if (!activeConversation.title) activeConversation.title = truncateTitle(question || "🖼️");
   ensureConversationSaved();
 
   aiQuestionInput.value = "";
   autoResizeInput();
-  pendingImage = null;
-  aiImagePreviewRow.classList.add("screen-hidden");
-  aiImagePreviewImg.src = "";
+  pendingImages = [];
+  renderImagePreviewRow();
 
-  askQuestion(question, imageToSend);
+  askQuestion(question, imagesToSend);
 }
 
 // "Bosh holat"dagi tezkor tugmalar va mashhur so'rov chiplari — bosilganda
@@ -502,10 +518,7 @@ newChatBtn.addEventListener("click", () => {
   startNewConversation();
 });
 
-// Boshlash: eng oxirgi suhbatni ochamiz, bo'lmasa yangisini boshlaymiz.
-if (conversations.length > 0) {
-  activeConversation = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt)[0];
-  renderActiveConversation();
-} else {
-  startNewConversation();
-}
+// Boshlash: har safar sahifa ochilganda yangi (bo'sh) suhbat bilan
+// boshlaymiz — oldingi suhbatlar tarix panelida saqlanib qoladi, lekin
+// avtomatik ochilmaydi.
+startNewConversation();

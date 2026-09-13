@@ -2559,6 +2559,9 @@ html.no-splash .splash {
 
 .ai-image-preview-row {
   margin-bottom: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .ai-image-preview-thumb {
@@ -2591,11 +2594,19 @@ html.no-splash .splash {
   justify-content: center;
 }
 
-/* Foydalanuvchi yuborgan rasm chat pufakchasi ichida */
-.chat-bubble-image {
-  max-width: 200px;
-  border-radius: var(--radius-sm);
+/* Foydalanuvchi yuborgan rasm(lar) chat pufakchasi ichida */
+.chat-bubble-image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-bottom: 6px;
+}
+
+.chat-bubble-image {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
   display: block;
 }
 
