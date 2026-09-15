@@ -1,8 +1,9 @@
 // ===== Ovqaty — Haftalik reja eslatmasi (Vercel Cron orqali avtomatik) =====
-// Har dushanba ertalab (vercel.json'dagi jadval bo'yicha, Toshkent vaqti
+// Har kuni ertalab (vercel.json'dagi jadval bo'yicha, Toshkent vaqti
 // bilan 08:00) ishga tushadi. Faqat shu haftaga HALI HECH NARSA
-// rejalashtirmagan foydalanuvchilarga yuboriladi — agar allaqachon
-// kamida bitta kun/ovqat to'ldirilgan bo'lsa, ortiqcha bezovta qilinmaydi.
+// rejalashtirmagan foydalanuvchilarga yuboriladi — foydalanuvchi bir
+// kun/ovqat qo'shishi bilanoq, keyingi kunlarda eslatma avtomatik
+// to'xtaydi (ortiqcha bezovta qilinmaydi).
 //
 // Xavfsizlik: faqat Vercel Cron'ning o'zi chaqira oladi (CRON_SECRET
 // muhit o'zgaruvchisi orqali tasdiqlanadi, boshqa hech kim emas).
@@ -14,11 +15,11 @@ const { getCurrentMonday, dateKeyOf, LEGACY_DAY_ORDER } = require("../lib/weekly
 
 const TEXT = {
   uz: {
-    body: "📅 Yangi hafta boshlandi! Bu haftaning ovqatlarini oldindan rejalashtiring — har kuni \"bugun nima pishiray\" deb o'ylamang.",
+    body: "📅 Bu haftaga hali ovqat rejalashtirilmagan! Oldindan rejalashtiring — har kuni \"bugun nima pishiray\" deb o'ylamang.",
     btn: "🗓 Haftalik menyu"
   },
   uzk: {
-    body: "📅 Янги ҳафта бошланди! Бу ҳафтанинг овқатларини олдиндан режалаштиринг — ҳар куни \"бугун нима пиширай\" деб ўйламанг.",
+    body: "📅 Бу ҳафтага ҳали овқат режалаштирилмаган! Олдиндан режалаштиринг — ҳар куни \"бугун нима пиширай\" деб ўйламанг.",
     btn: "🗓 Ҳафталик меню"
   }
 };
