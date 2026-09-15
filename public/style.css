@@ -795,6 +795,18 @@ html.no-splash .splash {
   color: var(--cream);
 }
 
+.filter-row--sort {
+  margin-top: -4px;
+}
+.filter-row--sort .filter-chip {
+  padding: 7px 14px;
+  font-size: 12.5px;
+  background: transparent;
+}
+.filter-row--sort .filter-chip.active {
+  background: var(--green-dark);
+}
+
 .search-box--light {
   background: var(--white);
   border: 1.5px solid var(--border-soft);

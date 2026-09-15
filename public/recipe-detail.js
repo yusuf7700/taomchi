@@ -236,6 +236,14 @@ currentRecipeId = recipeId;
 if (!recipeId) {
   detailContent.innerHTML = `<p class="empty-text">Retsept topilmadi.</p>`;
 } else {
+  // Ko'rishlar sonini oshirish ("Ko'p ko'rilgan" saralash uchun) — fon vazifasi,
+  // sahifa ko'rsatilishini kutmaydi va xato bo'lsa ham e'tiborsiz qoldiriladi
+  fetch("/api/track-view", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ recipeId })
+  }).catch(() => {});
+
   // Avval keshdan tekshiramiz — bor bo'lsa, Firestore'ga so'rov shart emas
   const cached = getCachedRecipes();
   const cachedRecipe = cached?.data.find(r => r.id === recipeId);

@@ -5,10 +5,12 @@ if (tg) { tg.ready(); tg.expand(); }
 
 const recipeListEl = document.getElementById("recipeList");
 const filterRow = document.getElementById("filterRow");
+const sortRow = document.getElementById("sortRow");
 const searchInput = document.getElementById("searchInput");
 
 let allRecipes = [];
 let currentFilter = "all";
+let currentSort = "default";
 
 // Kategoriya nomini joriy tildagi tarjimaga aylantirish (kartalarda ko'rsatish uchun)
 function categoryLabel(cat) {
@@ -64,6 +66,13 @@ function applyFilters() {
       (r.tags || []).some(t => cyrillicToLatin(t.toLowerCase()).includes(query))
     );
   }
+
+  if (currentSort === "newest") {
+    filtered = [...filtered].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  } else if (currentSort === "popular") {
+    filtered = [...filtered].sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+  }
+
   renderRecipes(filtered);
 }
 
@@ -78,6 +87,16 @@ filterRow.querySelectorAll(".filter-chip").forEach(chip => {
 });
 
 searchInput.addEventListener("input", applyFilters);
+
+// Saralash tugmalari
+sortRow.querySelectorAll(".filter-chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    sortRow.querySelectorAll(".filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    currentSort = chip.getAttribute("data-sort");
+    applyFilters();
+  });
+});
 
 // URL'dan kategoriya kelgan bo'lsa (masalan bosh sahifadan), avtomatik tanlash
 const urlParams = new URLSearchParams(window.location.search);
