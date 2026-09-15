@@ -79,7 +79,9 @@ module.exports = async (req, res) => {
       if (!recipeId) { skipped++; continue; }
 
       const user = usersById.get(userId);
-      if (!user || user.notificationsEnabled === false) { skipped++; continue; }
+      const legacyOff = user && user.notificationsEnabled === false;
+      const dailyOff = user && user.dailyReminderEnabled !== undefined ? user.dailyReminderEnabled === false : legacyOff;
+      if (!user || dailyOff) { skipped++; continue; }
 
       const recipeDoc = await db.collection("recipes").doc(recipeId).get();
       if (!recipeDoc.exists) { skipped++; continue; }

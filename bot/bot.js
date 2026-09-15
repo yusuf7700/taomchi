@@ -218,7 +218,9 @@ async function ensureUser(ctx) {
       premiumUntil: null,
       trialUsed: false,
       language: null,
-      notificationsEnabled: true
+      notificationsEnabled: true,
+      dailyReminderEnabled: true,
+      weeklyReminderEnabled: true
     });
     return { isNew: true, language: null };
   }

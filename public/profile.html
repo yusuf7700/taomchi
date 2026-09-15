@@ -115,10 +115,18 @@
           <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
         </button>
         <div class="settings-row">
-          <span class="settings-row-icon">🔔</span>
-          <span class="settings-row-label" data-i18n="notifications_label">Bildirishnomalar</span>
+          <span class="settings-row-icon">🍽</span>
+          <span class="settings-row-label" data-i18n="notifications_daily_label">Kunlik ovqat eslatmasi</span>
           <label class="switch">
-            <input type="checkbox" id="notifToggle" checked>
+            <input type="checkbox" id="dailyNotifToggle" checked>
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <span class="settings-row-icon">🗓</span>
+          <span class="settings-row-label" data-i18n="notifications_weekly_label">Haftalik reja eslatmasi</span>
+          <label class="switch">
+            <input type="checkbox" id="weeklyNotifToggle" checked>
             <span class="switch-slider"></span>
           </label>
         </div>

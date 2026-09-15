@@ -84,7 +84,9 @@ module.exports = async (req, res) => {
     for (const userDoc of usersSnap.docs) {
       const userId = userDoc.id;
       const user = userDoc.data();
-      if (user.notificationsEnabled === false) { skipped++; continue; }
+      const legacyOff = user.notificationsEnabled === false;
+      const weeklyOff = user.weeklyReminderEnabled !== undefined ? user.weeklyReminderEnabled === false : legacyOff;
+      if (weeklyOff) { skipped++; continue; }
 
       const menu = menusById.get(userId);
       if (hasAnyPlanThisWeek(menu && menu.days, weekDateKeys)) { skipped++; continue; }

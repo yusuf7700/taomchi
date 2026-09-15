@@ -30,35 +30,43 @@ document.getElementById("langRow").addEventListener("click", () => {
 
 document.addEventListener("DOMContentLoaded", updateLangValue);
 
-// --- Bildirishnoma toggle (Telegram bot orqali eslatma yuboriladi) ---
-const notifToggle = document.getElementById("notifToggle");
+// --- Bildirishnoma toggle'lari (Telegram bot orqali eslatma yuboriladi) ---
+const dailyNotifToggle = document.getElementById("dailyNotifToggle");
+const weeklyNotifToggle = document.getElementById("weeklyNotifToggle");
 
-async function loadNotificationSetting() {
+async function loadNotificationSettings() {
   if (!tg?.initData) return; // Telegram tashqarisida ochilgan bo'lishi mumkin (test rejimi)
   try {
     const res = await fetch(`/api/user-settings?initData=${encodeURIComponent(tg.initData)}`);
     if (!res.ok) return;
     const data = await res.json();
-    notifToggle.checked = data.notificationsEnabled;
+    dailyNotifToggle.checked = data.dailyReminderEnabled;
+    weeklyNotifToggle.checked = data.weeklyReminderEnabled;
   } catch {
     // Internet yo'q bo'lishi mumkin — joriy (standart) holatda qoldiramiz
   }
 }
 
-notifToggle.addEventListener("change", async () => {
+function saveNotificationSetting(field, value) {
   if (!tg?.initData) return;
-  try {
-    await fetch("/api/user-settings", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tg.initData, notificationsEnabled: notifToggle.checked })
-    });
-  } catch {
+  fetch("/api/user-settings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: tg.initData, [field]: value })
+  }).catch(() => {
     // Xato bo'lsa ham UI holati saqlanadi, keyingi safar qayta urinib ko'ramiz
-  }
+  });
+}
+
+dailyNotifToggle.addEventListener("change", () => {
+  saveNotificationSetting("dailyReminderEnabled", dailyNotifToggle.checked);
 });
 
-loadNotificationSetting();
+weeklyNotifToggle.addEventListener("change", () => {
+  saveNotificationSetting("weeklyReminderEnabled", weeklyNotifToggle.checked);
+});
+
+loadNotificationSettings();
 
 // --- Premium holati (server-authoritative, Firestore orqali) ---
 const premiumBanner = document.getElementById("premiumBanner");

@@ -1,10 +1,15 @@
 // ===== Taomchi — Foydalanuvchi sozlamalari =====
-// GET  /api/user-settings?initData=...                        -> joriy sozlamalar
-// POST /api/user-settings  body: { initData, notificationsEnabled } -> saqlash
+// GET  /api/user-settings?initData=...                                        -> joriy sozlamalar
+// POST /api/user-settings  body: { initData, dailyReminderEnabled?, weeklyReminderEnabled? } -> saqlash
 //
 // Bu API "x-admin-secret" bilan emas, Telegram initData imzosi orqali
 // himoyalangan — chunki har bir foydalanuvchi faqat o'zining sozlamasini
 // o'zgartirishi kerak (admin panelidagi kabi bitta umumiy parol emas).
+//
+// Eslatma: eski bitta "notificationsEnabled" maydoni ikkiga bo'lindi
+// (kunlik ovqat / haftalik reja). Eski qiymatga ega, lekin yangi
+// maydonlar hali yozilmagan hujjatlar uchun eskisi ikkalasiga ham
+// standart sifatida qo'llaniladi (orqaga moslik).
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
@@ -27,20 +32,24 @@ module.exports = async (req, res) => {
       await ensureUserIdentity(db, tgUser);
 
       const doc = await db.collection("users").doc(String(tgUser.id)).get();
-      const notificationsEnabled = doc.exists ? doc.data().notificationsEnabled !== false : true;
-      return res.status(200).json({ notificationsEnabled });
+      const data = doc.exists ? doc.data() : {};
+      const legacyDefault = data.notificationsEnabled !== false; // eski maydon, hali ham fallback sifatida
+      const dailyReminderEnabled = data.dailyReminderEnabled !== undefined ? data.dailyReminderEnabled : legacyDefault;
+      const weeklyReminderEnabled = data.weeklyReminderEnabled !== undefined ? data.weeklyReminderEnabled : legacyDefault;
+      return res.status(200).json({ dailyReminderEnabled, weeklyReminderEnabled });
     }
 
     if (req.method === "POST") {
-      const { initData, notificationsEnabled } = req.body || {};
+      const { initData, dailyReminderEnabled, weeklyReminderEnabled } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
       await ensureUserIdentity(db, tgUser);
 
-      await db.collection("users").doc(String(tgUser.id)).set(
-        { notificationsEnabled: !!notificationsEnabled },
-        { merge: true }
-      );
+      const update = {};
+      if (dailyReminderEnabled !== undefined) update.dailyReminderEnabled = !!dailyReminderEnabled;
+      if (weeklyReminderEnabled !== undefined) update.weeklyReminderEnabled = !!weeklyReminderEnabled;
+
+      await db.collection("users").doc(String(tgUser.id)).set(update, { merge: true });
       return res.status(200).json({ success: true });
     }
 
