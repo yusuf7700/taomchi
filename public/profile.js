@@ -125,7 +125,7 @@ function renderPremiumBanner() {
 
   premiumBanner.classList.remove("premium-banner--active");
   const iconElInactive = document.getElementById("premiumBannerIcon");
-  if (iconElInactive) iconElInactive.textContent = "⭐";
+  if (iconElInactive) iconElInactive.textContent = "👑";
   premiumBanner.style.cursor = "pointer";
   chevron.style.display = "block";
 

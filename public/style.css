@@ -1317,16 +1317,49 @@ html.no-splash .splash {
 /* ===== Premium banner ===== */
 .premium-banner {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, var(--green-dark), var(--green));
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--orange-deep) 45%, #D9A62E 100%);
   border-radius: var(--radius-md);
   padding: 14px 16px;
   margin-bottom: 8px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(45, 90, 45, 0.25);
+  box-shadow: 0 4px 14px rgba(154, 74, 20, 0.3);
   position: relative;
   overflow: hidden;
+}
+
+.premium-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.premium-banner-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  position: relative;
+}
+
+.premium-banner-chip {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255,255,255,0.16);
+  border-radius: 8px;
+  padding: 6px 4px;
+}
+
+.premium-banner-chip-icon {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.premium-banner--active .premium-banner-chips {
+  display: none;
 }
 
 .premium-banner::after {
@@ -1375,7 +1408,7 @@ html.no-splash .splash {
 
 .premium-banner-subtitle {
   font-size: 12px;
-  color: #C9DDC9;
+  color: #FBDFAE;
   margin-top: 2px;
 }
 
