@@ -288,11 +288,37 @@ function openStarsBot() {
   }
 }
 
+// Kunlik limit O'zbekiston vaqti bo'yicha 00:00da yangilanadi (server ham
+// shu hisobdan foydalanadi — lib/aiAssistant.js). Qolgan vaqtni shu asosda
+// hisoblaymiz, foydalanuvchi qurilmasining vaqt zonasidan qat'i nazar.
+function formatTimeUntilQuotaReset() {
+  const shiftedNow = new Date(Date.now() + 5 * 60 * 60 * 1000); // "Toshkent vaqti" sifatida UTC ko'rinishida
+  const shiftedMidnight = Date.UTC(
+    shiftedNow.getUTCFullYear(),
+    shiftedNow.getUTCMonth(),
+    shiftedNow.getUTCDate() + 1,
+    0, 0, 0
+  );
+  const diffMs = Math.max(0, shiftedMidnight - shiftedNow.getTime());
+  const totalMinutes = Math.ceil(diffMs / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  if (hours === 0) {
+    return t("ai_limit_reset_soon", "⏰ Yangi bepul so'rov: {m} daqiqadan keyin (00:00da yangilanadi)")
+      .replace("{m}", minutes);
+  }
+  return t("ai_limit_reset", "⏰ Yangi bepul so'rov: {h} soat {m} daqiqadan keyin (00:00da yangilanadi)")
+    .replace("{h}", hours)
+    .replace("{m}", minutes);
+}
+
 function renderLimitReached(question) {
   const bubble = document.createElement("div");
   bubble.className = "chat-bubble chat-bubble--limit";
   bubble.innerHTML = `
     <p>⏳ ${escapeHtml(t("ai_limit_reached_short", "Bugungi limit tugadi"))}</p>
+    <p class="ai-limit-countdown">${escapeHtml(formatTimeUntilQuotaReset())}</p>
     <button id="aiPayBtn" class="chat-pay-btn chat-pay-btn--secondary">⭐ ${STARS_PRICE} — ${escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash"))}</button>
     <button id="aiPremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
     <p class="stars-buy-hint">${escapeHtml(t("stars_buy_prompt", "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling 👇"))}</p>
