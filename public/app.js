@@ -14,14 +14,14 @@ window.addEventListener("load", () => {
   if (!splash) return;
 
   if (sessionStorage.getItem("taomchi_splash_shown")) {
-    maybeShowOnboarding();
+    maybeShowFeatureTour();
     return; // allaqachon inline script orqali yashirilgan
   }
 
   setTimeout(() => {
     splash.classList.add("hidden");
     sessionStorage.setItem("taomchi_splash_shown", "1");
-    maybeShowOnboarding();
+    maybeShowFeatureTour();
   }, 1800);
 });
 
@@ -39,6 +39,61 @@ function closeOnboarding() {
   const el = document.getElementById("onboarding");
   if (el) el.style.display = "none";
 }
+
+// --- Imkoniyatlar sayohati (3 ekran, "Xush kelibsiz"dan oldin, faqat bir marta) ---
+const TOUR_SEEN_KEY = "taomchi_feature_tour_seen";
+const TOUR_SLIDES = [
+  { emoji: "🥕", titleKey: "tour1_title", descKey: "tour1_desc" },
+  { emoji: "🗓", titleKey: "tour2_title", descKey: "tour2_desc" },
+  { emoji: "🤖", titleKey: "tour3_title", descKey: "tour3_desc" }
+];
+let tourIndex = 0;
+
+function renderTourSlide() {
+  const dict = TRANSLATIONS[getCurrentLang()] || TRANSLATIONS.uz;
+  const slide = TOUR_SLIDES[tourIndex];
+  document.getElementById("tourEmoji").textContent = slide.emoji;
+  document.getElementById("tourTitle").textContent = dict[slide.titleKey];
+  document.getElementById("tourDesc").textContent = dict[slide.descKey];
+
+  const dotsEl = document.getElementById("tourDots");
+  dotsEl.innerHTML = TOUR_SLIDES.map((_, i) =>
+    `<span class="tour-dot${i === tourIndex ? " active" : ""}"></span>`
+  ).join("");
+
+  const nextBtn = document.getElementById("tourNextBtn");
+  const isLast = tourIndex === TOUR_SLIDES.length - 1;
+  nextBtn.textContent = dict[isLast ? "tour_start" : "tour_next"];
+}
+
+function closeFeatureTour() {
+  localStorage.setItem(TOUR_SEEN_KEY, "1");
+  const el = document.getElementById("featureTour");
+  if (el) el.style.display = "none";
+  maybeShowOnboarding(); // Sayohatdan keyin — Premium sovg'a ekrani
+}
+
+function maybeShowFeatureTour() {
+  if (localStorage.getItem(TOUR_SEEN_KEY)) {
+    maybeShowOnboarding();
+    return;
+  }
+  tourIndex = 0;
+  renderTourSlide();
+  const el = document.getElementById("featureTour");
+  if (el) el.style.display = "flex";
+}
+
+document.getElementById("tourNextBtn")?.addEventListener("click", () => {
+  if (tourIndex < TOUR_SLIDES.length - 1) {
+    tourIndex++;
+    renderTourSlide();
+  } else {
+    closeFeatureTour();
+  }
+});
+
+document.getElementById("tourSkipBtn")?.addEventListener("click", closeFeatureTour);
 
 document.getElementById("startTrialBtn")?.addEventListener("click", () => {
   closeOnboarding();

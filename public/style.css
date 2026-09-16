@@ -236,6 +236,30 @@ html.no-splash .splash {
   min-height: 40px;
 }
 
+.tour-box {
+  padding-top: 32px;
+}
+
+.tour-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-soft);
+}
+
+.tour-dot.active {
+  background: var(--green-dark);
+  width: 18px;
+  border-radius: 4px;
+}
+
 /* ===== Tasodifiy taom natijasi (modal) ===== */
 .random-modal {
   position: fixed;
