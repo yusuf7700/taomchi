@@ -13,6 +13,7 @@ const { getDb } = require("../lib/firebaseAdmin");
 const { safeCompare } = require("../lib/safeCompare");
 const bot = require("../bot/bot");
 const { getTodayDateKey } = require("../lib/weeklyMenuDates");
+const { sendWeeklyReminders } = require("../lib/weeklyReminder");
 
 const DAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]; // getUTCDay() tartibida
 
@@ -109,7 +110,20 @@ module.exports = async (req, res) => {
       await new Promise(resolve => setTimeout(resolve, 40)); // Telegram limitidan chiqmaslik uchun
     }
 
-    return res.status(200).json({ meal, day: getTodayDateKey(), sent, skipped, failed });
+    // Haftalik reja eslatmasi shu yerga "yopishtirilgan" — Vercel Hobby
+    // rejasida bitta loyihaga max 2ta cron ruxsat etilgani uchun alohida
+    // cron entry sifatida emas, kunlik (lunch) chaqiruvi bilan birga,
+    // kuniga faqat bir marta ishga tushadi.
+    let weekly = null;
+    if (meal === "lunch") {
+      try {
+        weekly = await sendWeeklyReminders(db);
+      } catch (err) {
+        console.error("Haftalik eslatma xatosi (kunlik cron ichida):", err);
+      }
+    }
+
+    return res.status(200).json({ meal, day: getTodayDateKey(), sent, skipped, failed, weekly });
   } catch (err) {
     console.error("Kunlik eslatma xatosi:", err);
     return res.status(500).json({ error: err.message });

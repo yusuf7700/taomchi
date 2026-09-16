@@ -27,10 +27,6 @@
     {
       "path": "/api/cron-daily-reminder?meal=dinner",
       "schedule": "30 11 * * *"
-    },
-    {
-      "path": "/api/cron-weekly-reminder",
-      "schedule": "0 3 * * *"
     }
   ],
   "headers": [
