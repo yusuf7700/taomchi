@@ -6,13 +6,7 @@
     "api/broadcast.js": {
       "maxDuration": 60
     },
-    "api/notify-recipe.js": {
-      "maxDuration": 60
-    },
     "api/cron-daily-reminder.js": {
-      "maxDuration": 60
-    },
-    "api/cron-weekly-reminder.js": {
       "maxDuration": 60
     },
     "api/ai-chat.js": {

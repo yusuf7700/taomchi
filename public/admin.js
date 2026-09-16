@@ -409,7 +409,7 @@ async function notifyRecipe(recipeId, btn) {
   btn.textContent = "⏳";
 
   try {
-    const res = await fetch("/api/notify-recipe", {
+    const res = await fetch("/api/broadcast", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-secret": getSecret() },
       body: JSON.stringify({ recipeId })
