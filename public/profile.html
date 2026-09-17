@@ -42,8 +42,16 @@
         <span class="premium-banner-chip"><span class="premium-banner-chip-icon">🗓</span><span data-i18n="premium_chip_menu">Menyu</span></span>
         <span class="premium-banner-chip"><span class="premium-banner-chip-icon">🍲</span><span data-i18n="premium_chip_recipes">Retseptlar</span></span>
       </div>
+      <div class="premium-banner-expiry" id="premiumBannerExpiry">
+        <span data-i18n="premium_expiry_label">Tugash sanasi</span>
+        <span id="premiumExpiryDate">—</span>
+      </div>
     </section>
-    <div class="premium-actions screen-hidden" id="premiumActions"></div>
+
+    <!-- Sinov/sotib olish oynasi — markazdagi popup, orqa fon xira -->
+    <div class="premium-actions-overlay screen-hidden" id="premiumActionsOverlay">
+      <div class="premium-actions" id="premiumActions"></div>
+    </div>
 
     <!-- Referal / ball tizimi -->
     <section class="referral-card">

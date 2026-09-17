@@ -73,11 +73,25 @@ const premiumBanner = document.getElementById("premiumBanner");
 const premiumTitle = document.getElementById("premiumTitle");
 const premiumSubtitle = document.getElementById("premiumSubtitle");
 const premiumActions = document.getElementById("premiumActions");
+const premiumActionsOverlay = document.getElementById("premiumActionsOverlay");
+premiumActionsOverlay.addEventListener("click", (e) => {
+  if (e.target === premiumActionsOverlay) closePremiumActions(); // faqat xira fonga bosilsa yopiladi
+});
 
 function tp(key, fallback) {
   const lang = getCurrentLang();
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
   return dict[key] || fallback || key;
+}
+
+const UZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+const UZK_MONTHS = ["январ", "феврал", "март", "апрел", "май", "июн", "июл", "август", "сентабр", "октабр", "ноябр", "декабр"];
+
+function formatExpiryDate(timestampMs) {
+  if (!timestampMs) return "—";
+  const d = new Date(timestampMs);
+  const months = getCurrentLang() === "uzk" ? UZK_MONTHS : UZ_MONTHS;
+  return `${d.getDate()}-${months[d.getMonth()]}`;
 }
 
 let premiumState = { active: false, daysLeft: 0, trialAvailable: false, monthlyStarsPrice: 77, yearlyStarsPrice: 777, trialDays: 3 };
@@ -103,7 +117,7 @@ async function loadPremiumStatus() {
 }
 
 function closePremiumActions() {
-  premiumActions.classList.add("screen-hidden");
+  premiumActionsOverlay.classList.add("screen-hidden");
   premiumActions.innerHTML = "";
 }
 
@@ -120,6 +134,8 @@ function renderPremiumBanner() {
     const iconEl = document.getElementById("premiumBannerIcon");
     if (iconEl) iconEl.textContent = "👑";
     chevron.style.display = "none";
+    const expiryDateEl = document.getElementById("premiumExpiryDate");
+    if (expiryDateEl) expiryDateEl.textContent = formatExpiryDate(premiumState.until);
     return;
   }
 
@@ -141,7 +157,7 @@ function renderPremiumBanner() {
 }
 
 function showTrialOffer() {
-  premiumActions.classList.remove("screen-hidden");
+  premiumActionsOverlay.classList.remove("screen-hidden");
   premiumActions.innerHTML = `
     <p class="premium-actions-text">🎁 ${premiumState.trialDays}${escapeHtmlP(tp("premium_trial_confirm_suffix", " kunlik Premium sovg'angizni faollashtirasizmi?"))}</p>
     <div class="premium-actions-row">
@@ -180,7 +196,7 @@ async function claimTrial() {
 
 function showPurchaseOffer() {
   let selectedPlan = "yearly";
-  premiumActions.classList.remove("screen-hidden");
+  premiumActionsOverlay.classList.remove("screen-hidden");
 
   const yearlySavingsPct = Math.round((1 - premiumState.yearlyStarsPrice / (premiumState.monthlyStarsPrice * 12)) * 100);
 
