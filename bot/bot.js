@@ -331,6 +331,33 @@ bot.start(async (ctx) => {
     return ctx.reply("Tilni tanlang / Тилни танланг:", langSelectMarkup());
   }
 
+  // Ulashilgan retsept havolasi orqali kirgan bo'lsa ("recipe_<id>") —
+  // shu retseptni to'g'ridan-to'g'ri ko'rsatamiz (xush kelibsiz xabari o'rniga)
+  if (typeof ctx.startPayload === "string" && ctx.startPayload.startsWith("recipe_")) {
+    const recipeId = ctx.startPayload.slice(7);
+    const t = BOT_TEXT[language] || BOT_TEXT.uz;
+    try {
+      const all = await getAllRecipes();
+      const r = all.find(x => x.id === recipeId);
+      if (r) {
+        await ctx.reply(
+          `🍲 ${r.title}\n⏱ ${formatCookTimeBot(r, t)}   ${formatDifficultyBot(r, t)}`,
+          {
+            reply_markup: {
+              inline_keyboard: [[
+                { text: t.viewRecipe, web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${recipeId}` } }
+              ]]
+            }
+          }
+        );
+        return;
+      }
+    } catch (err) {
+      console.error("Ulashilgan retseptni ko'rsatishda xato:", err);
+      // Xato bo'lsa ham — pastdagi oddiy xush kelibsiz xabariga tushamiz
+    }
+  }
+
   await sendWelcome(ctx, language);
 });
 

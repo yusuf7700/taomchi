@@ -42,6 +42,7 @@ const progressText = document.getElementById("weeklyProgressText");
 const weekLabelEl = document.getElementById("weekLabel");
 const weekPrevBtn = document.getElementById("weekPrevBtn");
 const weekNextBtn = document.getElementById("weekNextBtn");
+const weeklyCopyBtn = document.getElementById("weeklyCopyBtn");
 
 let currentMenu = {}; // { "2026-09-14": { lunch: recipeId, dinner: recipeId }, ... }
 let allRecipes = [];
@@ -98,6 +99,68 @@ function getCurrentWeekDates() {
     dates.push(d);
   }
   return dates;
+}
+
+// Istalgan weekOffset uchun 7 ta sana-kalitni (YYYY-MM-DD) qaytaradi —
+// "o'tgan haftani nusxalash" uchun, hozirgi ko'rsatilayotgan haftadan
+// tashqari boshqa haftalarni tekshirish uchun kerak.
+function getWeekDateKeys(offset) {
+  const monday = getMondayForOffset(offset);
+  const keys = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setUTCDate(monday.getUTCDate() + i);
+    keys.push(dateKeyOf(d));
+  }
+  return keys;
+}
+
+function weekHasAnyData(dateKeys) {
+  return dateKeys.some(key => {
+    const day = currentMenu[key];
+    return day && (day.lunch || day.dinner);
+  });
+}
+
+// O'tgan haftada reja bo'lsa "Nusxalash" tugmasini ko'rsatamiz
+function updateCopyButtonVisibility() {
+  if (!weeklyCopyBtn) return;
+  const prevKeys = getWeekDateKeys(weekOffset - 1);
+  weeklyCopyBtn.classList.toggle("screen-hidden", !weekHasAnyData(prevKeys));
+}
+
+// O'tgan haftadagi barcha tanlovlarni joriy ko'rsatilayotgan haftaga
+// (bir xil hafta kuniga mos ravishda) nusxalaydi.
+async function copyPreviousWeek() {
+  const prevKeys = getWeekDateKeys(weekOffset - 1);
+  const curKeys = getWeekDateKeys(weekOffset);
+
+  const entriesToCopy = [];
+  prevKeys.forEach((prevKey, i) => {
+    const dayData = currentMenu[prevKey];
+    if (dayData && (dayData.lunch || dayData.dinner)) {
+      entriesToCopy.push({ curKey: curKeys[i], dayData });
+    }
+  });
+  if (entriesToCopy.length === 0) return;
+
+  const curHasData = weekHasAnyData(curKeys);
+  const confirmMsg = curHasData
+    ? t("weekly_copy_confirm_overwrite", "Joriy haftadagi mavjud tanlovlar almashtiriladi. Davom etasizmi?")
+    : t("weekly_copy_confirm", "O'tgan haftadagi taomlar shu haftaga nusxalansinmi?");
+  if (!confirm(confirmMsg)) return;
+
+  weeklyCopyBtn.disabled = true;
+  for (const { curKey, dayData } of entriesToCopy) {
+    if (dayData.lunch) await setMeal(curKey, "lunch", dayData.lunch);
+    if (dayData.dinner) await setMeal(curKey, "dinner", dayData.dinner);
+  }
+  weeklyCopyBtn.disabled = false;
+  weeklyCopyBtn.classList.add("screen-hidden"); // nusxalangandan keyin yashiramiz
+}
+
+if (weeklyCopyBtn) {
+  weeklyCopyBtn.addEventListener("click", copyPreviousWeek);
 }
 
 function getTodayDateKey() {
@@ -161,6 +224,7 @@ function renderWeekNav() {
   }
   weekPrevBtn.disabled = weekOffset <= MIN_WEEK_OFFSET;
   weekNextBtn.disabled = weekOffset >= MAX_WEEK_OFFSET;
+  updateCopyButtonVisibility();
 }
 
 function changeWeek(delta) {

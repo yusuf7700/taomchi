@@ -14,6 +14,7 @@ if (backBtn) {
 }
 
 let currentRecipeId = null;
+let currentRecipe = null;
 
 function updateFavBtnState() {
   if (!favBtn || !currentRecipeId) return;
@@ -25,6 +26,24 @@ if (favBtn) {
     if (!currentRecipeId) return;
     toggleFavorite(currentRecipeId);
     updateFavBtnState();
+  });
+}
+
+const shareBtn = document.getElementById("shareBtn");
+const BOT_USERNAME = "ovqaty_bot";
+
+if (shareBtn) {
+  shareBtn.addEventListener("click", () => {
+    if (!currentRecipeId) return;
+    const title = currentRecipe ? displayTitle(currentRecipe) : "";
+    const deepLink = `https://t.me/${BOT_USERNAME}?start=recipe_${currentRecipeId}`;
+    const shareText = `🍲 ${title}`;
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText)}`;
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(shareUrl);
+    } else {
+      window.open(shareUrl, "_blank");
+    }
   });
 }
 
@@ -140,6 +159,7 @@ async function fetchRecipeContent(recipeId) {
 }
 
 async function renderRecipe(r) {
+  currentRecipe = r;
   const lang = getCurrentLang();
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.uz;
 
@@ -216,6 +236,9 @@ async function renderRecipe(r) {
       </span>
       <span class="source-card-arrow">↗</span>
     </a>` : ""}
+
+    <h2 class="detail-section-title" data-i18n="similar_recipes_title">🍲 Shunga o'xshash retseptlar</h2>
+    <div class="similar-recipes-list" id="similarRecipesList"></div>
   `;
 
   applyTranslations(lang);
@@ -227,6 +250,52 @@ async function renderRecipe(r) {
   } else {
     processVideoEmbed(full);
   }
+  loadSimilarRecipes(r);
+}
+
+// ===== Shunga o'xshash retseptlar (bir xil kategoriyadan, joriysidan tashqari) =====
+function renderSimilarRecipes(list, currentId, category) {
+  const container = document.getElementById("similarRecipesList");
+  if (!container) return; // foydalanuvchi sahifadan chiqib ketgan bo'lishi mumkin
+
+  const similar = list
+    .filter(x => x.id !== currentId && x.category === category)
+    .slice(0, 4);
+
+  if (similar.length === 0) {
+    const heading = container.previousElementSibling;
+    if (heading) heading.style.display = "none";
+    container.style.display = "none";
+    return;
+  }
+
+  container.innerHTML = similar.map(r => `
+    <div class="recipe-card" data-id="${escapeHtml(r.id)}">
+      <div class="recipe-thumb">
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : "🍽️"}
+        ${premiumRibbon(r)}
+      </div>
+      <div class="recipe-info">
+        <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
+        <p class="recipe-meta">
+          <span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}
+        </p>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </div>
+  `).join("");
+
+  container.querySelectorAll(".recipe-card").forEach(card => {
+    card.addEventListener("click", () => {
+      window.location.href = `recipe-detail.html?id=${card.getAttribute("data-id")}`;
+    });
+  });
+}
+
+function loadSimilarRecipes(r) {
+  loadRecipesWithCache((recipes) => {
+    renderSimilarRecipes(recipes, r.id, r.category);
+  });
 }
 
 const urlParams = new URLSearchParams(window.location.search);
