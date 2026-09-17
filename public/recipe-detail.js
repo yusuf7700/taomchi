@@ -9,7 +9,14 @@ const favBtn = document.getElementById("favBtn");
 
 if (backBtn) {
   backBtn.addEventListener("click", () => {
-    window.history.back();
+    // Bot orqali (masalan "Tasodifiy taom" yoki ulashilgan havola) to'g'ridan-to'g'ri
+    // shu sahifaga kirilgan bo'lsa, tarixda "orqa" sahifa umuman yo'q — bunday holda
+    // asosiy sahifaga (pastki navigatsiya bilan) o'tkazamiz, aks holda oddiy orqaga qaytamiz.
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = "index.html";
+    }
   });
 }
 
