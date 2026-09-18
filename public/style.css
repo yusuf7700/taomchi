@@ -343,7 +343,7 @@ html.no-splash .splash {
   background: linear-gradient(135deg, #1B2A4A 0%, #2E4374 55%, #4A5FA5 100%);
   border-radius: var(--radius-md);
   padding: 14px 16px;
-  margin: 4px 0 6px;
+  margin: 14px 0 6px;
   text-decoration: none;
   box-shadow: 0 4px 14px rgba(27, 42, 74, 0.3);
 }
