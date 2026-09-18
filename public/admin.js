@@ -235,6 +235,7 @@ function collectFormData() {
     sourceUrl: document.getElementById("fSourceUrl").value.trim(),
     videoPlatform: document.getElementById("fVideoPlatform").value,
     isPremium: document.getElementById("fPremium").checked,
+    isRamadan: document.getElementById("fRamadan").checked,
     rating: 0
   };
 }
@@ -259,6 +260,7 @@ function clearForm() {
   document.getElementById("fSourceUrl").value = "";
   document.getElementById("fVideoPlatform").value = "telegram";
   document.getElementById("fPremium").checked = false;
+  document.getElementById("fRamadan").checked = false;
   document.getElementById("fEditId").value = "";
   document.getElementById("formTitle").textContent = "➕ Retsept qo'shish";
   document.getElementById("submitBtn").textContent = "➕ Retseptni qo'shish";
@@ -450,6 +452,7 @@ function startEdit(id) {
   document.getElementById("fSourceUrl").value = r.sourceUrl || "";
   document.getElementById("fVideoPlatform").value = r.videoPlatform || "telegram";
   document.getElementById("fPremium").checked = !!r.isPremium;
+  document.getElementById("fRamadan").checked = !!r.isRamadan;
   document.getElementById("fEditId").value = r.id;
 
   document.getElementById("formTitle").textContent = "✏️ Retseptni tahrirlash";

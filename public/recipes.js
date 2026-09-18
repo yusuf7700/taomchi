@@ -12,6 +12,14 @@ let allRecipes = [];
 let currentFilter = "all";
 let currentSort = "default";
 
+// Bosh sahifadagi Ramazon bannerdan "?ramadan=1" bilan kirilgan bo'lsa,
+// faqat Ramazon uchun belgilangan retseptlarni ko'rsatamiz.
+const ramadanOnly = new URLSearchParams(window.location.search).get("ramadan") === "1";
+if (ramadanOnly) {
+  const pageTitleEl = document.getElementById("pageTitle");
+  if (pageTitleEl) pageTitleEl.textContent = getCurrentLang() === "uzk" ? "🌙 Рамазон таомлари" : "🌙 Ramazon taomlari";
+}
+
 // Kategoriya nomini joriy tildagi tarjimaga aylantirish (kartalarda ko'rsatish uchun)
 function categoryLabel(cat) {
   const lang = getCurrentLang();
@@ -57,6 +65,9 @@ function applyFilters() {
   const query = cyrillicToLatin(searchInput.value.trim().toLowerCase());
   let filtered = allRecipes;
 
+  if (ramadanOnly) {
+    filtered = filtered.filter(r => r.isRamadan === true);
+  }
   if (currentFilter !== "all") {
     filtered = filtered.filter(r => r.category === currentFilter);
   }
