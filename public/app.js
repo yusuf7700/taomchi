@@ -358,8 +358,7 @@ if (document.getElementById("dailyRecipe")) {
 // --- Ramazon banneri (faqat Ramazon oyida ko'rinadi) ---
 // Sanalar taxminiy (oy ko'rinishiga bog'liq) — har yili yangilanishi kerak.
 const RAMADAN_PERIODS = [
-  { start: "2027-02-07", end: "2027-03-09" }, // Ramazon 1448 (2027)
-  { start: "2026-09-01", end: "2026-09-30" } // VAQTINCHALIK — sinov uchun, tasdiqlangandan keyin olib tashlanadi
+  { start: "2027-02-07", end: "2027-03-09" } // Ramazon 1448 (2027)
 ];
 
 function isRamadanNow() {
