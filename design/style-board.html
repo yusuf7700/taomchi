@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ovqaty — Dizayn tizimi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Mulish:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ===== Asosiy ranglar (base hues) ===== */
+    --maroon-50:#FBEAE9; --maroon-100:#F0C4C2; --maroon-300:#A8433E; --maroon-500:#6A0806; --maroon-700:#4A0504; --maroon-900:#2E0302;
+    --rust-50:#FDEEE9; --rust-100:#F8C9B8; --rust-300:#E0542D; --rust-500:#C81E08; --rust-700:#8F1506; --rust-900:#5C0D04;
+    --gold-50:#FCF3DF; --gold-100:#F3DA9C; --gold-300:#E5B94C; --gold-500:#D9A62E; --gold-700:#A67D1F; --gold-900:#6B5113;
+    --terracotta-50:#F7EAE1; --terracotta-100:#E9C4AC; --terracotta-300:#C77F4C; --terracotta-500:#B5652E; --terracotta-700:#854A20; --terracotta-900:#573015;
+    --rose-50:#FBEDEC; --rose-100:#F0CCC9; --rose-300:#E1A29D; --rose-500:#D98B8B; --rose-700:#B85F5F; --rose-900:#7D3F3F;
+    --sage-50:#F2F5EC; --sage-100:#DDE4CC; --sage-300:#A9B98A; --sage-500:#8A9B6E; --sage-700:#647249; --sage-900:#414A2F;
+    --warm-50:#FDF2EB; --warm-100:#F3E2D4; --warm-300:#C9B29C; --warm-500:#8C7364; --warm-700:#5A483D; --warm-900:#2A211C;
+
+    /* ===== Rol tokenlari (purpose layer) ===== */
+    --bg-page:var(--warm-50);
+    --bg-surface:#FFFFFF;
+    --bg-surface-2:var(--warm-100);
+    --text-primary:var(--warm-900);
+    --text-secondary:var(--warm-700);
+    --text-muted:var(--warm-300);
+    --border:var(--warm-100);
+    --brand:var(--maroon-500);
+    --brand-strong:var(--maroon-700);
+    --accent:var(--rust-500);
+    --premium:var(--gold-500);
+    --success-bg:var(--sage-50); --success-text:var(--sage-700);
+    --warning-bg:var(--gold-50); --warning-text:var(--gold-700);
+    --danger-bg:var(--rust-50); --danger-text:var(--rust-700);
+    --info-bg:var(--warm-100); --info-text:var(--warm-700);
+
+    --font-display:'Yeseva One', serif;
+    --font-body:'Mulish', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+
+    --radius-sm:10px; --radius-md:16px; --radius-lg:26px;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg-page); color:var(--text-primary);
+    font-family:var(--font-body); line-height:1.7; font-size:16px;
+    padding-bottom:80px;
+  }
+  .wrap{ max-width:920px; margin:0 auto; padding:0 24px; }
+  section{ margin-top:64px; }
+  h2.section-head{
+    font-family:var(--font-body); font-weight:700; font-size:13px;
+    color:var(--text-muted); letter-spacing:0.01em; margin:0 0 20px;
+    border-bottom:1px solid var(--border); padding-bottom:10px;
+  }
+  .swatch-row{ display:flex; flex-wrap:wrap; gap:12px; }
+  .swatch{
+    width:108px; border-radius:var(--radius-sm); overflow:hidden;
+    box-shadow:0 6px 16px rgba(42,33,28,0.10);
+  }
+  .swatch-color{ height:64px; }
+  .swatch-label{ background:#fff; padding:8px 10px; font-size:11.5px; color:var(--text-secondary); }
+  .swatch-label b{ display:block; color:var(--text-primary); font-size:12px; }
+  .ramp-row{ display:flex; margin-top:10px; border-radius:var(--radius-sm); overflow:hidden; box-shadow:0 4px 10px rgba(42,33,28,0.08); }
+  .ramp-step{ flex:1; height:40px; }
+
+  .type-sample{ margin-bottom:26px; }
+  .type-sample .meta{ font-size:12px; color:var(--text-muted); margin-bottom:4px; }
+  .display{ font-family:var(--font-display); font-size:52px; line-height:1.1; color:var(--brand); margin:0; }
+  .sub-line{ font-family:var(--font-display); font-size:26px; color:var(--brand-strong); margin:0; }
+  .label-text{ font-family:var(--font-body); font-weight:700; font-size:13px; color:var(--accent); margin:0; }
+  .body-text{ font-family:var(--font-body); font-size:16px; color:var(--text-primary); margin:0; max-width:60ch; }
+  .caption-text{ font-family:var(--font-body); font-size:13px; color:var(--text-secondary); margin:0; }
+  .mono-text{ font-family:var(--font-mono); font-weight:600; font-size:20px; color:var(--terracotta-700); margin:0; }
+
+  .comp-grid{ display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start; }
+  .btn{ font-family:var(--font-body); font-weight:700; font-size:14px; border-radius:999px; padding:12px 22px; border:none; cursor:default; }
+  .btn-primary{ background:var(--brand); color:#fff; }
+  .btn-secondary{ background:#fff; color:var(--brand); border:1.5px solid var(--maroon-100); }
+  .btn-ghost{ background:none; color:var(--brand-strong); padding:12px 6px; text-decoration:underline; text-underline-offset:3px; }
+  .chip{ font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:999px; }
+  .chip-sage{ background:var(--success-bg); color:var(--success-text); }
+  .chip-gold{ background:var(--warning-bg); color:var(--warning-text); }
+  .chip-rust{ background:var(--danger-bg); color:var(--danger-text); }
+  .chip-neutral{ background:var(--info-bg); color:var(--info-text); }
+
+  .card-recipe{
+    width:280px; background:#fff; border-radius:var(--radius-md);
+    box-shadow:0 10px 26px rgba(42,33,28,0.12); overflow:hidden;
+  }
+  .card-recipe-top{
+    height:120px; background:linear-gradient(135deg,var(--maroon-500),var(--rust-500));
+    display:flex; align-items:center; justify-content:center; font-size:44px; position:relative;
+  }
+  .card-recipe-badge{
+    position:absolute; top:10px; right:10px; background:var(--gold-500); color:var(--gold-900);
+    font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;
+  }
+  .card-recipe-body{ padding:16px; }
+  .card-recipe-body .title{ font-family:var(--font-body); font-weight:700; font-size:15.5px; margin:0 0 4px; }
+  .card-recipe-body .meta{ font-size:12.5px; color:var(--text-secondary); margin:0; }
+
+  .stat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:100%; max-width:420px; }
+  .stat-card{ background:var(--bg-surface-2); border-radius:var(--radius-sm); padding:14px; }
+  .stat-card .n{ font-family:var(--font-mono); font-size:20px; font-weight:600; color:var(--brand-strong); }
+  .stat-card .l{ font-size:11.5px; color:var(--text-secondary); margin-top:2px; }
+
+  .input-sample{
+    font-family:var(--font-body); font-size:14px; padding:12px 16px; border-radius:var(--radius-sm);
+    border:1.5px solid var(--maroon-100); background:#fff; color:var(--text-muted); width:260px;
+  }
+
+  .nav-mock{
+    display:flex; justify-content:space-around; background:#fff; border-radius:999px;
+    padding:10px 8px; width:320px; box-shadow:0 8px 20px rgba(42,33,28,0.12);
+  }
+  .nav-item{ font-size:20px; text-align:center; color:var(--text-muted); }
+  .nav-item.active{ color:var(--brand); }
+  .nav-item span{ display:block; font-size:10px; margin-top:2px; font-family:var(--font-body); font-weight:600; }
+
+  .bg-demo{ display:flex; gap:14px; flex-wrap:wrap; }
+  .bg-box{ width:220px; height:140px; border-radius:var(--radius-md); position:relative; overflow:hidden; display:flex; align-items:flex-end; padding:12px; }
+  .bg-box span{ background:rgba(255,255,255,0.85); font-size:11.5px; padding:3px 9px; border-radius:999px; color:var(--text-secondary); }
+  .bg-organic{ background:var(--warm-50); }
+  .bg-organic::before{
+    content:""; position:absolute; width:180px; height:180px; top:-50px; left:-40px;
+    background:var(--terracotta-100); border-radius:63% 37% 54% 46% / 55% 48% 52% 45%;
+    opacity:0.7;
+  }
+  .bg-organic::after{
+    content:""; position:absolute; width:120px; height:120px; bottom:-40px; right:-30px;
+    background:var(--rose-100); border-radius:40% 60% 55% 45% / 60% 40% 60% 40%;
+    opacity:0.7;
+  }
+  .bg-flat{ background:var(--warm-100); }
+
+  .hero-mock{
+    background:linear-gradient(135deg,var(--maroon-500) 0%, var(--maroon-700) 100%);
+    border-radius:var(--radius-lg); padding:44px 32px; color:#fff; position:relative; overflow:hidden;
+  }
+  .hero-mock::before{
+    content:""; position:absolute; width:240px; height:240px; right:-60px; top:-60px;
+    background:rgba(217,166,46,0.18); border-radius:58% 42% 63% 37% / 41% 55% 45% 59%;
+  }
+  .hero-mock h1{ font-family:var(--font-display); font-size:34px; line-height:1.2; margin:0 0 12px; max-width:16ch; position:relative; }
+  .hero-mock p{ font-size:15px; max-width:34ch; color:rgba(255,255,255,0.82); margin:0 0 22px; position:relative; }
+  .hero-mock .btn-primary{ background:var(--gold-500); color:var(--gold-900); position:relative; }
+
+  .paper-mock{
+    background:#fff; border-radius:var(--radius-md); padding:32px; box-shadow:0 10px 30px rgba(42,33,28,0.10);
+    border-top:6px solid var(--gold-500);
+  }
+  .paper-mock h2{ font-family:var(--font-display); color:var(--brand); font-size:26px; margin:0 0 6px; }
+  .paper-mock .divider{ border-top:1px dashed var(--warm-100); margin:18px 0; }
+
+  .slide-grid{ display:flex; gap:16px; flex-wrap:wrap; }
+  .slide{
+    width:100%; max-width:420px; aspect-ratio:16/9; border-radius:var(--radius-md); padding:26px;
+    display:flex; flex-direction:column; justify-content:center; box-shadow:0 10px 26px rgba(42,33,28,0.12);
+  }
+  .slide-1{ background:var(--warm-50); }
+  .slide-1 .eyebrow{ font-size:12px; font-weight:700; color:var(--accent); margin:0 0 8px; }
+  .slide-1 h3{ font-family:var(--font-display); font-size:28px; color:var(--brand); margin:0; }
+  .slide-2{ background:var(--maroon-500); color:#fff; }
+  .slide-2 .n{ font-family:var(--font-mono); font-size:44px; font-weight:600; color:var(--gold-500); }
+  .slide-2 .l{ font-size:14px; color:rgba(255,255,255,0.8); margin-top:4px; }
+
+  .carousel-grid{ display:flex; gap:16px; flex-wrap:wrap; }
+  .card-post{
+    width:200px; aspect-ratio:4/5; border-radius:var(--radius-md); padding:20px;
+    display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 10px 26px rgba(42,33,28,0.12);
+  }
+  .card-post .mark{ font-family:var(--font-display); font-size:14px; }
+  .card-post .headline{ font-family:var(--font-display); font-size:22px; line-height:1.15; }
+  .post-1{ background:linear-gradient(160deg,var(--terracotta-500),var(--maroon-500)); color:#fff; }
+  .post-2{ background:var(--gold-50); color:var(--gold-900); }
+  .post-2 .mark{ color:var(--maroon-500); }
+  .post-3{ background:var(--maroon-900); color:var(--gold-100); }
+  .ikat-strip{
+    height:56px; border-radius:var(--radius-sm); overflow:hidden;
+    box-shadow:0 6px 16px rgba(42,33,28,0.10);
+  }
+  .logo-lockup{ display:flex; align-items:center; gap:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section style="margin-top:48px;">
+    <p class="display" style="font-size:64px;">Ovqaty</p>
+    <p class="body-text" style="color:var(--text-secondary);">Dizayn tizimi — issiq dasturxon yo'nalishi. To'q qizil-jigar, oltin va terrakota asosida.</p>
+  </section>
+
+  <section>
+    <h2 class="section-head">Logotip konsepsiyasi</h2>
+    <div class="logo-lockup">
+      <img src="assets/logo.png" alt="Ovqaty logotipi" style="width:180px; height:auto;">
+    </div>
+    <p class="caption-text" style="margin-top:14px;">Yakuniy logotip — o'zgartirilmaydi. Diqqat: logotipdagi "Ovqaty" yozuvi o'ziga xos (bespoke) yumaloq harflar bilan chizilgan — bu quyidagi Yeseva One display shriftidan farq qiladi. Bu normal holat: logotip har doim o'z alohida chizig'iga ega bo'ladi, oddiy matn/sarlavhalar esa Yeseva One'da qoladi.</p>
+  </section>
+
+  <section>
+    <h2 class="section-head">Ikat bezak (chegara uchun)</h2>
+    <svg class="ikat-strip" width="100%" height="56" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="ikat" width="64" height="56" patternUnits="userSpaceOnUse">
+          <rect width="64" height="56" fill="var(--warm-50)"/>
+          <path d="M0 28 L16 0 L32 28 L16 56 Z" fill="var(--terracotta-300)"/>
+          <path d="M32 28 L48 0 L64 28 L48 56 Z" fill="var(--maroon-300)"/>
+          <circle cx="16" cy="28" r="5" fill="var(--gold-500)"/>
+          <circle cx="48" cy="28" r="5" fill="var(--gold-500)"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="56" fill="url(#ikat)"/>
+    </svg>
+    <p class="caption-text" style="margin-top:10px;">Soddalashtirilgan, ikatdan ilhomlangan naqsh — sahifa chekkalarida yupqa chegara sifatida, hech qachon asosiy fon sifatida emas.</p>
+  </section>
+
+  <section>
+    <h2 class="section-head">Asosiy ranglar</h2>
+    <div class="swatch-row">
+      <div class="swatch"><div class="swatch-color" style="background:var(--maroon-500);"></div><div class="swatch-label"><b>Maroon</b>#6A0806</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--rust-500);"></div><div class="swatch-label"><b>Rust</b>#C81E08</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--gold-500);"></div><div class="swatch-label"><b>Gold</b>#D9A62E</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--terracotta-500);"></div><div class="swatch-label"><b>Terracotta</b>#B5652E</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--rose-500);"></div><div class="swatch-label"><b>Rose</b>#D98B8B</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--sage-500);"></div><div class="swatch-label"><b>Sage</b>#8A9B6E</div></div>
+      <div class="swatch"><div class="swatch-color" style="background:var(--warm-500);"></div><div class="swatch-label"><b>Warm neutral</b>#8C7364</div></div>
+    </div>
+
+    <p class="caption-text" style="margin-top:24px;">Har birining ramkasi (50 → 900):</p>
+    <div class="ramp-row">
+      <div class="ramp-step" style="background:var(--maroon-50);"></div><div class="ramp-step" style="background:var(--maroon-100);"></div>
+      <div class="ramp-step" style="background:var(--maroon-300);"></div><div class="ramp-step" style="background:var(--maroon-500);"></div>
+      <div class="ramp-step" style="background:var(--maroon-700);"></div><div class="ramp-step" style="background:var(--maroon-900);"></div>
+    </div>
+    <div class="ramp-row">
+      <div class="ramp-step" style="background:var(--rust-50);"></div><div class="ramp-step" style="background:var(--rust-100);"></div>
+      <div class="ramp-step" style="background:var(--rust-300);"></div><div class="ramp-step" style="background:var(--rust-500);"></div>
+      <div class="ramp-step" style="background:var(--rust-700);"></div><div class="ramp-step" style="background:var(--rust-900);"></div>
+    </div>
+    <div class="ramp-row">
+      <div class="ramp-step" style="background:var(--gold-50);"></div><div class="ramp-step" style="background:var(--gold-100);"></div>
+      <div class="ramp-step" style="background:var(--gold-300);"></div><div class="ramp-step" style="background:var(--gold-500);"></div>
+      <div class="ramp-step" style="background:var(--gold-700);"></div><div class="ramp-step" style="background:var(--gold-900);"></div>
+    </div>
+    <div class="ramp-row">
+      <div class="ramp-step" style="background:var(--warm-50);"></div><div class="ramp-step" style="background:var(--warm-100);"></div>
+      <div class="ramp-step" style="background:var(--warm-300);"></div><div class="ramp-step" style="background:var(--warm-500);"></div>
+      <div class="ramp-step" style="background:var(--warm-700);"></div><div class="ramp-step" style="background:var(--warm-900);"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Semantik ranglar (mavjud palitradan)</h2>
+    <div class="comp-grid">
+      <span class="chip chip-sage">✓ Muvaffaqiyat</span>
+      <span class="chip chip-gold">! Ogohlantirish</span>
+      <span class="chip chip-rust">✕ Xato</span>
+      <span class="chip chip-neutral">i Ma'lumot</span>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Tipografiya</h2>
+    <div class="type-sample"><p class="meta">Display — Yeseva One, 52px</p><p class="display">Bugun nima pishiramiz?</p></div>
+    <div class="type-sample"><p class="meta">Sub-line — Yeseva One, 26px</p><p class="sub-line">Haftalik menyu</p></div>
+    <div class="type-sample"><p class="meta">Label — Mulish 700, 13px</p><p class="label-text">Ramazon uchun maxsus taomlar</p></div>
+    <div class="type-sample"><p class="meta">Body — Mulish 400, 16px</p><p class="body-text">Ovqaty — o'zbek taomlari uchun retsept va haftalik reja ilovasi. Uyingizda bor mahsulotlardan mos retsept toping, haftalik menyuni oldindan tuzing.</p></div>
+    <div class="type-sample"><p class="meta">Caption — Mulish 400, 13px</p><p class="caption-text">24 kun qoldi · Premium faol</p></div>
+    <div class="type-sample"><p class="meta">Mono — JetBrains Mono 600, 20px (faqat narx/statistika uchun)</p><p class="mono-text">5000⭐ /oy</p></div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Tugmalar va chiplar</h2>
+    <div class="comp-grid">
+      <button class="btn btn-primary">Retseptni ko'rish</button>
+      <button class="btn btn-secondary">Bekor qilish</button>
+      <button class="btn btn-ghost">Ko'proq ko'rish</button>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Kartalar</h2>
+    <div class="comp-grid">
+      <div class="card-recipe">
+        <div class="card-recipe-top">🍲<span class="card-recipe-badge">⭐ Premium</span></div>
+        <div class="card-recipe-body"><p class="title">Norin</p><p class="meta">⏱ 90 daqiqa · O'rtacha</p></div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="n">128</div><div class="l">Retsept</div></div>
+        <div class="stat-card"><div class="n">24</div><div class="l">Kun qoldi</div></div>
+        <div class="stat-card"><div class="n">4.8</div><div class="l">Reyting</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Kirish maydoni va navigatsiya</h2>
+    <div class="comp-grid">
+      <input class="input-sample" placeholder="Taom yoki mahsulot qidiring...">
+      <div class="nav-mock">
+        <div class="nav-item active">🏠<span>Bosh</span></div>
+        <div class="nav-item">🍲<span>Taomlar</span></div>
+        <div class="nav-item">🗓<span>Menyu</span></div>
+        <div class="nav-item">👤<span>Profil</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Fon uslublari</h2>
+    <div class="bg-demo">
+      <div class="bg-box bg-organic"><span>Organik blob + don</span></div>
+      <div class="bg-box bg-flat"><span>CSS fallback (tekis)</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Namuna — veb-sayt heroi</h2>
+    <div class="hero-mock">
+      <h1>Har kuni nima pishirishni oldindan biling</h1>
+      <p>Ombordagi mahsulotlardan retsept toping, haftalik menyu tuzing, AI'dan maslahat oling.</p>
+      <button class="btn btn-primary">Bepul boshlash</button>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Namuna — hujjat (paper mode)</h2>
+    <div class="paper-mock">
+      <h2>Haftalik reja — 14–20 sentabr</h2>
+      <p class="caption-text">Dushanbadan boshlab</p>
+      <div class="divider"></div>
+      <p class="body-text">Dushanba: Norin (tushlik) · Manti (kechki)<br>Seshanba: Sho'rva (tushlik) · Lag'mon (kechki)</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Namuna — slaydlar (16:9)</h2>
+    <div class="slide-grid">
+      <div class="slide slide-1"><p class="eyebrow">Ovqaty</p><h3>2026 — yillik hisobot</h3></div>
+      <div class="slide slide-2"><div class="n">12,400</div><div class="l">Faol foydalanuvchi</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-head">Namuna — karusel postlari (4:5)</h2>
+    <div class="carousel-grid">
+      <div class="card-post post-1"><span class="mark">Ovqaty</span><span class="headline">Bugungi retsept: Norin</span></div>
+      <div class="card-post post-2"><span class="mark">Ovqaty</span><span class="headline">5 ta maslahat: go'shtni yumshoq qilish</span></div>
+      <div class="card-post post-3"><span class="mark">Ovqaty</span><span class="headline">🌙 Ramazon muborak!</span></div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
