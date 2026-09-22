@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ovqaty — AI'dan so'rash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Mulish:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -27,6 +30,7 @@
       <button class="lang-toggle" id="langToggle" aria-label="Tilni almashtirish">UZ</button>
     </div>
   </header>
+  <div class="ikat-line"></div>
 
   <!-- ===== SUHBATLAR TARIXI PANELI ===== -->
   <div class="chat-history-overlay" id="chatHistoryOverlay">
@@ -47,18 +51,7 @@
     <!-- Suhbat hali bo'sh bo'lganda ko'rinadigan "bosh holat" -->
     <div id="aiEmptyState" class="ai-empty-state">
       <div class="ai-hero-illustration">
-        <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="100" cy="120" rx="85" ry="16" fill="var(--cream-soft)"/>
-          <ellipse cx="100" cy="85" rx="72" ry="68" fill="var(--cream-soft)" opacity="0.55"/>
-          <ellipse cx="34" cy="82" rx="10" ry="18" fill="#DCEEDC" stroke="var(--green-dark)" stroke-width="2" transform="rotate(-25 34 82)"/>
-          <ellipse cx="166" cy="82" rx="10" ry="18" fill="#DCEEDC" stroke="var(--green-dark)" stroke-width="2" transform="rotate(25 166 82)"/>
-          <path d="M100 8 C95 -2,80 -2,80 10 C80 20,100 30,100 30 C100 30,120 20,120 10 C120 -2,105 -2,100 8 Z" fill="var(--orange)"/>
-          <rect x="97" y="28" width="6" height="18" rx="3" fill="var(--green-dark)"/>
-          <circle cx="100" cy="46" r="7" fill="var(--green-dark)"/>
-          <path d="M32 102 A68 68 0 0 1 168 102 Z" fill="var(--green-dark)"/>
-          <rect x="24" y="100" width="152" height="11" rx="5.5" fill="var(--green-dark)"/>
-          <circle cx="152" cy="108" r="9" fill="var(--orange)"/>
-        </svg>
+        <div class="ai-hero-badge">🤖<span class="ai-hero-badge-sparkle">✦</span></div>
       </div>
       <p class="ai-hero-title" data-i18n="ai_hero_title">Bugun oshxonada nima bor?</p>
       <p class="ai-hero-subtitle" data-i18n="ai_hero_subtitle">Qo'lingizdagi mahsulotlarni yozing, men sizga mos taomlarni topib beraman.</p>
