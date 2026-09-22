@@ -1463,7 +1463,7 @@ html.no-splash .splash {
 .profile-cover {
   position: relative;
   height: 132px;
-  margin: 0 -18px 44px;
+  margin: 0 -18px 56px;
   background: linear-gradient(135deg, var(--maroon-500) 0%, var(--rust-700) 55%, var(--maroon-900) 100%);
   overflow: visible;
 }
@@ -1522,7 +1522,7 @@ html.no-splash .splash {
   border: 3px solid var(--cream);
 }
 
-.profile-name-block { padding-bottom: 8px; }
+.profile-name-block { padding-bottom: 8px; margin-bottom: -20px; }
 
 .profile-name {
   font-family: var(--font-display);
