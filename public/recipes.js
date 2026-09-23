@@ -20,6 +20,13 @@ if (ramadanOnly) {
   if (pageTitleEl) pageTitleEl.textContent = getCurrentLang() === "uzk" ? "🌙 Рамазон таомлари" : "🌙 Ramazon taomlari";
 }
 
+// "?diet=1" bilan kirilgan bo'lsa, faqat diyeta taomlarini ko'rsatamiz.
+const dietOnly = new URLSearchParams(window.location.search).get("diet") === "1";
+if (dietOnly) {
+  const pageTitleEl = document.getElementById("pageTitle");
+  if (pageTitleEl) pageTitleEl.textContent = getCurrentLang() === "uzk" ? "🥗 Диета таомлари" : "🥗 Diyeta taomlari";
+}
+
 // Kategoriya nomini joriy tildagi tarjimaga aylantirish (kartalarda ko'rsatish uchun)
 function categoryLabel(cat) {
   const lang = getCurrentLang();
@@ -67,6 +74,9 @@ function applyFilters() {
 
   if (ramadanOnly) {
     filtered = filtered.filter(r => r.isRamadan === true);
+  }
+  if (dietOnly) {
+    filtered = filtered.filter(r => r.isDiet === true);
   }
   if (currentFilter !== "all") {
     filtered = filtered.filter(r => r.category === currentFilter);
