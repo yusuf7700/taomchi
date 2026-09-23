@@ -121,7 +121,7 @@ html.no-splash .splash {
 
 .splash-tagline {
   font-size: 14px;
-  color: #C9DDC9;
+  color: rgba(255,255,255,0.78);
   text-align: center;
   line-height: 1.6;
   max-width: 280px;
@@ -373,17 +373,24 @@ html.no-splash .splash {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #1B2A4A 0%, #2E4374 55%, #4A5FA5 100%);
+  background: radial-gradient(120% 160% at 15% 20%, rgba(217,166,46,0.16), transparent 55%), linear-gradient(135deg, var(--maroon-700) 0%, var(--maroon-900) 100%);
   border-radius: var(--radius-md);
   padding: 14px 16px;
   margin: 14px 0 6px;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(27, 42, 74, 0.3);
+  box-shadow: 0 8px 20px rgba(42,33,28,0.22);
 }
 
 .ramadan-banner-icon {
-  font-size: 28px;
+  font-size: 22px;
   flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ramadan-banner-text {
@@ -401,14 +408,14 @@ html.no-splash .splash {
 
 .ramadan-banner-subtitle {
   font-size: 12px;
-  color: #C9D4F0;
+  color: rgba(255,255,255,0.72);
   margin-top: 2px;
 }
 
 .ramadan-banner .chevron {
   width: 18px;
   height: 18px;
-  color: rgba(255,255,255,0.6);
+  color: var(--gold-500);
   flex-shrink: 0;
 }
 
@@ -2933,8 +2940,10 @@ html.no-splash .splash {
 
 .chat-pay-btn--stars {
   margin-top: 0;
-  background: linear-gradient(135deg, #54A9EB, #2C82C9);
-  color: var(--white);
+  background: var(--gold-50);
+  color: var(--maroon-700);
+  border: 1.5px solid var(--gold-500);
+  font-weight: 800;
 }
 
 .chat-typing {
