@@ -308,6 +308,10 @@ actionCards.forEach(card => {
 const categoryCards = document.querySelectorAll(".category-card");
 categoryCards.forEach(card => {
   card.addEventListener("click", () => {
+    if (card.hasAttribute("data-diet")) {
+      window.location.href = "recipes.html?diet=1";
+      return;
+    }
     const cat = card.getAttribute("data-cat");
     window.location.href = `recipes.html?cat=${cat}`;
   });
