@@ -1459,53 +1459,29 @@ html.no-splash .splash {
   opacity: 0.85;
 }
 
-/* ===== Profil sahifasi ===== */
-.profile-cover {
-  position: relative;
-  height: 132px;
-  margin: 0 -18px 56px;
-  background: linear-gradient(135deg, var(--maroon-500) 0%, var(--rust-700) 55%, var(--maroon-900) 100%);
-  overflow: visible;
-}
-.profile-cover-inner { position: absolute; inset: 0; overflow: hidden; }
-.profile-cover-inner::before {
-  content: "";
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  right: -60px;
-  top: -90px;
-  background: rgba(217,166,46,0.22);
-  border-radius: 58% 42% 63% 37% / 41% 55% 45% 59%;
-}
-.profile-cover-inner::after {
-  content: "";
-  position: absolute;
-  width: 140px;
-  height: 140px;
-  left: -50px;
-  bottom: -90px;
-  background: rgba(217,139,139,0.16);
-  border-radius: 40% 60% 55% 45% / 60% 40% 60% 40%;
+/* ===== Profil sahifasi — ixcham sarlavha (Variant A) ===== */
+.profile-header-strip {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--maroon-500), var(--rust-500), var(--gold-500));
+  margin-bottom: 14px;
 }
 
-.profile-avatar-block {
-  position: absolute;
-  left: 20px;
-  bottom: -40px;
+.profile-header-row {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 13px;
+  padding-bottom: 18px;
 }
 
 .profile-avatar-ring {
-  width: 78px;
-  height: 78px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   flex-shrink: 0;
-  padding: 4px;
+  padding: 3px;
   background: linear-gradient(135deg, var(--gold-500), var(--rust-500));
-  box-shadow: 0 8px 20px rgba(42,33,28,0.22);
+  box-shadow: 0 6px 16px rgba(42,33,28,0.18);
 }
 
 .profile-avatar {
@@ -1514,26 +1490,24 @@ html.no-splash .splash {
   border-radius: 50%;
   background: var(--white);
   color: var(--maroon-700);
-  font-size: 26px;
+  font-size: 19px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 3px solid var(--cream);
+  border: 2px solid var(--cream);
 }
-
-.profile-name-block { padding-bottom: 8px; margin-bottom: -20px; }
 
 .profile-name {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 19px;
+  font-size: 17px;
   color: var(--text-dark);
 }
 
 .profile-username {
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -1755,56 +1729,109 @@ html.no-splash .splash {
 
 .premium-actions {
   background: var(--white);
-  border: 1.5px solid var(--border-soft);
-  border-radius: var(--radius-md);
-  padding: 16px;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
   max-width: 340px;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+  overflow-x: hidden;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
 }
 
-.premium-actions-heading {
-  font-size: 15.5px;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.premium-feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.premium-feature-list li {
-  font-size: 13px;
-  color: var(--text-dark);
-  padding-left: 24px;
+/* Foto sarlavha — duoton bosim + toj/nom pastda */
+.premium-photo {
+  height: 168px;
   position: relative;
-  line-height: 1.4;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  padding: 14px 16px;
 }
 
-.premium-feature-list li::before {
-  content: "✓";
+.premium-photo::before {
+  content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 17px;
-  height: 17px;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(46,3,2,0) 30%, rgba(46,3,2,0.60) 68%, rgba(46,3,2,0.90) 100%);
+}
+
+.premium-photo-top {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.premium-crown-chip {
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--green-dark);
-  color: var(--cream);
-  font-size: 11px;
-  font-weight: 700;
+  background: var(--gold-500);
+  color: var(--maroon-900);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-right: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25);
+}
+
+.premium-photo-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 19px;
+  color: #fff;
+}
+
+.premium-photo-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  margin-top: 1px;
+}
+
+.premium-body {
+  padding: 16px 18px 18px;
+}
+
+/* Uch ustunli statistik kartalar (feature-list o'rniga) */
+.premium-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.premium-stat {
+  background: var(--warm-50);
+  border-radius: var(--radius-md);
+  padding: 13px 5px 11px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(42,33,28,0.06);
+}
+
+.premium-stat-icon {
+  display: block;
+  font-size: 17px;
+  color: var(--maroon-700);
+  margin-bottom: 5px;
+}
+
+.premium-stat-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--maroon-700);
+  line-height: 1.25;
+}
+
+.premium-stat-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.3;
+  margin-top: 1px;
 }
 
 .premium-plan-cards {
@@ -1816,7 +1843,7 @@ html.no-splash .splash {
 
 .premium-plan-card {
   position: relative;
-  border: 2px solid var(--border-soft);
+  border: 1.5px solid var(--border-soft);
   border-radius: var(--radius-sm);
   padding: 14px 8px 12px;
   text-align: center;
@@ -1825,7 +1852,7 @@ html.no-splash .splash {
 
 .premium-plan-card--selected {
   border-color: var(--green-dark);
-  background: #EEF7EE;
+  background: var(--maroon-50);
 }
 
 .premium-plan-badge {
@@ -1833,11 +1860,11 @@ html.no-splash .splash {
   top: -9px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--orange-deep);
-  color: var(--white);
+  background: var(--gold-500);
+  color: var(--maroon-900);
   font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
+  font-weight: 800;
+  padding: 2px 9px;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -1850,9 +1877,10 @@ html.no-splash .splash {
 }
 
 .premium-plan-price {
+  font-family: var(--font-mono);
   font-size: 18px;
-  font-weight: 800;
-  color: var(--text-dark);
+  font-weight: 700;
+  color: var(--green-dark);
 }
 
 .premium-plan-per {
@@ -1860,11 +1888,13 @@ html.no-splash .splash {
   color: var(--text-muted);
 }
 
-.premium-buy-cta {
+.premium-btn.premium-buy-cta {
   width: 100%;
   padding: 14px;
-  font-size: 15px;
+  font-size: 14.5px;
   margin-bottom: 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--maroon-500), var(--orange-deep));
 }
 
 .premium-cancel-link {
@@ -1874,6 +1904,7 @@ html.no-splash .splash {
   color: var(--text-muted);
   font-weight: 600;
   padding: 4px;
+  margin-bottom: 10px;
 }
 
 .premium-actions-text {

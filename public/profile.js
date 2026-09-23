@@ -201,37 +201,57 @@ function showPurchaseOffer() {
   const yearlySavingsPct = Math.round((1 - premiumState.yearlyStarsPrice / (premiumState.monthlyStarsPrice * 12)) * 100);
 
   premiumActions.innerHTML = `
-    <p class="premium-actions-heading">👑 ${tp("premium_title", "Ovqaty Premium")}</p>
-    <ul class="premium-feature-list">
-      <li>${tp("premium_feature_ai", "Kuniga 15 marta AI'dan so'rash")}</li>
-      <li>${tp("premium_feature_recipes", "Premium retseptlarga to'liq kirish")}</li>
-      <li>${tp("premium_feature_future", "Kelajakdagi yangi imkoniyatlar birinchilardan")}</li>
-    </ul>
-    <div class="premium-plan-cards">
-      <div class="premium-plan-card" data-plan="monthly" id="planCardMonthly">
-        <p class="premium-plan-name">${tp("premium_monthly_btn", "Oylik")}</p>
-        <p class="premium-plan-price">⭐${premiumState.monthlyStarsPrice}</p>
-        <p class="premium-plan-per">/ ${tp("premium_per_month", "oy")}</p>
-      </div>
-      <div class="premium-plan-card premium-plan-card--selected" data-plan="yearly" id="planCardYearly">
-        <span class="premium-plan-badge">${yearlySavingsPct}% ${tp("premium_save", "tejash")}</span>
-        <p class="premium-plan-name">${tp("premium_yearly_btn", "Yillik")}</p>
-        <p class="premium-plan-price">⭐${premiumState.yearlyStarsPrice}</p>
-        <p class="premium-plan-per">/ ${tp("premium_per_year", "yil")}</p>
+    <div class="premium-photo" style="background-image:url('images/premium-osh.jpg')">
+      <div class="premium-photo-top">
+        <div class="premium-crown-chip">👑</div>
+        <div>
+          <p class="premium-photo-title">${tp("premium_title", "Ovqaty Premium")}</p>
+          <p class="premium-photo-sub">${tp("premium_popup_subtitle", "Yaxshiroq ta'mlar siz uchun.")}</p>
+        </div>
       </div>
     </div>
-    <button class="premium-btn premium-btn--primary premium-buy-cta" id="premiumBuyCta">⭐${premiumState.yearlyStarsPrice} — ${tp("premium_buy_cta", "Sotib olish")}</button>
-    <button class="premium-btn premium-btn--ghost premium-cancel-link" id="premiumCancelBtn">${tp("premium_cancel_btn", "Bekor qilish")}</button>
-    <p class="stars-buy-hint">${escapeHtmlP(tp("stars_buy_prompt", "Stars yetarli emasmi? Tez va oson sotib oling 👇"))}</p>
-    <button class="premium-btn premium-btn--stars" id="premiumStarsLinkBtn">${tp("stars_buy_btn", "⭐ Stars sotib olish")}</button>
+    <div class="premium-body">
+      <div class="premium-stats">
+        <div class="premium-stat">
+          <span class="premium-stat-icon">✦</span>
+          <p class="premium-stat-title">15</p>
+          <p class="premium-stat-sub">${tp("premium_stat_ai_sub", "AI so'rov / kun")}</p>
+        </div>
+        <div class="premium-stat">
+          <span class="premium-stat-icon">📖</span>
+          <p class="premium-stat-title">${tp("premium_stat_recipes_title", "Premium")}</p>
+          <p class="premium-stat-sub">${tp("premium_stat_recipes_sub", "retseptlar")}</p>
+        </div>
+        <div class="premium-stat">
+          <span class="premium-stat-icon">⚡</span>
+          <p class="premium-stat-title">${tp("premium_stat_new_title", "Yangi")}</p>
+          <p class="premium-stat-sub">${tp("premium_stat_new_sub", "imkoniyatlarga erta kirish")}</p>
+        </div>
+      </div>
+      <div class="premium-plan-cards">
+        <div class="premium-plan-card" data-plan="monthly" id="planCardMonthly">
+          <p class="premium-plan-name">${tp("premium_monthly_btn", "Oylik")}</p>
+          <p class="premium-plan-price">⭐${premiumState.monthlyStarsPrice}</p>
+          <p class="premium-plan-per">/ ${tp("premium_per_month", "oy")}</p>
+        </div>
+        <div class="premium-plan-card premium-plan-card--selected" data-plan="yearly" id="planCardYearly">
+          <span class="premium-plan-badge">${yearlySavingsPct}% ${tp("premium_save", "tejash")}</span>
+          <p class="premium-plan-name">${tp("premium_yearly_btn", "Yillik")}</p>
+          <p class="premium-plan-price">⭐${premiumState.yearlyStarsPrice}</p>
+          <p class="premium-plan-per">/ ${tp("premium_per_year", "yil")}</p>
+        </div>
+      </div>
+      <button class="premium-btn premium-btn--primary premium-buy-cta" id="premiumBuyCta">${tp("premium_buy_cta", "Premiumni boshlash")} →</button>
+      <button class="premium-btn premium-btn--ghost premium-cancel-link" id="premiumCancelBtn">${tp("premium_later_btn", "Keyinroq")}</button>
+      <p class="stars-buy-hint">${escapeHtmlP(tp("stars_buy_prompt", "Stars yetarli emasmi? Tez va oson sotib oling 👇"))}</p>
+      <button class="premium-btn premium-btn--stars" id="premiumStarsLinkBtn">${tp("stars_buy_btn", "⭐ Stars sotib olish")}</button>
+    </div>
   `;
 
   function selectPlan(plan) {
     selectedPlan = plan;
     document.getElementById("planCardMonthly").classList.toggle("premium-plan-card--selected", plan === "monthly");
     document.getElementById("planCardYearly").classList.toggle("premium-plan-card--selected", plan === "yearly");
-    const price = plan === "yearly" ? premiumState.yearlyStarsPrice : premiumState.monthlyStarsPrice;
-    document.getElementById("premiumBuyCta").textContent = `⭐${price} — ${tp("premium_buy_cta", "Sotib olish")}`;
   }
 
   document.getElementById("planCardMonthly").addEventListener("click", () => selectPlan("monthly"));
