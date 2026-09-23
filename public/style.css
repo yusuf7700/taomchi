@@ -1946,8 +1946,9 @@ html.no-splash .splash {
 
 .premium-btn--stars {
   width: 100%;
-  background: linear-gradient(135deg, #54A9EB, #2C82C9);
-  color: var(--white);
+  background: var(--warm-100);
+  color: var(--maroon-700);
+  border: 1.5px solid var(--border-soft);
 }
 
 .premium-btn:disabled {
