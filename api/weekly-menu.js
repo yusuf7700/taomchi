@@ -11,6 +11,8 @@
 // reja tuzish mumkin. Eski formatdagi hujjatlar birinchi GET so'rovida
 // avtomatik joriy haftaga ko'chiriladi (bir martalik migratsiya).
 //
+// POST /api/weekly-menu  body: { action: "ai-generate", initData, dates, diet }  -> AI menyu (lib/aiMenuHandler.js)
+//
 // Reja Telegram akkauntga bog'liq (Firestore "weeklyMenus/{telegram_id}"),
 // shuning uchun foydalanuvchi istalgan qurilmadan o'zining rejasini ko'radi.
 // "x-admin-secret" emas — Telegram initData imzosi orqali himoyalangan
@@ -19,6 +21,7 @@
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
 const { hasLegacyKeys, migrateLegacyDays } = require("../lib/weeklyMenuDates");
+const { handleAiMenu } = require("../lib/aiMenuHandler");
 
 const VALID_MEALS = ["lunch", "dinner"];
 const DATE_KEY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -52,6 +55,9 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
+      // AI avtomatik menyu (Premium) — alohida api fayl emas, chunki Vercel Hobby'da 12 ta funksiya chegarasi bor
+      if (req.body && req.body.action === "ai-generate") return handleAiMenu(req, res, db);
+
       const { initData, date, meal, recipeId } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });

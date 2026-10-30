@@ -196,10 +196,10 @@ async function generateAiMenu() {
   aiMenuBtn.disabled = true;
   aiMenuBtn.textContent = t("weekly_ai_loading", "⏳ Menyu tuzilmoqda...");
   try {
-    const res = await fetch("/api/weekly-menu-ai", {
+    const res = await fetch("/api/weekly-menu", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tg.initData, dates, diet: !!(aiMenuDiet && aiMenuDiet.checked) })
+      body: JSON.stringify({ action: "ai-generate", initData: tg.initData, dates, diet: !!(aiMenuDiet && aiMenuDiet.checked) })
     });
     const data = await res.json().catch(() => ({}));
 
