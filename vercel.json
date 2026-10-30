@@ -11,6 +11,9 @@
     },
     "api/ai-chat.js": {
       "maxDuration": 30
+    },
+    "api/weekly-menu-ai.js": {
+      "maxDuration": 30
     }
   },
   "crons": [

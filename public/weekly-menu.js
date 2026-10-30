@@ -163,6 +163,74 @@ if (weeklyCopyBtn) {
   weeklyCopyBtn.addEventListener("click", copyPreviousWeek);
 }
 
+// ===== AI avtomatik menyu (Premium) =====
+// Faqat bugundan boshlab (o'tib ketgan kunlarga tegmaydi) ko'rsatilayotgan
+// haftaning kunlari uchun menyu tuzadi. Server Premium'ni tekshiradi.
+const aiMenuBtn = document.getElementById("aiMenuBtn");
+const aiMenuDiet = document.getElementById("aiMenuDiet");
+const aiMenuBox = document.getElementById("weeklyAiBox");
+
+function getAiTargetDateKeys() {
+  const today = getTodayDateKey();
+  return getWeekDateKeys(weekOffset).filter(k => k >= today);
+}
+
+function updateAiButtonVisibility() {
+  if (!aiMenuBox) return;
+  aiMenuBox.classList.toggle("screen-hidden", getAiTargetDateKeys().length === 0);
+}
+
+async function generateAiMenu() {
+  if (!tg?.initData) {
+    alert(t("weekly_ai_telegram_only", "AI menyu faqat Telegram ichida ishlaydi."));
+    return;
+  }
+  const dates = getAiTargetDateKeys();
+  if (dates.length === 0) return;
+
+  if (weekHasAnyData(dates) &&
+      !confirm(t("weekly_ai_confirm_overwrite", "Tanlangan kunlardagi mavjud taomlar AI tavsiyasi bilan almashtiriladi. Davom etasizmi?"))) {
+    return;
+  }
+
+  aiMenuBtn.disabled = true;
+  aiMenuBtn.textContent = t("weekly_ai_loading", "⏳ Menyu tuzilmoqda...");
+  try {
+    const res = await fetch("/api/weekly-menu-ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tg.initData, dates, diet: !!(aiMenuDiet && aiMenuDiet.checked) })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (res.ok && data.days) {
+      currentMenu = { ...currentMenu, ...data.days };
+      setCachedMenu(currentMenu);
+      renderDayTabs();
+      renderDayPanel({ animate: false });
+      updateProgress();
+      updateCopyButtonVisibility();
+    } else if (res.status === 403 && data.error === "premium_required") {
+      if (confirm(t("weekly_ai_premium_needed", "AI menyu faqat Premium foydalanuvchilar uchun. Profilga o'tib Premium'ni ko'rasizmi?"))) {
+        window.location.href = "profile.html";
+      }
+    } else if (res.status === 429) {
+      alert(t("weekly_ai_limit", "Bugungi AI menyu limiti tugadi. Ertaga qayta urinib ko'ring."));
+    } else if (data.error === "not_enough_diet" || data.error === "not_enough_recipes") {
+      alert(t("weekly_ai_not_enough", "Buning uchun retseptlar yetarli emas. Diyetasiz urinib ko'ring."));
+    } else {
+      alert(t("weekly_ai_error", "Menyu tuzishda xatolik yuz berdi. Birozdan keyin qayta urinib ko'ring."));
+    }
+  } catch {
+    alert(t("weekly_ai_error", "Menyu tuzishda xatolik yuz berdi. Birozdan keyin qayta urinib ko'ring."));
+  } finally {
+    aiMenuBtn.disabled = false;
+    aiMenuBtn.textContent = t("weekly_ai_btn", "✨ AI menyu tuzsin");
+  }
+}
+
+if (aiMenuBtn) aiMenuBtn.addEventListener("click", generateAiMenu);
+
 function getTodayDateKey() {
   return dateKeyOf(tashkentNow());
 }
@@ -225,6 +293,7 @@ function renderWeekNav() {
   weekPrevBtn.disabled = weekOffset <= MIN_WEEK_OFFSET;
   weekNextBtn.disabled = weekOffset >= MAX_WEEK_OFFSET;
   updateCopyButtonVisibility();
+  updateAiButtonVisibility();
 }
 
 function changeWeek(delta) {
