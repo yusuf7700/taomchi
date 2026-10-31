@@ -69,6 +69,11 @@ weeklyNotifToggle.addEventListener("change", () => {
 loadNotificationSettings();
 
 // --- Premium holati (server-authoritative, Firestore orqali) ---
+// Maxsus 3D ikonalar (emoji o'rniga)
+const ICON = (n) => `<img class="ico" src="icons/${n}-128.webp" srcset="icons/${n}-128.webp 1x, icons/${n}-256.webp 2x" alt="" width="128" height="128" decoding="async">`;
+const CROWN_IMG = ICON("crown");
+const GIFT_IMG = ICON("gift").replace('class="ico"', 'class="ico ico--inline"');
+
 const premiumBanner = document.getElementById("premiumBanner");
 const premiumTitle = document.getElementById("premiumTitle");
 const premiumSubtitle = document.getElementById("premiumSubtitle");
@@ -133,7 +138,7 @@ function renderPremiumBanner() {
     premiumBanner.style.cursor = "pointer";
     premiumBanner.classList.add("premium-banner--active");
     const iconEl = document.getElementById("premiumBannerIcon");
-    if (iconEl) iconEl.textContent = "👑";
+    if (iconEl) iconEl.innerHTML = CROWN_IMG;
     chevron.style.display = "block";
     const expiryDateEl = document.getElementById("premiumExpiryDate");
     if (expiryDateEl) expiryDateEl.textContent = formatExpiryDate(premiumState.until);
@@ -149,7 +154,7 @@ function renderPremiumBanner() {
 
   premiumBanner.classList.remove("premium-banner--active");
   const iconElInactive = document.getElementById("premiumBannerIcon");
-  if (iconElInactive) iconElInactive.textContent = "👑";
+  if (iconElInactive) iconElInactive.innerHTML = CROWN_IMG;
   premiumBanner.style.cursor = "pointer";
   chevron.style.display = "block";
 
@@ -177,7 +182,7 @@ function showActiveSheet() {
     <div class="premium-sheet">
       <div class="premium-sheet-ikat"></div>
       <div class="premium-sheet-head">
-        <div class="premium-sheet-crown">👑</div>
+        <div class="premium-sheet-crown">${CROWN_IMG}</div>
         <p class="premium-sheet-title">${escapeHtmlP(tp("premium_sheet_title", "Siz Premium a'zosiz"))}</p>
         <p class="premium-sheet-sub">${escapeHtmlP(tp("premium_sheet_sub", "Dasturxon siz uchun to'liq ochiq"))}</p>
         <div class="premium-sheet-days"><b>${premiumState.daysLeft}</b><span>${escapeHtmlP(tp("premium_days_left_suffix", " kun qoldi").trim())}</span></div>
@@ -210,7 +215,7 @@ function showActiveSheet() {
 function showTrialOffer() {
   premiumActionsOverlay.classList.remove("screen-hidden");
   premiumActions.innerHTML = `
-    <p class="premium-actions-text">🎁 ${premiumState.trialDays}${escapeHtmlP(tp("premium_trial_confirm_suffix", " kunlik Premium sovg'angizni faollashtirasizmi?"))}</p>
+    <p class="premium-actions-text">${GIFT_IMG} ${premiumState.trialDays}${escapeHtmlP(tp("premium_trial_confirm_suffix", " kunlik Premium sovg'angizni faollashtirasizmi?"))}</p>
     <div class="premium-actions-row">
       <button class="premium-btn premium-btn--ghost" id="premiumCancelBtn">${tp("premium_cancel_btn", "Bekor qilish")}</button>
       <button class="premium-btn premium-btn--primary" id="premiumClaimBtn">${tp("premium_use_btn", "Ishlatish")}</button>
@@ -254,7 +259,7 @@ function showPurchaseOffer() {
   premiumActions.innerHTML = `
     <div class="premium-photo" style="background-image:url('images/premium-osh.jpg')">
       <div class="premium-photo-top">
-        <div class="premium-crown-chip">👑</div>
+        <div class="premium-crown-chip">${CROWN_IMG}</div>
         <div>
           <p class="premium-photo-title">${tp("premium_title", "Ovqaty Premium")}</p>
           <p class="premium-photo-sub">${tp("premium_popup_subtitle", "Yaxshiroq ta'mlar siz uchun.")}</p>
