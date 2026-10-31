@@ -19,11 +19,10 @@
     <button class="lang-toggle" id="langToggle" aria-label="Tilni almashtirish">UZ</button>
   </header>
 
-  <main class="main">
+  <main class="main profile-main">
 
     <!-- Foydalanuvchi kartasi -->
     <section class="profile-header">
-      <div class="profile-header-strip"></div>
       <div class="profile-header-row">
         <div class="profile-avatar-ring"><div class="profile-avatar" id="profileAvatar">👤</div></div>
         <div class="profile-name-block">
@@ -47,6 +46,12 @@
         <span class="premium-banner-chip"><span class="premium-banner-chip-icon">🤖</span><span data-i18n="premium_chip_ai">AI cheksiz</span></span>
         <span class="premium-banner-chip"><span class="premium-banner-chip-icon">🗓</span><span data-i18n="premium_chip_menu">Menyu</span></span>
         <span class="premium-banner-chip"><span class="premium-banner-chip-icon">🍲</span><span data-i18n="premium_chip_recipes">Retseptlar</span></span>
+      </div>
+      <div class="premium-banner-progress" id="premiumProgress"><i id="premiumProgressFill"></i></div>
+      <div class="premium-banner-stats" id="premiumBannerStats">
+        <div><b id="pbStatAi">–</b><span data-i18n="pstat_ai_today">AI bugun</span></div>
+        <div><b>∞</b><span data-i18n="pstat_recipes">Premium retsept</span></div>
+        <div><b id="pbStatMenu">–</b><span data-i18n="pstat_menu_today">AI menyu</span></div>
       </div>
       <div class="premium-banner-expiry" id="premiumBannerExpiry">
         <span data-i18n="premium_expiry_label">Tugash sanasi</span>
@@ -92,7 +97,7 @@
           </div>
           <button class="referral-shop-btn" id="referralShopRecipeBtn" data-i18n="referral_shop_view_btn">Ko'rish</button>
         </div>
-        <div class="referral-shop-item">
+        <div class="referral-shop-item" data-cost="2">
           <div class="referral-shop-item-info">
             <span class="referral-shop-item-icon">🤖</span>
             <div>
@@ -102,7 +107,7 @@
           </div>
           <button class="referral-shop-btn" data-reward-btn="ai_bonus" data-i18n="referral_shop_buy_btn">Olish</button>
         </div>
-        <div class="referral-shop-item">
+        <div class="referral-shop-item" data-cost="8">
           <div class="referral-shop-item-info">
             <span class="referral-shop-item-icon">⭐</span>
             <div>
@@ -112,7 +117,7 @@
           </div>
           <button class="referral-shop-btn" data-reward-btn="premium_3d" data-i18n="referral_shop_buy_btn">Olish</button>
         </div>
-        <div class="referral-shop-item">
+        <div class="referral-shop-item" data-cost="20">
           <div class="referral-shop-item-info">
             <span class="referral-shop-item-icon">👑</span>
             <div>

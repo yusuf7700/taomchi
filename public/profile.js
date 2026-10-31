@@ -118,6 +118,7 @@ async function loadPremiumStatus() {
 
 function closePremiumActions() {
   premiumActionsOverlay.classList.add("screen-hidden");
+  premiumActions.classList.remove("premium-actions--sheet");
   premiumActions.innerHTML = "";
 }
 
@@ -126,16 +127,23 @@ function renderPremiumBanner() {
   const chevron = document.getElementById("premiumBannerChevron");
 
   if (premiumState.active) {
-    premiumTitle.textContent = tp("premium_active_title", "⭐ Premium faol");
+    premiumTitle.textContent = tp("premium_active_title", "Premium faol");
     premiumSubtitle.textContent = premiumState.daysLeft + tp("premium_days_left_suffix", " kun qoldi");
-    premiumBanner.onclick = null;
-    premiumBanner.style.cursor = "default";
+    premiumBanner.onclick = showActiveSheet;
+    premiumBanner.style.cursor = "pointer";
     premiumBanner.classList.add("premium-banner--active");
     const iconEl = document.getElementById("premiumBannerIcon");
     if (iconEl) iconEl.textContent = "👑";
-    chevron.style.display = "none";
+    chevron.style.display = "block";
     const expiryDateEl = document.getElementById("premiumExpiryDate");
     if (expiryDateEl) expiryDateEl.textContent = formatExpiryDate(premiumState.until);
+
+    // Qolgan kunlar progressi (obuna davomiyligi 30 / 365 / 3 kunga nisbatan)
+    const total = premiumState.daysLeft > 31 ? 365 : (premiumState.daysLeft > 3 ? 30 : 3);
+    const pct = Math.max(4, Math.min(100, Math.round(premiumState.daysLeft / total * 100)));
+    document.getElementById("premiumProgressFill").style.width = pct + "%";
+    document.getElementById("pbStatAi").textContent = (premiumState.aiUsed ?? 0) + "/" + (premiumState.aiLimit ?? 15);
+    document.getElementById("pbStatMenu").textContent = (premiumState.menuUsed ?? 0) + "/" + (premiumState.menuLimit ?? 3);
     return;
   }
 
@@ -154,6 +162,49 @@ function renderPremiumBanner() {
     premiumSubtitle.textContent = tp("premium_buy_subtitle_prefix", "Oyiga ⭐") + premiumState.monthlyStarsPrice + tp("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang");
     premiumBanner.onclick = showPurchaseOffer;
   }
+}
+
+function showActiveSheet() {
+  const aiUsed = premiumState.aiUsed ?? 0, aiLimit = premiumState.aiLimit ?? 15;
+  const menuUsed = premiumState.menuUsed ?? 0, menuLimit = premiumState.menuLimit ?? 3;
+  const pctAi = Math.min(100, Math.round(aiUsed / aiLimit * 100));
+  const pctMenu = Math.min(100, Math.round(menuUsed / menuLimit * 100));
+  const perk = (key, fb) => `<li><span class="ic">✦</span>${escapeHtmlP(tp(key, fb))}<span class="ok">✓</span></li>`;
+
+  premiumActionsOverlay.classList.remove("screen-hidden");
+  premiumActions.classList.add("premium-actions--sheet");
+  premiumActions.innerHTML = `
+    <div class="premium-sheet">
+      <div class="premium-sheet-ikat"></div>
+      <div class="premium-sheet-head">
+        <div class="premium-sheet-crown">👑</div>
+        <p class="premium-sheet-title">${escapeHtmlP(tp("premium_sheet_title", "Siz Premium a'zosiz"))}</p>
+        <p class="premium-sheet-sub">${escapeHtmlP(tp("premium_sheet_sub", "Dasturxon siz uchun to'liq ochiq"))}</p>
+        <div class="premium-sheet-days"><b>${premiumState.daysLeft}</b><span>${escapeHtmlP(tp("premium_days_left_suffix", " kun qoldi").trim())}</span></div>
+      </div>
+      <div class="premium-sheet-usage">
+        <div class="row"><span>${escapeHtmlP(tp("premium_usage_ai", "AI so'rovlar bugun"))}</span><em>${aiUsed} / ${aiLimit}</em></div>
+        <div class="bar"><i style="width:${pctAi}%"></i></div>
+        <div class="row"><span>${escapeHtmlP(tp("premium_usage_menu", "AI menyu bugun"))}</span><em>${menuUsed} / ${menuLimit}</em></div>
+        <div class="bar"><i style="width:${pctMenu}%"></i></div>
+      </div>
+      <ul class="premium-sheet-perks">
+        ${perk("premium_perk_ai", "Kuniga 15 ta AI so'rov")}
+        ${perk("premium_perk_recipes", "Barcha Premium retseptlar")}
+        ${perk("premium_perk_menu", "AI haftalik menyu")}
+        ${perk("premium_perk_early", "Yangi imkoniyatlarga erta kirish")}
+      </ul>
+      <div class="premium-sheet-actions">
+        <button class="premium-btn premium-btn--secondary" id="premiumSheetClose">${escapeHtmlP(tp("premium_close_btn", "Yopish"))}</button>
+        <button class="premium-btn premium-btn--primary" id="premiumSheetExtend">${escapeHtmlP(tp("premium_extend_btn", "Muddatni uzaytirish"))}</button>
+      </div>
+    </div>`;
+  document.getElementById("premiumSheetClose").addEventListener("click", closePremiumActions);
+  document.getElementById("premiumSheetExtend").addEventListener("click", () => {
+    premiumActions.classList.remove("premium-actions--sheet");
+    showPurchaseOffer();
+  });
+  tg?.HapticFeedback?.impactOccurred?.("light");
 }
 
 function showTrialOffer() {
@@ -315,6 +366,25 @@ loadPremiumStatus();
 // --- Referal / ball tizimi ---
 let referralState = { points: 0, referralLink: null, redeemCost: 3 };
 
+// Ballar yetmaydigan sovg'alar: tugma o'chadi, ostida progress ko'rinadi
+function updateShopLocks() {
+  const points = referralState.points || 0;
+  document.querySelectorAll(".referral-shop-item[data-cost]").forEach((item) => {
+    const cost = Number(item.dataset.cost);
+    const btn = item.querySelector(".referral-shop-btn");
+    const costEl = item.querySelector(".referral-shop-item-cost");
+    item.querySelector(".shop-progress")?.remove();
+    const locked = points < cost;
+    item.classList.toggle("locked", locked);
+    if (btn) btn.disabled = locked;
+    if (locked && costEl) {
+      const pct = Math.round(points / cost * 100);
+      costEl.insertAdjacentHTML("afterend", `<div class="shop-progress"><i style="width:${pct}%"></i></div>`);
+    }
+  });
+}
+updateShopLocks();
+
 async function loadReferralStatus() {
   if (!tg?.initData) return;
   try {
@@ -322,6 +392,7 @@ async function loadReferralStatus() {
     if (!res.ok) throw new Error();
     referralState = await res.json();
     document.getElementById("referralPointsValue").textContent = referralState.points;
+    updateShopLocks();
   } catch {
     // Internet yo'q bo'lishi mumkin — jim o'tkazamiz, ball 0 ko'rinadi
   }
@@ -379,6 +450,7 @@ async function redeemShopReward(rewardType, btn) {
 
     referralState.points = data.remainingPoints;
     document.getElementById("referralPointsValue").textContent = data.remainingPoints;
+    updateShopLocks();
     tg?.HapticFeedback?.notificationOccurred?.("success");
     alert(tp("referral_shop_success", "Muvaffaqiyatli olindi! 🎉"));
 
@@ -390,6 +462,7 @@ async function redeemShopReward(rewardType, btn) {
   } finally {
     btn.disabled = false;
     btn.textContent = originalText;
+    updateShopLocks();
   }
 }
 

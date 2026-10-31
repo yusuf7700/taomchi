@@ -1468,12 +1468,6 @@ html.no-splash .splash {
 }
 
 /* ===== Profil sahifasi — ixcham sarlavha (Variant A) ===== */
-.profile-header-strip {
-  height: 5px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--maroon-500), var(--rust-500), var(--gold-500));
-  margin-bottom: 14px;
-}
 
 .profile-header-row {
   display: flex;
@@ -1507,17 +1501,23 @@ html.no-splash .splash {
 }
 
 .profile-name {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 17px;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 20px;
   color: var(--text-dark);
 }
 
 .profile-username {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--warm-500);
   margin-top: 2px;
+}
+
+/* Navbar kontentni yopib qo'ymasin */
+.profile-main {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
 }
 
 /* ===== Premium banner ===== */
@@ -1573,6 +1573,59 @@ html.no-splash .splash {
   display: none;
 }
 
+/* Faol holat: kunlar progressi + mini-statistika */
+.premium-banner-progress,
+.premium-banner-stats { display: none; }
+
+.premium-banner--active .premium-banner-progress {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+  margin-top: 14px;
+  overflow: hidden;
+  position: relative;
+}
+.premium-banner-progress i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--gold-300), var(--gold-500));
+  border-radius: 999px;
+}
+.premium-banner--active .premium-banner-stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  position: relative;
+}
+.premium-banner-stats div {
+  flex: 1;
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.premium-banner-stats b {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+.premium-banner-stats span {
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+}
+.premium-banner--active .premium-banner-icon {
+  width: 46px;
+  height: 46px;
+  font-size: 21px;
+  background: radial-gradient(circle at 35% 30%, var(--gold-300), var(--gold-500) 60%, var(--gold-700));
+  box-shadow: 0 0 0 4px rgba(217,166,46,0.22);
+}
+.premium-banner--active .premium-banner-title { font-size: 20px; }
+.premium-banner--active .premium-banner-subtitle { font-size: 12.5px; }
+
 .premium-banner-expiry {
   display: none;
   align-items: center;
@@ -1598,6 +1651,7 @@ html.no-splash .splash {
   padding: 10px 14px;
   margin: 14px -18px -16px;
   width: calc(100% + 36px);
+  z-index: 1;
 }
 .premium-banner--active .premium-banner-expiry::before {
   content: "";
@@ -1608,7 +1662,7 @@ html.no-splash .splash {
   background-position: 0 0;
 }
 .premium-banner--active .premium-banner-expiry span:first-child { color: var(--warm-700); font-weight: 600; }
-.premium-banner--active .premium-banner-expiry span:last-child { font-family: var(--font-mono); color: var(--maroon-700); }
+.premium-banner--active .premium-banner-expiry span:last-child { font-family: var(--font-body); font-weight: 800; color: var(--maroon-500); }
 
 /* Sinov/sotib olish oynasi — markazdagi popup, orqa fon xira */
 .premium-actions-overlay {
@@ -1745,8 +1799,9 @@ html.no-splash .splash {
   max-height: 85vh;
   overflow-y: auto;
   overflow-x: hidden;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+  box-shadow: 0 12px 32px rgba(42,33,28,0.28);
 }
+.premium-actions.premium-actions--sheet { max-width: 400px; background: transparent; box-shadow: none; border-radius: 0; overflow: visible; max-height: none; }
 
 /* Foto sarlavha — duoton bosim + toj/nom pastda */
 .premium-photo {
@@ -3340,3 +3395,79 @@ html.no-splash .splash {
 .celebrate-close-btn {
   width: 100%;
 }
+
+
+/* ===== Ballar do'koni — yetmaydigan sovg'alar ===== */
+.referral-shop-item.locked .referral-shop-btn {
+  background: var(--warm-100);
+  color: var(--warm-500);
+  border-color: transparent;
+  pointer-events: none;
+}
+.shop-progress {
+  height: 5px;
+  width: 120px;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--warm-100);
+  margin-top: 6px;
+  overflow: hidden;
+}
+.shop-progress i {
+  display: block;
+  height: 100%;
+  background: var(--rust-500);
+  border-radius: 999px;
+}
+
+/* ===== Premium a'zo sheet ===== */
+.premium-sheet {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 400px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-warm);
+}
+.premium-sheet-ikat {
+  height: 12px;
+  background-color: var(--maroon-100);
+  background-image:
+    radial-gradient(circle, var(--gold-500) 1.6px, transparent 2px),
+    linear-gradient(135deg, transparent 45%, var(--maroon-500) 45% 55%, transparent 55%),
+    linear-gradient(45deg, transparent 45%, var(--maroon-500) 45% 55%, transparent 55%);
+  background-size: 14px 12px;
+}
+.premium-sheet-head { text-align: center; padding: 22px 20px 8px; }
+.premium-sheet-crown {
+  width: 58px; height: 58px; margin: 0 auto 10px;
+  border-radius: 50%;
+  display: grid; place-items: center; font-size: 28px;
+  background: radial-gradient(circle at 35% 30%, var(--gold-300), var(--gold-500) 60%, var(--gold-700));
+  box-shadow: 0 0 0 4px rgba(217,166,46,0.22);
+}
+.premium-sheet-title { font-family: var(--font-display); font-size: 24px; color: var(--maroon-500); }
+.premium-sheet-sub { font-size: 14px; color: var(--warm-700); margin-top: 4px; }
+.premium-sheet-days { display: flex; justify-content: center; align-items: baseline; gap: 6px; margin-top: 10px; }
+.premium-sheet-days b { font-family: var(--font-mono); font-size: 40px; font-weight: 600; color: var(--maroon-500); }
+.premium-sheet-days span { font-size: 14px; font-weight: 600; color: var(--warm-700); }
+.premium-sheet-usage { margin: 12px 20px; background: var(--warm-100); border-radius: var(--radius-md); padding: 14px; }
+.premium-sheet-usage .row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; color: var(--warm-900); }
+.premium-sheet-usage .row em { font-style: normal; font-family: var(--font-mono); font-size: 14px; }
+.premium-sheet-usage .bar { height: 7px; border-radius: 999px; background: #fff; margin: 8px 0 14px; overflow: hidden; }
+.premium-sheet-usage .bar:last-child { margin-bottom: 0; }
+.premium-sheet-usage .bar i { display: block; height: 100%; background: var(--rust-500); border-radius: 999px; }
+.premium-sheet-perks { list-style: none; padding: 4px 22px 6px; margin: 0; }
+.premium-sheet-perks li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1.5px dashed var(--warm-100);
+  font-size: 15px; font-weight: 600; color: var(--warm-900);
+}
+.premium-sheet-perks li:last-child { border-bottom: none; }
+.premium-sheet-perks .ic {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--gold-50);
+  display: grid; place-items: center; flex-shrink: 0; color: var(--gold-900);
+}
+.premium-sheet-perks .ok { margin-left: auto; color: var(--sage-700); }
+.premium-sheet-actions { display: flex; gap: 10px; padding: 10px 20px 22px; }
