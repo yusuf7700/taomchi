@@ -473,14 +473,6 @@ html.no-splash .splash {
 .badge-pink { background: var(--rose-50); }
 .badge-tan { background: var(--terracotta-100); }
 .badge-blue { background: var(--warm-100); }
-
-.ikat-line {
-  height: 5px;
-  width: 100%;
-  background: linear-gradient(90deg, var(--terracotta-300), var(--maroon-300) 35%, var(--gold-500) 70%, var(--terracotta-300));
-  opacity: 0.55;
-}
-
 /* ===== Header ===== */
 .header {
   display: flex;
