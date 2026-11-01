@@ -387,7 +387,7 @@ html.no-splash .splash {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: var(--gold-500);
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1091,7 +1091,7 @@ html.no-splash .splash {
   height: 56px;
   margin: 0 auto 14px;
   border-radius: 50%;
-  background: var(--gold-500);
+  background: var(--gold-50);
   color: var(--maroon-900);
   font-size: 24px;
   display: flex;
@@ -3487,3 +3487,10 @@ img.ico.ico--ph {
   filter: none;
 }
 .detail-image--placeholder img.ico--ph { width: 96px !important; height: 96px !important; background: transparent; }
+
+/* ===== 3D ikonalar: kategoriyalar va boshqalar ===== */
+.cat-icon-badge .ico { width: 26px; height: 26px; filter: none; }
+.ramadan-banner-icon .ico { width: 28px; height: 28px; filter: none; }
+.filter-chip .ico--chip, .weekly-ai-diet .ico--chip { width: 18px; height: 18px; vertical-align: -4px; margin-right: 4px; filter: none; }
+.ico--title-inline { width: 30px; height: 30px; vertical-align: -7px; margin-right: 6px; filter: none; }
+.premium-lock-icon .ico { width: 64px; height: 64px; }

@@ -17,14 +17,14 @@ let currentSort = "default";
 const ramadanOnly = new URLSearchParams(window.location.search).get("ramadan") === "1";
 if (ramadanOnly) {
   const pageTitleEl = document.getElementById("pageTitle");
-  if (pageTitleEl) pageTitleEl.textContent = getCurrentLang() === "uzk" ? "🌙 Рамазон таомлари" : "🌙 Ramazon taomlari";
+  if (pageTitleEl) pageTitleEl.innerHTML = ovqIcon("moon", "ico ico--title-inline") + (getCurrentLang() === "uzk" ? "Рамазон таомлари" : "Ramazon taomlari");
 }
 
 // "?diet=1" bilan kirilgan bo'lsa, faqat diyeta taomlarini ko'rsatamiz.
 const dietOnly = new URLSearchParams(window.location.search).get("diet") === "1";
 if (dietOnly) {
   const pageTitleEl = document.getElementById("pageTitle");
-  if (pageTitleEl) pageTitleEl.textContent = getCurrentLang() === "uzk" ? "🥗 Диета таомлари" : "🥗 Diyeta taomlari";
+  if (pageTitleEl) pageTitleEl.innerHTML = ovqIcon("avocado", "ico ico--title-inline") + (getCurrentLang() === "uzk" ? "Диета таомлари" : "Diyeta taomlari");
 }
 
 // Kategoriya nomini joriy tildagi tarjimaga aylantirish (kartalarda ko'rsatish uchun)

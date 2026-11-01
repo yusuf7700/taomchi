@@ -197,7 +197,7 @@ async function renderRecipe(r) {
   const bodyHtml = locked
     ? `
       <div class="premium-lock-card">
-        <div class="premium-lock-icon">🔒</div>
+        <div class="premium-lock-icon">${ovqIcon("lock")}</div>
         <p class="premium-lock-title" data-i18n="recipe_lock_title">Bu — Premium retsept</p>
         <p class="premium-lock-text" data-i18n="recipe_lock_text">To'liq tarkib, tayyorlash tartibi va videoni ko'rish uchun Premium'ga obuna bo'ling.</p>
         <button class="premium-lock-btn" id="premiumLockBtn" data-i18n="recipe_lock_btn">👑 Premium olish</button>

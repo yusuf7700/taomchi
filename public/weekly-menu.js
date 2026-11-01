@@ -17,7 +17,7 @@ const DAY_SHORT_KEYS = {
 };
 const MEALS = ["lunch", "dinner"];
 const MEAL_LABEL_KEYS = { lunch: "meal_lunch", dinner: "meal_dinner" };
-const MEAL_ICONS = { lunch: "🍽️", dinner: "🌙" };
+const MEAL_ICONS = { lunch: ovqIcon("pot", "ico ico--inline"), dinner: ovqIcon("moon", "ico ico--inline") };
 
 // Haftalik rejaga faqat asosiy taomlar va sho'rvalar tavsiya qilinadi.
 const WEEKLY_CATEGORIES = ["main", "soup"];

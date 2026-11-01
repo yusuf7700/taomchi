@@ -272,7 +272,7 @@ function renderImagePremiumRequired() {
   const bubble = document.createElement("div");
   bubble.className = "chat-bubble chat-bubble--limit";
   bubble.innerHTML = `
-    <p>🔒 ${escapeHtml(t("ai_image_premium_required", "Rasm orqali savol berish faqat Premium foydalanuvchilar uchun."))}</p>
+    <p>${ovqIcon("lock", "ico ico--inline")} ${escapeHtml(t("ai_image_premium_required", "Rasm orqali savol berish faqat Premium foydalanuvchilar uchun."))}</p>
     <button id="aiImagePremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
   `;
   aiChatMessages.appendChild(bubble);

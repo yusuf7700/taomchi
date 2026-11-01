@@ -181,7 +181,7 @@ function renderSearchSuggestions() {
     html += `<p class="search-suggestions-label" data-i18n="recent_searches">So'nggi qidiruvlar</p>`;
     html += recent.map(term => `
       <div class="search-suggestion-item" data-term="${escapeHtml(term)}">
-        <span class="s-icon">🕘</span>
+        <span class="s-icon">${ovqIcon("clock")}</span>
         <span>${escapeHtml(term)}</span>
       </div>
     `).join("");
@@ -190,7 +190,7 @@ function renderSearchSuggestions() {
   html += `<p class="search-suggestions-label" data-i18n="popular_categories">Mashhur kategoriyalar</p>`;
   html += QUICK_CATEGORIES.map(cat => `
     <div class="search-suggestion-item" data-cat="${cat}">
-      <span class="s-icon">🔥</span>
+      <span class="s-icon">${ovqIcon("fire")}</span>
       <span>${escapeHtml(categoryLabelHome(cat))}</span>
     </div>
   `).join("");
