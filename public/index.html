@@ -30,7 +30,7 @@
   <!-- ===== IMKONIYATLAR SAYOHATI (faqat birinchi marta, xush kelibsizdan oldin) ===== -->
   <div class="onboarding" id="featureTour" style="display:none;">
     <div class="onboarding-box tour-box">
-      <p class="onboarding-emoji" id="tourEmoji">🥕</p>
+      <p class="onboarding-emoji" id="tourEmoji"><img class="ico ico--hero" src="icons/pot-128.webp" alt="" width="128" height="128"></p>
       <h2 id="tourTitle">—</h2>
       <p id="tourDesc">—</p>
       <div class="tour-dots" id="tourDots"></div>
@@ -42,13 +42,13 @@
   <!-- ===== XUSH KELIBSIZ (faqat birinchi marta, umuman) ===== -->
   <div class="onboarding" id="onboarding" style="display:none;">
     <div class="onboarding-box">
-      <p class="onboarding-emoji">🎉</p>
+      <p class="onboarding-emoji"><img class="ico ico--hero" src="icons/gift-128.webp" srcset="icons/gift-128.webp 1x, icons/gift-256.webp 2x" alt="" width="128" height="128"></p>
       <h2 data-i18n="onboarding_title">Ovqaty'ga xush kelibsiz!</h2>
       <p data-i18n="onboarding_subtitle">Siz uchun 7 kunlik Premium sovg'a qilamiz. Barcha imkoniyatlarni sinab ko'ring.</p>
       <ul class="onboarding-features">
-        <li><span class="of-icon">🤖</span> <span data-i18n="onboarding_f1">AI'dan so'rash — cheksiz savol-javob</span></li>
-        <li><span class="of-icon">📅</span> <span data-i18n="onboarding_f2">Haftalik menyu — AI yordamida</span></li>
-        <li><span class="of-icon">⭐</span> <span data-i18n="onboarding_f3">Premium retseptlar</span></li>
+        <li><span class="of-icon"><img class="ico" src="icons/robot-128.webp" alt="" width="128" height="128"></span> <span data-i18n="onboarding_f1">AI'dan so'rash — cheksiz savol-javob</span></li>
+        <li><span class="of-icon"><img class="ico" src="icons/calendar-128.webp" alt="" width="128" height="128"></span> <span data-i18n="onboarding_f2">Haftalik menyu — AI yordamida</span></li>
+        <li><span class="of-icon"><img class="ico" src="icons/coin-128.webp" alt="" width="128" height="128"></span> <span data-i18n="onboarding_f3">Premium retseptlar</span></li>
       </ul>
       <button class="onboarding-btn-primary" id="startTrialBtn" data-i18n="onboarding_start">Premiumdan foydalanishni boshlash</button>
       <button class="onboarding-btn-secondary" id="skipTrialBtn" data-i18n="onboarding_skip">Keyinroq</button>
@@ -59,11 +59,11 @@
   <div class="random-modal" id="randomModal" style="display:none;">
     <div class="random-modal-box" id="randomModalBox">
       <button class="random-modal-close" id="randomModalClose" aria-label="Yopish">✕</button>
-      <div class="random-modal-thumb" id="randomModalThumb">🍽️</div>
+      <div class="random-modal-thumb" id="randomModalThumb"><img class="ico ico--ph" src="icons/pot-128.webp" alt="" width="128" height="128"></div>
       <p class="random-modal-title" id="randomModalTitle">—</p>
       <p class="random-modal-meta" id="randomModalMeta"></p>
-      <button class="onboarding-btn-primary" id="randomModalView">🍲 Retseptni ko'rish</button>
-      <button class="onboarding-btn-secondary" id="randomModalAgain">🔁 Yana tasodifiy</button>
+      <button class="onboarding-btn-primary" id="randomModalView">Retseptni ko'rish</button>
+      <button class="onboarding-btn-secondary" id="randomModalAgain">Yana tasodifiy</button>
     </div>
   </div>
 
@@ -113,7 +113,7 @@
           <div class="search-suggestions screen-hidden" id="searchSuggestions"></div>
         </div>
         <button class="random-card" id="randomBtn">
-          <span class="random-icon">🍽️</span>
+          <span class="random-icon"><img class="ico" src="icons/pot-128.webp" srcset="icons/pot-128.webp 1x, icons/pot-256.webp 2x" alt="" width="128" height="128"></span>
           <span class="random-text">
             <span class="random-title" data-i18n="random_title">Tasodifiy taom</span>
             <span class="random-subtitle" data-i18n="random_subtitle">Bugun nima pishirishni bilmayapsizmi? Biz tanlaymiz!</span>

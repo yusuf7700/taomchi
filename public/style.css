@@ -148,7 +148,7 @@ html.no-splash .splash {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--gold-500);
+  background: #fff;
   color: var(--maroon-900);
   display: flex;
   align-items: center;
@@ -3468,3 +3468,22 @@ html.no-splash .splash {
 .ico--btn { width: 20px; height: 20px; filter: none; flex-shrink: 0; }
 .referral-shop-title { display: flex; align-items: center; gap: 8px; }
 .ico--title { width: 26px; height: 26px; filter: none; flex-shrink: 0; }
+
+/* ===== 3D ikonalar: bosh sahifa ===== */
+.onboarding-emoji .ico--hero { width: 84px; height: 84px; margin: 0 auto; }
+.onboarding-features .of-icon .ico { width: 20px; height: 20px; filter: none; }
+.random-icon .ico { width: 26px; height: 26px; filter: none; }
+.search-suggestion-item .s-icon .ico { width: 20px; height: 20px; filter: none; }
+
+/* Rasmsiz retsept placeholder (🍽️ o'rniga qozon) */
+img.ico.ico--ph {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 14%;
+  box-sizing: border-box;
+  object-fit: contain !important;
+  background: var(--warm-100);
+  border-radius: inherit;
+  filter: none;
+}
+.detail-image--placeholder img.ico--ph { width: 96px !important; height: 96px !important; background: transparent; }

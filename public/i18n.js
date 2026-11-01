@@ -1,3 +1,11 @@
+// ===== 3D ikonalar (public/icons/*.webp) =====
+function ovqIcon(name, cls) {
+  cls = cls || "ico";
+  return '<img class="' + cls + '" src="icons/' + name + '-128.webp" srcset="icons/' + name + '-128.webp 1x, icons/' + name + '-256.webp 2x" alt="" width="128" height="128" decoding="async">';
+}
+// Rasmsiz retseptlar uchun yagona placeholder (🍽️ o'rniga)
+const PLACEHOLDER_IMG = ovqIcon("pot", "ico ico--ph");
+
 // ===== Taomchi til tizimi (Lotin / Kirill) =====
 // Yangi matn qo'shish uchun: HTML'da data-i18n="kalit" qo'ying,
 // keyin shu kalitni ikkala tilga ham qo'shing.

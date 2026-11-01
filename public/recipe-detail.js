@@ -223,7 +223,7 @@ async function renderRecipe(r) {
 
   detailContent.innerHTML = `
     <div class="detail-hero">
-      ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}" class="detail-image">` : `<div class="detail-image detail-image--placeholder">🍽️</div>`}
+      ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}" class="detail-image">` : `<div class="detail-image detail-image--placeholder">${PLACEHOLDER_IMG}</div>`}
     </div>
     <h1 class="detail-title">${escapeHtml(displayTitle(r))}</h1>
     <p class="detail-meta">
@@ -279,7 +279,7 @@ function renderSimilarRecipes(list, currentId, category) {
   container.innerHTML = similar.map(r => `
     <div class="recipe-card" data-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb">
-        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : "🍽️"}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : PLACEHOLDER_IMG}
         ${premiumRibbon(r)}
       </div>
       <div class="recipe-info">

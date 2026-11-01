@@ -22,7 +22,7 @@ function renderFavorites(recipes) {
   favListEl.innerHTML = recipes.map(r => `
     <div class="recipe-card" data-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb">
-        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : "🍽️"}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : PLACEHOLDER_IMG}
         ${premiumRibbon(r)}
         <button class="card-fav-btn" data-fav-id="${escapeHtml(r.id)}">❤️</button>
       </div>

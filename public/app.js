@@ -43,16 +43,16 @@ function closeOnboarding() {
 // --- Imkoniyatlar sayohati (3 ekran, "Xush kelibsiz"dan oldin, faqat bir marta) ---
 const TOUR_SEEN_KEY = "taomchi_feature_tour_seen";
 const TOUR_SLIDES = [
-  { emoji: "🥕", titleKey: "tour1_title", descKey: "tour1_desc" },
-  { emoji: "🗓", titleKey: "tour2_title", descKey: "tour2_desc" },
-  { emoji: "🤖", titleKey: "tour3_title", descKey: "tour3_desc" }
+  { icon: "pot", titleKey: "tour1_title", descKey: "tour1_desc" },
+  { icon: "calendar", titleKey: "tour2_title", descKey: "tour2_desc" },
+  { icon: "robot", titleKey: "tour3_title", descKey: "tour3_desc" }
 ];
 let tourIndex = 0;
 
 function renderTourSlide() {
   const dict = TRANSLATIONS[getCurrentLang()] || TRANSLATIONS.uz;
   const slide = TOUR_SLIDES[tourIndex];
-  document.getElementById("tourEmoji").textContent = slide.emoji;
+  document.getElementById("tourEmoji").innerHTML = ovqIcon(slide.icon, "ico ico--hero");
   document.getElementById("tourTitle").textContent = dict[slide.titleKey];
   document.getElementById("tourDesc").textContent = dict[slide.descKey];
 
@@ -157,7 +157,7 @@ function renderSearchSuggestions() {
 
     searchSuggestionsEl.innerHTML = matches.map(r => `
       <div class="search-suggestion-item" data-id="${escapeHtml(r.id)}">
-        <span class="s-icon">🍽️</span>
+        <span class="s-icon">${ovqIcon("pot")}</span>
         <span>${escapeHtml(displayTitle(r))}</span>
       </div>
     `).join("");
@@ -245,7 +245,7 @@ function showRandomModal(r) {
 
   document.getElementById("randomModalThumb").innerHTML = r.imageUrl
     ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
-    : "🍽️";
+    : PLACEHOLDER_IMG;
   document.getElementById("randomModalTitle").textContent = r.title;
   document.getElementById("randomModalMeta").innerHTML =
     `⏱ ${formatCookTime(r)}   ${difficultyBadge(r)}`;
@@ -340,7 +340,7 @@ function renderDailyRecipe(r) {
   thumbEl.classList.remove("skeleton-block");
   thumbEl.innerHTML = (r.imageUrl
     ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
-    : "🍽️") + premiumRibbon(r);
+    : PLACEHOLDER_IMG) + premiumRibbon(r);
 
   const titleEl = dailyEl.querySelector(".recipe-title");
   titleEl.classList.remove("skeleton-line", "skeleton-line--title");
