@@ -167,6 +167,12 @@ if (weeklyCopyBtn) {
 // Faqat bugundan boshlab (o'tib ketgan kunlarga tegmaydi) ko'rsatilayotgan
 // haftaning kunlari uchun menyu tuzadi. Server Premium'ni tekshiradi.
 const aiMenuBtn = document.getElementById("aiMenuBtn");
+
+// Tugma: uchqun ikonka + matn (tugma holati almashganda ikonka yo'qolmasin)
+function setAiMenuBtnIdle() {
+  if (!aiMenuBtn) return;
+  aiMenuBtn.innerHTML = ovqIcon("sparkle", "ico ico--chip") + "<span>" + escapeHtml(t("weekly_ai_btn", "AI menyu tuzsin")) + "</span>";
+}
 const aiMenuDiet = document.getElementById("aiMenuDiet");
 const aiMenuBox = document.getElementById("weeklyAiBox");
 
@@ -194,7 +200,7 @@ async function generateAiMenu() {
   }
 
   aiMenuBtn.disabled = true;
-  aiMenuBtn.textContent = t("weekly_ai_loading", "⏳ Menyu tuzilmoqda...");
+  aiMenuBtn.textContent = t("weekly_ai_loading", "Menyu tuzilmoqda...");
   try {
     const res = await fetch("/api/weekly-menu", {
       method: "POST",
@@ -225,7 +231,7 @@ async function generateAiMenu() {
     alert(t("weekly_ai_error", "Menyu tuzishda xatolik yuz berdi. Birozdan keyin qayta urinib ko'ring."));
   } finally {
     aiMenuBtn.disabled = false;
-    aiMenuBtn.textContent = t("weekly_ai_btn", "✨ AI menyu tuzsin");
+    setAiMenuBtnIdle();
   }
 }
 

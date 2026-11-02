@@ -3519,3 +3519,6 @@ img.ico.ico--ph {
   max-width: none;
   padding: 10px 14px 4px;
 }
+
+.weekly-ai-btn .ico--chip { width: 18px; height: 18px; vertical-align: -4px; margin-right: 6px; filter: none; }
+.ai-quick-icon .ico { width: 20px; height: 20px; filter: none; }
