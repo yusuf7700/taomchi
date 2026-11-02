@@ -2868,8 +2868,9 @@ html.no-splash .splash {
 
 .ai-quick-card {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
   background: var(--white);
   border: none;
   box-shadow: var(--shadow-warm-sm);
@@ -2879,19 +2880,15 @@ html.no-splash .splash {
 }
 
 .ai-quick-icon {
-  font-size: 14px;
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--terracotta-50);
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.ai-quick-card:nth-child(2) .ai-quick-icon { background: var(--rose-50); }
-.ai-quick-card:nth-child(3) .ai-quick-icon { background: var(--sage-50); }
-.ai-quick-card:nth-child(4) .ai-quick-icon { background: var(--gold-50); }
+.ai-quick-icon .ico { width: 44px; height: 44px; filter: none; }
+.ai-hero-robot { width: 92px; height: 92px; filter: none; }
 
 .ai-quick-card > span:nth-child(2) {
   display: flex;
@@ -2996,6 +2993,10 @@ html.no-splash .splash {
 }
 
 .chat-pay-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   margin-top: 10px;
   width: 100%;
   background: var(--maroon-500);
@@ -3072,6 +3073,8 @@ html.no-splash .splash {
   z-index: 9;
 }
 
+.ai-quota-text .ico { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; filter: none; }
+.ai-limit-countdown .ico { width: 16px; height: 16px; display: inline-block; vertical-align: -3px; filter: none; }
 .ai-quota-text {
   font-size: 11.5px;
   font-weight: 700;

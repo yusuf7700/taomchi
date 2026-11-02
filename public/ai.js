@@ -101,6 +101,20 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+
+// Emoji o'rniga 3D ikonalar (ovqIcon i18n.js da) — qolgan emojilarni matndan tozalaymiz
+const EMOJI_RE = /[\u2B50\u23F0\u23F3\u274C\u2728\u{1F300}-\u{1FAFF}]\uFE0F?\s*/gu;
+function noEmoji(s) { return String(s).replace(EMOJI_RE, "").trim(); }
+function premiumBtnHtml() {
+  const prefix = noEmoji(t("premium_buy_subtitle_prefix", "Oyiga ⭐"));
+  const suffix = t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang");
+  return ovqIcon("crown", "ico ico--btn") + "<span>" + escapeHtml(prefix) + " " + ovqIcon("coin", "ico ico--inline") + PREMIUM_MONTHLY_PRICE + escapeHtml(suffix) + "</span>";
+}
+function starsPayBtnHtml() {
+  return ovqIcon("coin", "ico ico--btn") + "<span>" + STARS_PRICE + " Stars — " + escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash")) + "</span>";
+}
+function errorText(err) { return err && err.message ? err.message : String(err); }
+
 function scrollToBottom() {
   requestAnimationFrame(() => {
     // Xabarlarning haqiqiy oxirigacha skroll qilamiz (input panel uchun
@@ -141,11 +155,11 @@ function removeTypingIndicator() {
 
 function updateQuotaText(isPremium, remainingToday) {
   if (isPremium) {
-    aiQuotaText.textContent = "⭐ " + t("ai_premium_unlimited", "Premium: cheksiz so'rov");
+    aiQuotaText.innerHTML = ovqIcon("crown", "ico") + " " + escapeHtml(t("ai_premium_unlimited", "Premium: cheksiz so'rov"));
   } else if (remainingToday === 0) {
-    aiQuotaText.textContent = "⏳ " + t("ai_limit_reached_short", "Bugungi limit tugadi");
+    aiQuotaText.innerHTML = ovqIcon("clock", "ico") + " " + escapeHtml(t("ai_limit_reached_short", "Bugungi limit tugadi"));
   } else if (remainingToday != null) {
-    aiQuotaText.textContent = "🆓 " + t("ai_free_remaining", "Bugun yana so'rash mumkin: ") + remainingToday;
+    aiQuotaText.textContent = t("ai_free_remaining", "Bugun yana so'rash mumkin: ") + remainingToday;
   }
 }
 
@@ -262,7 +276,7 @@ async function askQuestion(question, images = []) {
     if (images.length === 0) updateQuotaText(data.isPremium, data.remainingToday);
   } catch (err) {
     removeTypingIndicator();
-    addBubble("bot", "❌ " + err.message, "chat-bubble--error");
+    addBubble("bot", errorText(err), "chat-bubble--error");
   } finally {
     aiAskBtn.disabled = false;
   }
@@ -273,7 +287,7 @@ function renderImagePremiumRequired() {
   bubble.className = "chat-bubble chat-bubble--limit";
   bubble.innerHTML = `
     <p>${ovqIcon("lock", "ico ico--inline")} ${escapeHtml(t("ai_image_premium_required", "Rasm orqali savol berish faqat Premium foydalanuvchilar uchun."))}</p>
-    <button id="aiImagePremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
+    <button id="aiImagePremiumBtn" class="chat-pay-btn">${premiumBtnHtml()}</button>
   `;
   aiChatMessages.appendChild(bubble);
   scrollToBottom();
@@ -317,12 +331,12 @@ function renderLimitReached(question) {
   const bubble = document.createElement("div");
   bubble.className = "chat-bubble chat-bubble--limit";
   bubble.innerHTML = `
-    <p>⏳ ${escapeHtml(t("ai_limit_reached_short", "Bugungi limit tugadi"))}</p>
-    <p class="ai-limit-countdown">${escapeHtml(formatTimeUntilQuotaReset())}</p>
-    <button id="aiPayBtn" class="chat-pay-btn chat-pay-btn--secondary">⭐ ${STARS_PRICE} — ${escapeHtml(t("ai_pay_once_more", "yana 1 marta so'rash"))}</button>
-    <button id="aiPremiumBtn" class="chat-pay-btn">👑 ${escapeHtml(t("premium_buy_subtitle_prefix", "Oyiga ⭐"))}${PREMIUM_MONTHLY_PRICE}${escapeHtml(t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang"))}</button>
-    <p class="stars-buy-hint">${escapeHtml(t("stars_buy_prompt", "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling 👇"))}</p>
-    <button id="aiStarsLinkBtn" class="chat-pay-btn chat-pay-btn--stars">${escapeHtml(t("stars_buy_btn", "⭐ Stars sotib olish"))}</button>
+    <p>${ovqIcon("clock", "ico ico--inline")} ${escapeHtml(t("ai_limit_reached_short", "Bugungi limit tugadi"))}</p>
+    <p class="ai-limit-countdown">${ovqIcon("clock", "ico")} ${escapeHtml(noEmoji(formatTimeUntilQuotaReset()))}</p>
+    <button id="aiPayBtn" class="chat-pay-btn chat-pay-btn--secondary">${starsPayBtnHtml()}</button>
+    <button id="aiPremiumBtn" class="chat-pay-btn">${premiumBtnHtml()}</button>
+    <p class="stars-buy-hint">${escapeHtml(noEmoji(t("stars_buy_prompt", "Stars yetarli emasmi? Milliy karta orqali soniyalarda sotib oling")))}</p>
+    <button id="aiStarsLinkBtn" class="chat-pay-btn chat-pay-btn--stars">${ovqIcon("coin", "ico ico--btn")}<span>${escapeHtml(noEmoji(t("stars_buy_btn", "Stars sotib olish")))}</span></button>
   `;
   aiChatMessages.appendChild(bubble);
   scrollToBottom();
@@ -351,11 +365,11 @@ async function buyPremiumMonthly(limitBubble, question, btnId = "aiPremiumBtn") 
         if (question) askQuestion(question);
       } else {
         btn.disabled = false;
-        btn.textContent = `👑 ${t("premium_buy_subtitle_prefix", "Oyiga ⭐")}${PREMIUM_MONTHLY_PRICE}${t("premium_buy_subtitle_suffix", " — kuniga 15 marta AI'dan so'rang")}`;
+        btn.innerHTML = premiumBtnHtml();
       }
     });
   } catch (err) {
-    addBubble("bot", "❌ " + err.message, "chat-bubble--error");
+    addBubble("bot", errorText(err), "chat-bubble--error");
   }
 }
 
@@ -379,11 +393,11 @@ async function payForExtraQuestion(question, limitBubble) {
         askQuestion(question);
       } else {
         payBtn.disabled = false;
-        payBtn.textContent = `⭐ ${STARS_PRICE} Stars — ${t("ai_pay_once_more", "yana 1 marta so'rash")}`;
+        payBtn.innerHTML = starsPayBtnHtml();
       }
     });
   } catch (err) {
-    addBubble("bot", "❌ " + err.message, "chat-bubble--error");
+    addBubble("bot", errorText(err), "chat-bubble--error");
   }
 }
 
@@ -403,7 +417,7 @@ function sendMessage() {
   // xotira hajmini kichik saqlash uchun. Rasmlar faqat shu so'rov uchun
   // AI'ga yuboriladi.
   activeConversation.messages.push({ role: "user", content: question || t("ai_image_only_placeholder", "[rasm yuborildi]") });
-  if (!activeConversation.title) activeConversation.title = truncateTitle(question || "🖼️");
+  if (!activeConversation.title) activeConversation.title = truncateTitle(question || t("ai_image_title", "Rasm"));
   ensureConversationSaved();
 
   aiQuestionInput.value = "";
