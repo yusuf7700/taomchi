@@ -212,6 +212,25 @@ function removeTypingIndicator() {
   document.getElementById("aiTypingIndicator")?.remove();
 }
 
+// Bosh holatdagi "Bugun 1/15" hisoblagichi (GET /api/premium -> aiUsed)
+const FREE_DAILY_LIMIT_UI = 1;
+function renderUsagePill(used, limit) {
+  const pill = document.getElementById("aiUsagePill");
+  if (!pill || !limit) return;
+  const pct = Math.min(100, Math.round((used / limit) * 100));
+  pill.innerHTML = `<span>${escapeHtml(t("ai_today", "Bugun"))}</span><b>${used}/${limit}</b><span class="ai-usage-bar"><i style="width:${pct}%"></i></span>`;
+  pill.classList.remove("screen-hidden");
+}
+async function loadUsagePill() {
+  if (!tg?.initData) return;
+  try {
+    const res = await fetch(`/api/premium?initData=${encodeURIComponent(tg.initData)}`);
+    if (!res.ok) return;
+    const st = await res.json();
+    renderUsagePill(st.aiUsed || 0, st.active ? st.aiLimit : FREE_DAILY_LIMIT_UI);
+  } catch { /* hisoblagich ko'rinmasa ham sahifa ishlayveradi */ }
+}
+
 function updateQuotaText(isPremium, remainingToday) {
   if (isPremium) {
     aiQuotaText.innerHTML = ovqIcon("crown", "ico") + " " + escapeHtml(t("ai_premium_unlimited", "Premium: cheksiz so'rov"));
@@ -335,7 +354,7 @@ async function askQuestion(question, images = []) {
     activeConversation.messages.push({ role: "assistant", content: data.answer, ...(cards.length ? { recipes: cards } : {}) });
     if (images.length === 0) addFollowups();
     ensureConversationSaved();
-    if (images.length === 0) updateQuotaText(data.isPremium, data.remainingToday);
+    if (images.length === 0) { updateQuotaText(data.isPremium, data.remainingToday); loadUsagePill(); }
   } catch (err) {
     removeTypingIndicator();
     addBubble("bot", errorText(err), "chat-bubble--error");
@@ -624,3 +643,5 @@ newChatBtn.addEventListener("click", () => {
 // boshlaymiz — oldingi suhbatlar tarix panelida saqlanib qoladi, lekin
 // avtomatik ochilmaydi.
 startNewConversation();
+
+loadUsagePill();
