@@ -216,7 +216,7 @@ async function renderRecipe(r) {
       <ol class="step-list">${stepsHtml}</ol>
 
       ${full.sourceUrl ? `
-      <h2 class="detail-section-title">🎬 Tayyorlanish videosi</h2>
+      <h2 class="detail-section-title">${ovqIcon("play", "ico ico--title-inline")}Tayyorlanish videosi</h2>
       <div class="detail-video">${buildVideoEmbedHtml(full)}</div>
       ` : ""}
     `;
@@ -227,16 +227,16 @@ async function renderRecipe(r) {
     </div>
     <h1 class="detail-title">${escapeHtml(displayTitle(r))}</h1>
     <p class="detail-meta">
-      <span>⏱ ${formatCookTime(r)}</span>
+      <span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>
       ${difficultyBadge(r)}
-      ${r.isPremium ? `<span class="premium-lock-mini-badge">⭐ Premium</span>` : ""}
+      ${r.isPremium ? `<span class="premium-lock-mini-badge">${ovqIcon("crown", "ico ico--crumb")}Premium</span>` : ""}
     </p>
 
     ${bodyHtml}
 
     ${!locked && getChannelLink(full) ? `
     <a href="${escapeHtml(getChannelLink(full))}" target="_blank" rel="noopener noreferrer" class="source-card">
-      <span class="source-card-icon">${full.videoPlatform === "instagram" ? "📷" : "📡"}</span>
+      <span class="source-card-icon">${ovqIcon(full.videoPlatform === "instagram" ? "camera" : "plane", "ico ico--src")}</span>
       <span class="source-card-info">
         <span class="source-card-label">Manba kanali</span>
         <span class="source-card-name">${escapeHtml(full.author)}</span>
@@ -285,7 +285,7 @@ function renderSimilarRecipes(list, currentId, category) {
       <div class="recipe-info">
         <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
         <p class="recipe-meta">
-          <span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}
+          <span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>${difficultyBadge(r)}
         </p>
       </div>
       <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>

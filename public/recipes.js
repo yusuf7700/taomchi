@@ -53,7 +53,7 @@ function renderRecipes(list) {
       <div class="recipe-info">
         <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
         <p class="recipe-meta">
-          <span>⏱ ${formatCookTime(r)}</span>${difficultyBadge(r)}
+          <span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>${difficultyBadge(r)}
         </p>
         <span class="recipe-category-badge">${escapeHtml(categoryLabel(r.category))}</span>
       </div>

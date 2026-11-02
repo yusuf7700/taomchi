@@ -137,7 +137,7 @@ const TRANSLATIONS = {
     premium_extend_btn: "Muddatni uzaytirish",
     premium_close_btn: "Yopish",
     referral_shop_progress_hint: "yetmaydi",
-    weekly_copy_prev: "📋 O'tgan haftani nusxalash",
+    weekly_copy_prev: "O'tgan haftani nusxalash",
     weekly_copy_confirm: "O'tgan haftadagi taomlar shu haftaga nusxalansinmi?",
     weekly_copy_confirm_overwrite: "Joriy haftadagi mavjud tanlovlar almashtiriladi. Davom etasizmi?",
     weekly_ai_btn: "AI menyu tuzsin",
@@ -380,7 +380,7 @@ const TRANSLATIONS = {
     premium_extend_btn: "Муддатни узайтириш",
     premium_close_btn: "Ёпиш",
     referral_shop_progress_hint: "етмайди",
-    weekly_copy_prev: "📋 Ўтган ҳафтани нусхалаш",
+    weekly_copy_prev: "Ўтган ҳафтани нусхалаш",
     weekly_copy_confirm: "Ўтган ҳафтадаги таомлар шу ҳафтага нусхалансинми?",
     weekly_copy_confirm_overwrite: "Жорий ҳафтадаги мавжуд танловлар алмаштирилади. Давом этасизми?",
     weekly_ai_btn: "AI меню тузсин",
@@ -553,17 +553,17 @@ function formatCookTime(r) {
 
 // ===== Qiyinchilik darajasi belgisi (barcha sahifalarda ishlatiladi) =====
 const DIFFICULTY_LABELS = {
-  oson: "🟢 Oson",
-  orta: "🟡 O'rta",
-  qiyin: "🔴 Qiyin"
+  oson: "Oson",
+  orta: "O'rta",
+  qiyin: "Qiyin"
 };
 
 function difficultyBadge(r) {
   const label = DIFFICULTY_LABELS[r.difficulty];
-  return label ? `<span>${label}</span>` : "";
+  return label ? `<span class="diff diff--${r.difficulty}"><i></i>${label}</span>` : "";
 }
 
 // ===== Premium retsept nishoni (barcha ro'yxatlarda ishlatiladi) =====
 function premiumRibbon(r) {
-  return r.isPremium ? `<span class="premium-ribbon">⭐ Premium</span>` : "";
+  return r.isPremium ? `<span class="premium-ribbon">${ovqIcon("crown", "ico ico--crumb")}Premium</span>` : "";
 }

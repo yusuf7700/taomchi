@@ -3505,7 +3505,7 @@ img.ico.ico--ph {
 .cat-icon-badge .ico { width: 26px; height: 26px; filter: none; }
 .ramadan-banner-icon .ico { width: 28px; height: 28px; filter: none; }
 .filter-chip .ico--chip, .weekly-ai-diet .ico--chip { width: 18px; height: 18px; vertical-align: -4px; margin-right: 4px; filter: none; }
-.ico--title-inline { width: 30px; height: 30px; vertical-align: -7px; margin-right: 6px; filter: none; }
+.ico--title-inline { display: inline-block; width: 30px; height: 30px; vertical-align: -7px; margin-right: 6px; filter: none; }
 .premium-lock-icon .ico { width: 64px; height: 64px; }
 
 /* Tugma ichidagi ikonka matn bilan bir qatorda turadi */
@@ -3585,3 +3585,15 @@ img.ico.ico--ph {
 .ai-usage-pill b { font-family: var(--font-mono); font-weight: 600; color: var(--maroon-500); }
 .ai-usage-bar { width: 64px; height: 6px; border-radius: 999px; background: var(--warm-100); overflow: hidden; }
 .ai-usage-bar i { display: block; height: 100%; border-radius: 999px; background: var(--rust-500); }
+
+/* ===== Meta qatori ikonalari, qiyinchilik nuqtalari, Premium toj ===== */
+.ico--meta { display: inline-block; width: 16px; height: 16px; vertical-align: -3px; margin-right: 3px; filter: none; }
+.ico--crumb { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; margin-right: 3px; filter: none; }
+.ico--src { width: 26px; height: 26px; filter: none; }
+.diff { display: inline-flex; align-items: center; gap: 5px; }
+.diff i { width: 8px; height: 8px; border-radius: 50%; background: var(--warm-300); display: inline-block; }
+.diff--oson i { background: var(--sage-500); }
+.diff--orta i { background: var(--terracotta-500); }
+.diff--qiyin i { background: var(--rust-500); }
+.weekly-copy-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.celebrate-crown .ico { width: 64px; height: 64px; }

@@ -60,7 +60,7 @@ function showPurchaseCelebration(plan, texts = {}) {
   overlay.className = "celebrate-overlay";
   overlay.innerHTML = `
     <div class="celebrate-box">
-      <div class="celebrate-crown">👑</div>
+      <div class="celebrate-crown"><img class="ico" src="icons/crown-256.webp" alt="" width="256" height="256"></div>
       <p class="celebrate-title">${texts.title || "Tabriklaymiz!"}</p>
       <p class="celebrate-subtitle">${texts.subtitle || (plan === "yearly"
         ? "Sizda endi 1 yillik Premium faol"
