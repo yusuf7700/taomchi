@@ -47,7 +47,7 @@ function renderRecipes(list) {
   recipeListEl.innerHTML = list.map(r => `
     <div class="recipe-card" data-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb">
-        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : PLACEHOLDER_IMG}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : placeholderImg(r)}
         ${premiumRibbon(r)}
       </div>
       <div class="recipe-info">

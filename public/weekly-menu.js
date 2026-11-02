@@ -362,7 +362,7 @@ function renderMealSlot(dateKey, meal) {
         <p class="weekly-meal-label">${mealLabel}</p>
         <div class="weekly-day-card ${justSet ? "weekly-day-card--pop" : ""}" data-date-select="${dateKey}" data-meal-select="${meal}">
           <div class="recipe-thumb recipe-thumb--sm">
-            ${recipe.imageUrl ? `<img src="${escapeHtml(recipe.imageUrl)}" alt="${escapeHtml(recipe.title)}">` : PLACEHOLDER_IMG}
+            ${recipe.imageUrl ? `<img src="${escapeHtml(recipe.imageUrl)}" alt="${escapeHtml(recipe.title)}">` : placeholderImg(recipe)}
           </div>
           <p class="weekly-day-recipe-title">${escapeHtml(displayTitle(recipe))}</p>
           <button class="weekly-day-clear" data-date-clear="${dateKey}" data-meal-clear="${meal}">✕</button>
@@ -455,7 +455,7 @@ function renderPickerList(recipes) {
   pickerList.innerHTML = recipes.map(r => `
     <div class="picker-item" data-picker-id="${escapeHtml(r.id)}">
       <div class="recipe-thumb recipe-thumb--sm">
-        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : PLACEHOLDER_IMG}
+        ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : placeholderImg(r)}
       </div>
       <p class="picker-item-title">${escapeHtml(displayTitle(r))}</p>
     </div>

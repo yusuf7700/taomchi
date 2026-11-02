@@ -5,6 +5,11 @@ function ovqIcon(name, cls) {
 }
 // Rasmsiz retseptlar uchun yagona placeholder (🍽️ o'rniga)
 const PLACEHOLDER_IMG = ovqIcon("pot", "ico ico--ph");
+// Kategoriya -> mos 3D ikonka
+const CATEGORY_ICONS = { main: "plov", soup: "soup", salad: "salad", breakfast: "egg", dessert: "cake", pastry: "pastry", drinks: "juice", diet: "avocado" };
+function categoryIconName(cat) { return CATEGORY_ICONS[cat] || "pot"; }
+// Rasmsiz retsept uchun placeholder: kategoriyasiga mos ikonka
+function placeholderImg(r) { return ovqIcon(categoryIconName(r && r.category), "ico ico--ph"); }
 
 // ===== Taomchi til tizimi (Lotin / Kirill) =====
 // Yangi matn qo'shish uchun: HTML'da data-i18n="kalit" qo'ying,
@@ -101,7 +106,7 @@ const TRANSLATIONS = {
     notifications_daily_label: "Kunlik ovqat eslatmasi",
     notifications_weekly_label: "Haftalik reja eslatmasi",
     sort_default: "Odatiy",
-    sort_newest: "🆕 Yangi",
+    sort_newest: "Yangi",
     sort_popular: "Ko'p ko'rilgan",
     ai_limit_reset: "⏰ Yangi bepul so'rov: {h} soat {m} daqiqadan keyin (00:00da yangilanadi)",
     ai_limit_reset_soon: "⏰ Yangi bepul so'rov: {m} daqiqadan keyin (00:00da yangilanadi)",
@@ -336,7 +341,7 @@ const TRANSLATIONS = {
     notifications_daily_label: "Кунлик овқат эслатмаси",
     notifications_weekly_label: "Ҳафталик режа эслатмаси",
     sort_default: "Одатий",
-    sort_newest: "🆕 Янги",
+    sort_newest: "Янги",
     sort_popular: "Кўп кўрилган",
     ai_limit_reset: "⏰ Янги бепул сўров: {h} соат {m} дақиқадан кейин (00:00да янгиланади)",
     ai_limit_reset_soon: "⏰ Янги бепул сўров: {m} дақиқадан кейин (00:00да янгиланади)",

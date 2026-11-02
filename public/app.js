@@ -157,7 +157,7 @@ function renderSearchSuggestions() {
 
     searchSuggestionsEl.innerHTML = matches.map(r => `
       <div class="search-suggestion-item" data-id="${escapeHtml(r.id)}">
-        <span class="s-icon">${ovqIcon("pot")}</span>
+        <span class="s-icon">${ovqIcon(categoryIconName(r.category))}</span>
         <span>${escapeHtml(displayTitle(r))}</span>
       </div>
     `).join("");
@@ -190,7 +190,7 @@ function renderSearchSuggestions() {
   html += `<p class="search-suggestions-label" data-i18n="popular_categories">Mashhur kategoriyalar</p>`;
   html += QUICK_CATEGORIES.map(cat => `
     <div class="search-suggestion-item" data-cat="${cat}">
-      <span class="s-icon">${ovqIcon("fire")}</span>
+      <span class="s-icon">${ovqIcon(categoryIconName(cat))}</span>
       <span>${escapeHtml(categoryLabelHome(cat))}</span>
     </div>
   `).join("");
@@ -245,7 +245,7 @@ function showRandomModal(r) {
 
   document.getElementById("randomModalThumb").innerHTML = r.imageUrl
     ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
-    : PLACEHOLDER_IMG;
+    : placeholderImg(r);
   document.getElementById("randomModalTitle").textContent = r.title;
   document.getElementById("randomModalMeta").innerHTML =
     `⏱ ${formatCookTime(r)}   ${difficultyBadge(r)}`;
@@ -340,7 +340,7 @@ function renderDailyRecipe(r) {
   thumbEl.classList.remove("skeleton-block");
   thumbEl.innerHTML = (r.imageUrl
     ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">`
-    : PLACEHOLDER_IMG) + premiumRibbon(r);
+    : placeholderImg(r)) + premiumRibbon(r);
 
   const titleEl = dailyEl.querySelector(".recipe-title");
   titleEl.classList.remove("skeleton-line", "skeleton-line--title");
