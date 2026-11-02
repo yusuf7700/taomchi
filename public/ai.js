@@ -127,17 +127,76 @@ function scrollToBottom() {
   });
 }
 
-function addBubble(role, text, extraClass = "", images = []) {
+function recipeCardsHtml(recipes) {
+  return `<div class="ai-recipe-list">${recipes.map((r) => `
+    <button class="ai-recipe-card" data-recipe-id="${escapeHtml(r.id)}">
+      <span class="ai-recipe-thumb">${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="">` : placeholderImg(r)}</span>
+      <span class="ai-recipe-info">
+        <span class="ai-recipe-title">${escapeHtml(displayTitle(r))}</span>
+        <span class="ai-recipe-meta">${ovqIcon("clock", "ico ico--inline")} ${escapeHtml(formatCookTime(r))}${DIFFICULTY_TEXT[r.difficulty] ? " · " + escapeHtml(DIFFICULTY_TEXT[r.difficulty]()) : ""}</span>
+      </span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+    </button>`).join("")}</div>`;
+}
+
+// Qiyinchilik nomi (emojisiz) — i18n.js dagi DIFFICULTY_LABELS dan emoji olib tashlanadi
+const DIFFICULTY_TEXT = {
+  oson: () => noEmoji(DIFFICULTY_LABELS.oson),
+  orta: () => noEmoji(DIFFICULTY_LABELS.orta),
+  qiyin: () => noEmoji(DIFFICULTY_LABELS.qiyin)
+};
+
+function addBubble(role, text, extraClass = "", images = [], recipes = []) {
   const bubble = document.createElement("div");
   bubble.className = `chat-bubble chat-bubble--${role}${extraClass ? " " + extraClass : ""}`;
   const imgsHtml = images.length > 0
     ? `<div class="chat-bubble-image-grid">${images.map(src => `<img class="chat-bubble-image" src="${src}" alt="">`).join("")}</div>`
     : "";
-  bubble.innerHTML = imgsHtml + escapeHtml(text || "").replace(/\n/g, "<br>");
-  aiChatMessages.appendChild(bubble);
+  const cardsHtml = recipes.length > 0 ? recipeCardsHtml(recipes) : "";
+  bubble.innerHTML = imgsHtml + escapeHtml(text || "").replace(/\n/g, "<br>") + cardsHtml;
+  if (role === "bot" && !extraClass) {
+    // Bot xabari: yonida kichik robot-oshpaz avatari
+    const row = document.createElement("div");
+    row.className = "chat-row chat-row--bot";
+    row.innerHTML = `<span class="chat-avatar">${ovqIcon("robot", "ico")}</span>`;
+    row.appendChild(bubble);
+    aiChatMessages.appendChild(row);
+  } else {
+    aiChatMessages.appendChild(bubble);
+  }
   scrollToBottom();
   return bubble;
 }
+
+// Retsept kartasi bosilganda — retsept sahifasiga o'tish
+aiChatMessages.addEventListener("click", (e) => {
+  const card = e.target.closest(".ai-recipe-card");
+  if (card) window.location.href = `recipe-detail.html?id=${encodeURIComponent(card.getAttribute("data-recipe-id"))}`;
+});
+
+// Javobdan keyingi tezkor so'rovlar ("Yana variant" va h.k.)
+function removeFollowups() {
+  document.getElementById("aiFollowups")?.remove();
+}
+function addFollowups() {
+  removeFollowups();
+  const keys = [["ai_follow_more", "Yana variant", "ai_prompt_follow_more", "Yana boshqa variant ber"],
+                ["ai_follow_faster", "Tezroq", "ai_prompt_follow_faster", "Tezroq pishadigan variant ber"],
+                ["ai_follow_nomeat", "Go'shtsiz", "ai_prompt_follow_nomeat", "Go'shtsiz variant ber"]];
+  const el = document.createElement("div");
+  el.id = "aiFollowups";
+  el.className = "ai-followups";
+  el.innerHTML = keys.map(([lk, lf, pk, pf]) =>
+    `<button class="ai-followup-chip" data-prompt="${escapeHtml(t(pk, pf))}">${escapeHtml(t(lk, lf))}</button>`).join("");
+  aiChatMessages.appendChild(el);
+  scrollToBottom();
+}
+aiChatMessages.addEventListener("click", (e) => {
+  const chip = e.target.closest(".ai-followup-chip");
+  if (!chip || aiAskBtn.disabled) return;
+  aiQuestionInput.value = chip.getAttribute("data-prompt");
+  sendMessage();
+});
 
 function addTypingIndicator() {
   const el = document.createElement("div");
@@ -241,6 +300,7 @@ aiImageInput.addEventListener("change", async () => {
 
 async function askQuestion(question, images = []) {
   aiAskBtn.disabled = true;
+  removeFollowups();
 
   const typingEl = addTypingIndicator();
 
@@ -252,7 +312,7 @@ async function askQuestion(question, images = []) {
         initData: tg.initData,
         question,
         lang: getCurrentLang(),
-        history: activeConversation.messages.slice(-MAX_HISTORY_MESSAGES),
+        history: activeConversation.messages.slice(-MAX_HISTORY_MESSAGES).map((m) => ({ role: m.role, content: m.content })),
         images: images.length > 0 ? images : undefined
       })
     });
@@ -270,8 +330,10 @@ async function askQuestion(question, images = []) {
     }
     if (!res.ok) throw new Error(data.error || "Server xatosi");
 
-    addBubble("bot", data.answer);
-    activeConversation.messages.push({ role: "assistant", content: data.answer });
+    const cards = Array.isArray(data.recipes) ? data.recipes : [];
+    addBubble("bot", data.answer, "", [], cards);
+    activeConversation.messages.push({ role: "assistant", content: data.answer, ...(cards.length ? { recipes: cards } : {}) });
+    if (images.length === 0) addFollowups();
     ensureConversationSaved();
     if (images.length === 0) updateQuotaText(data.isPremium, data.remainingToday);
   } catch (err) {
@@ -456,7 +518,7 @@ function renderActiveConversation() {
   }
   aiEmptyState.classList.add("screen-hidden");
   activeConversation.messages.forEach((msg) => {
-    addBubble(msg.role === "user" ? "user" : "bot", msg.content);
+    addBubble(msg.role === "user" ? "user" : "bot", msg.content, "", [], Array.isArray(msg.recipes) ? msg.recipes : []);
   });
 }
 

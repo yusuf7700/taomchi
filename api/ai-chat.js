@@ -14,6 +14,7 @@ const {
   checkAndConsumeAiQuota,
   checkAndConsumeAiImageQuota,
   askFoodAssistant,
+  askFoodAssistantWithRecipes,
   PREMIUM_IMAGE_DAILY_LIMIT
 } = require("../lib/aiAssistant");
 
@@ -88,8 +89,8 @@ module.exports = async (req, res) => {
       return res.status(429).json({ error: "limit", message: "Bugungi bepul so'rov limiti tugadi. Premium bilan kuniga 15 marta so'rashingiz mumkin." });
     }
 
-    const answer = await askFoodAssistant(question, lang, history);
-    return res.status(200).json({ answer, isPremium: quota.isPremium, remainingToday: quota.remainingToday });
+    const { answer, recipes } = await askFoodAssistantWithRecipes(db, question, lang, history);
+    return res.status(200).json({ answer, recipes, isPremium: quota.isPremium, remainingToday: quota.remainingToday });
   } catch (err) {
     console.error("AI chat xatosi:", err);
     return res.status(500).json({ error: "Server xatosi. Birozdan keyin urinib ko'ring." });
