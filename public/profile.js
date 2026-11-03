@@ -407,11 +407,7 @@ function shareReferralLink() {
   if (!referralState.referralLink) return;
   const text = tp("referral_share_text", "Ovqaty — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇");
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralState.referralLink)}&text=${encodeURIComponent(text)}`;
-  if (tg?.openTelegramLink) {
-    tg.openTelegramLink(shareUrl);
-  } else {
-    window.open(shareUrl, "_blank");
-  }
+  shareWithPreview("referral", null, shareUrl);
 }
 
 function copyReferralLink() {

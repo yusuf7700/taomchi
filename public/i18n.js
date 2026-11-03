@@ -85,6 +85,7 @@ const TRANSLATIONS = {
     referral_share_btn: "Ulashish",
     referral_copy_btn: "Nusxalash",
     referral_share_text: "Ovqaty — ovqat retseptlari va AI yordamchi bilan! Menga qo'shiling 👇",
+    share_recipe_text: "To'liq retsept, masalliqlar va tayyorlash usuli — Ovqaty'da 👇",
     referral_copied: "Havola nusxalandi!",
     recipe_redeem_btn_prefix: "🎁 ",
     recipe_redeem_btn_suffix: " ball evaziga ochish",
@@ -328,6 +329,7 @@ const TRANSLATIONS = {
     referral_share_btn: "Улашиш",
     referral_copy_btn: "Нусхалаш",
     referral_share_text: "Ovqaty — овқат рецептлари ва AI ёрдамчи билан! Менга қўшилинг 👇",
+    share_recipe_text: "Тўлиқ рецепт, масаллиқлар ва тайёрлаш усули — Ovqaty иловасида 👇",
     referral_copied: "Ҳавола нусхаланди!",
     recipe_redeem_btn_prefix: "🎁 ",
     recipe_redeem_btn_suffix: " балл эвазига очиш",
@@ -577,4 +579,31 @@ function difficultyBadge(r) {
 // ===== Premium retsept nishoni (barcha ro'yxatlarda ishlatiladi) =====
 function premiumRibbon(r) {
   return r.isPremium ? `<span class="premium-ribbon">${ovqIcon("crown", "ico ico--crumb")}Premium</span>` : "";
+}
+
+// ===== Ulashish: rasmli, tugmali xabar (WebApp.shareMessage); bo'lmasa oddiy t.me/share/url =====
+// kind: "recipe" | "referral". Server /api/referral prepare_share xabarni tayyorlaydi.
+async function shareWithPreview(kind, recipeId, fallbackShareUrl) {
+  const tgApp = window.Telegram?.WebApp;
+  const openFallback = () => {
+    if (tgApp?.openTelegramLink) tgApp.openTelegramLink(fallbackShareUrl);
+    else window.open(fallbackShareUrl, "_blank");
+  };
+  try {
+    const supported = tgApp?.initData && typeof tgApp.shareMessage === "function" && tgApp.isVersionAtLeast?.("8.0");
+    if (!supported) return openFallback();
+    const res = await fetch("/api/referral", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: tgApp.initData, action: "prepare_share", kind, recipeId, lang: getCurrentLang() })
+    });
+    if (!res.ok) return openFallback();
+    const { id } = await res.json();
+    if (!id) return openFallback();
+    const onFail = () => { tgApp.offEvent?.("shareMessageFailed", onFail); openFallback(); };
+    tgApp.onEvent?.("shareMessageFailed", onFail);
+    tgApp.shareMessage(id, () => tgApp.offEvent?.("shareMessageFailed", onFail));
+  } catch {
+    openFallback();
+  }
 }

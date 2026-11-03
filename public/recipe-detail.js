@@ -44,13 +44,9 @@ if (shareBtn) {
     if (!currentRecipeId) return;
     const title = currentRecipe ? displayTitle(currentRecipe) : "";
     const deepLink = `https://t.me/${BOT_USERNAME}?start=recipe_${currentRecipeId}`;
-    const shareText = `🍲 ${title}`;
+    const shareText = `🍲 ${title}\n\n${t("share_recipe_text", "To'liq retsept, masalliqlar va tayyorlash usuli — Ovqaty'da 👇")}`;
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText)}`;
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(shareUrl);
-    } else {
-      window.open(shareUrl, "_blank");
-    }
+    shareWithPreview("recipe", currentRecipeId, shareUrl);
   });
 }
 

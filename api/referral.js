@@ -2,10 +2,13 @@
 // GET  /api/referral?initData=...                                    -> ball holati + referal havola
 // POST /api/referral  body: { initData, action: "redeem_recipe",
 //                              recipeId }                             -> ball evaziga retseptni ochish
+// POST /api/referral  body: { initData, action: "prepare_share",
+//                              kind: "recipe"|"referral", recipeId, lang } -> { id } (WebApp.shareMessage uchun)
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
 const { ensureUserIdentity } = require("../lib/ensureUserIdentity");
+const { prepareShareMessage } = require("../lib/sharePrepare");
 const { getReferralStatus, redeemRecipeUnlock, redeemAiBonus, redeemPremiumDays, PREMIUM_3D_DAYS, PREMIUM_3D_COST, PREMIUM_30D_DAYS, PREMIUM_30D_COST } = require("../lib/referral");
 
 let cachedBotUsername = null;
@@ -44,10 +47,23 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
-      const { initData, action, recipeId, rewardType } = req.body || {};
+      const { initData, action, recipeId, rewardType, kind, lang } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
       await ensureUserIdentity(db, tgUser);
+
+      if (action === "prepare_share") {
+        if (kind !== "recipe" && kind !== "referral") return res.status(400).json({ error: "kind noto'g'ri" });
+        try {
+          const botUsername = await getBotUsername();
+          const id = await prepareShareMessage({ db, userId: tgUser.id, kind, lang, recipeId, botUsername });
+          return res.status(200).json({ id });
+        } catch (err) {
+          // Klient oddiy t.me/share/url ga qaytadi
+          console.error("prepare_share xatosi:", err.message);
+          return res.status(502).json({ error: "Ulashish xabarini tayyorlab bo'lmadi" });
+        }
+      }
 
       if (action === "redeem_recipe") {
         if (!recipeId) return res.status(400).json({ error: "recipeId kerak" });
