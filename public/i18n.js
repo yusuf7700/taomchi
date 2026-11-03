@@ -553,9 +553,9 @@ function formatCookTime(r) {
 
 // Pishirish vaqti kiritilmagan retseptlarda ("- soat") soat belgisi umuman ko'rsatilmaydi
 function hasCookTime(r) {
-  if (r.cookTimeUnit === "nomalum") return true;
+  if (r.cookTimeUnit === "nomalum") return false; // "Noma'lum" birligi ham vaqt belgilanmagan degani — yashiriladi
   const v = String(r.cookTime ?? "").trim();
-  return v !== "" && v !== "-" && v !== "0"; // "20-30" kabi oraliqlar ham ko'rsatiladi
+  return v !== "" && v !== "-" && v !== "0"; // "20-30" kabi oraliqlar ko'rsatiladi
 }
 function cookTimeHtml(r) {
   if (!hasCookTime(r)) return "";
