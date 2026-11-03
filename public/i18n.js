@@ -551,6 +551,17 @@ function formatCookTime(r) {
   return `${r.cookTime || "-"} ${dict.minutes}`;
 }
 
+// Pishirish vaqti kiritilmagan retseptlarda ("- soat") soat belgisi umuman ko'rsatilmaydi
+function hasCookTime(r) {
+  if (r.cookTimeUnit === "nomalum") return true;
+  const v = String(r.cookTime ?? "").trim();
+  return v !== "" && v !== "-" && v !== "0"; // "20-30" kabi oraliqlar ham ko'rsatiladi
+}
+function cookTimeHtml(r) {
+  if (!hasCookTime(r)) return "";
+  return `<span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>`;
+}
+
 // ===== Qiyinchilik darajasi belgisi (barcha sahifalarda ishlatiladi) =====
 const DIFFICULTY_LABELS = {
   oson: "Oson",

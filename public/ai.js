@@ -133,7 +133,7 @@ function recipeCardsHtml(recipes) {
       <span class="ai-recipe-thumb">${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="">` : placeholderImg(r)}</span>
       <span class="ai-recipe-info">
         <span class="ai-recipe-title">${escapeHtml(displayTitle(r))}</span>
-        <span class="ai-recipe-meta">${ovqIcon("clock", "ico ico--inline")} ${escapeHtml(formatCookTime(r))}${DIFFICULTY_TEXT[r.difficulty] ? " · " + escapeHtml(DIFFICULTY_TEXT[r.difficulty]()) : ""}</span>
+        <span class="ai-recipe-meta">${[hasCookTime(r) ? ovqIcon("clock", "ico ico--inline") + " " + escapeHtml(formatCookTime(r)) : "", DIFFICULTY_TEXT[r.difficulty] ? escapeHtml(DIFFICULTY_TEXT[r.difficulty]()) : ""].filter(Boolean).join(" · ")}</span>
       </span>
       <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
     </button>`).join("")}</div>`;

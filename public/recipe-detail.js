@@ -227,7 +227,7 @@ async function renderRecipe(r) {
     </div>
     <h1 class="detail-title">${escapeHtml(displayTitle(r))}</h1>
     <p class="detail-meta">
-      <span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>
+      ${cookTimeHtml(r)}
       ${difficultyBadge(r)}
       ${r.isPremium ? `<span class="premium-lock-mini-badge">${ovqIcon("crown", "ico ico--crumb")}Premium</span>` : ""}
     </p>
@@ -285,7 +285,7 @@ function renderSimilarRecipes(list, currentId, category) {
       <div class="recipe-info">
         <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
         <p class="recipe-meta">
-          <span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>${difficultyBadge(r)}
+          ${cookTimeHtml(r)}${difficultyBadge(r)}
         </p>
       </div>
       <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>

@@ -3597,3 +3597,8 @@ img.ico.ico--ph {
 .diff--qiyin i { background: var(--rust-500); }
 .weekly-copy-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .celebrate-crown .ico { width: 64px; height: 64px; }
+
+/* Toj ikonasi .recipe-thumb img { width:100% } qoidasiga yutqazmasligi uchun (yuqoriroq o'ziga xoslik) */
+.recipe-thumb .premium-ribbon .ico--crumb,
+.premium-ribbon .ico--crumb,
+.premium-lock-mini-badge .ico--crumb { width: 13px; height: 13px; object-fit: contain; }

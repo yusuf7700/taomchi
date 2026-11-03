@@ -248,7 +248,7 @@ function showRandomModal(r) {
     : placeholderImg(r);
   document.getElementById("randomModalTitle").textContent = r.title;
   document.getElementById("randomModalMeta").innerHTML =
-    `${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}   ${difficultyBadge(r)}`;
+    `${cookTimeHtml(r)} ${difficultyBadge(r)}`;
 
   const modal = document.getElementById("randomModal");
   const box = document.getElementById("randomModalBox");
@@ -348,7 +348,7 @@ function renderDailyRecipe(r) {
 
   const metaEl = dailyEl.querySelector(".recipe-meta");
   metaEl.classList.remove("skeleton-line", "skeleton-line--meta");
-  metaEl.innerHTML = `<span>${ovqIcon("clock", "ico ico--meta")} ${formatCookTime(r)}</span>${difficultyBadge(r)}`;
+  metaEl.innerHTML = `${cookTimeHtml(r)}${difficultyBadge(r)}`;
 
   dailyEl.onclick = () => { window.location.href = `recipe-detail.html?id=${r.id}`; };
 }
