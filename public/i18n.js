@@ -581,6 +581,12 @@ function premiumRibbon(r) {
   return r.isPremium ? `<span class="premium-ribbon">${ovqIcon("crown", "ico ico--crumb")}Premium</span>` : "";
 }
 
+// Sahifalarda o'z t() si bo'lmasa ham ishlaydigan umumiy tarjima funksiyasi
+function i18nText(key, fallback) {
+  const dict = TRANSLATIONS[getCurrentLang()] || TRANSLATIONS.uz;
+  return dict[key] || fallback || key;
+}
+
 // ===== Ulashish: rasmli, tugmali xabar (WebApp.shareMessage); bo'lmasa oddiy t.me/share/url =====
 // kind: "recipe" | "referral". Server /api/referral prepare_share xabarni tayyorlaydi.
 async function shareWithPreview(kind, recipeId, fallbackShareUrl) {

@@ -44,7 +44,7 @@ if (shareBtn) {
     if (!currentRecipeId) return;
     const title = currentRecipe ? displayTitle(currentRecipe) : "";
     const deepLink = `https://t.me/${BOT_USERNAME}?start=recipe_${currentRecipeId}`;
-    const shareText = `🍲 ${title}\n\n${t("share_recipe_text", "To'liq retsept, masalliqlar va tayyorlash usuli — Ovqaty'da 👇")}`;
+    const shareText = `🍲 ${title}\n\n${i18nText("share_recipe_text", "To'liq retsept, masalliqlar va tayyorlash usuli — Ovqaty'da 👇")}`;
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(shareText)}`;
     shareWithPreview("recipe", currentRecipeId, shareUrl);
   });
