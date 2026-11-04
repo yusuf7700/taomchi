@@ -7,6 +7,9 @@ function ovqIcon(name, cls) {
 const PLACEHOLDER_IMG = ovqIcon("pot", "ico ico--ph");
 // Kategoriya -> mos 3D ikonka
 const CATEGORY_ICONS = { main: "plov", soup: "soup", salad: "salad", breakfast: "egg", dessert: "cake", pastry: "pastry", drinks: "juice", diet: "avocado" };
+// Ulashish matni uchun kategoriyaga mos emoji (Telegram matnida — ilova UI'ida emas)
+const CATEGORY_EMOJI = { main: "🍛", soup: "🍲", salad: "🥗", breakfast: "🍳", dessert: "🍰", pastry: "🥟", drinks: "🍹", diet: "🥑" };
+function categoryEmoji(cat) { return CATEGORY_EMOJI[cat] || "🍽️"; }
 function categoryIconName(cat) { return CATEGORY_ICONS[cat] || "pot"; }
 // Rasmsiz retsept uchun placeholder: kategoriyasiga mos ikonka
 function placeholderImg(r) { return ovqIcon(categoryIconName(r && r.category), "ico ico--ph"); }

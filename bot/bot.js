@@ -341,7 +341,7 @@ bot.start(async (ctx) => {
       const r = all.find(x => x.id === recipeId);
       if (r) {
         await ctx.reply(
-          `🍲 ${r.title}\n⏱ ${formatCookTimeBot(r, t)}   ${formatDifficultyBot(r, t)}`,
+          recipeCardText(r, t),
           {
             reply_markup: {
               inline_keyboard: [[
@@ -436,6 +436,16 @@ async function getAllRecipes() {
 }
 
 // ===== Vaqt va qiyinchilik formatlash (bot xabarlarida ishlatiladi) =====
+// Retsept xabari uchun: kategoriyaga mos emoji va (vaqt bor bo'lsa) vaqt qatori
+const CATEGORY_EMOJI_BOT = { main: "🍛", soup: "🍲", salad: "🥗", breakfast: "🍳", dessert: "🍰", pastry: "🥟", drinks: "🍹", diet: "🥑" };
+function recipeCardText(r, t) {
+  const emoji = CATEGORY_EMOJI_BOT[r.category] || "🍽️";
+  const time = String(r.cookTime ?? "").trim();
+  const hasTime = r.cookTimeUnit !== "nomalum" && time !== "" && time !== "-" && time !== "0";
+  const meta = [hasTime ? `⏱ ${formatCookTimeBot(r, t)}` : "", formatDifficultyBot(r, t)].filter(Boolean).join("   ");
+  return `${emoji} ${r.title}${meta ? "\n" + meta : ""}`;
+}
+
 function formatCookTimeBot(r, t) {
   if (r.cookTimeUnit === "nomalum") return t.timeUnknown;
   if (r.cookTimeUnit === "soat") return `${r.cookTime || "-"} ${t.hours}`;
@@ -459,7 +469,7 @@ async function sendRandomRecipe(ctx, t) {
   const r = list[Math.floor(Math.random() * list.length)];
 
   await ctx.reply(
-    `🍲 ${r.title}\n⏱ ${formatCookTimeBot(r, t)}   ${formatDifficultyBot(r, t)}`,
+    recipeCardText(r, t),
     {
       reply_markup: {
         inline_keyboard: [[
