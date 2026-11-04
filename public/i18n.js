@@ -534,8 +534,12 @@ function applyTranslations(lang) {
     if (dict[key]) el.setAttribute("placeholder", dict[key]);
   });
 
-  const toggleBtn = document.getElementById("langToggle");
-  if (toggleBtn) toggleBtn.textContent = lang === "uz" ? "UZ" : "ЎЗ";
+  const langSwitch = document.getElementById("langToggle");
+  if (langSwitch) {
+    langSwitch.dataset.lang = lang;
+    langSwitch.querySelectorAll("button[data-lang]").forEach(b =>
+      b.setAttribute("aria-pressed", b.dataset.lang === lang ? "true" : "false"));
+  }
 
   localStorage.setItem(LANG_STORAGE_KEY, lang);
   document.documentElement.setAttribute("lang", lang === "uz" ? "uz" : "uz-Cyrl");
@@ -550,8 +554,14 @@ function toggleLang() {
 // Sahifa ochilganda saqlangan tilni qo'llash
 document.addEventListener("DOMContentLoaded", () => {
   applyTranslations(getCurrentLang());
-  const toggleBtn = document.getElementById("langToggle");
-  if (toggleBtn) toggleBtn.addEventListener("click", toggleLang);
+  const langSwitch = document.getElementById("langToggle");
+  if (langSwitch) langSwitch.querySelectorAll("button[data-lang]").forEach(btn =>
+    btn.addEventListener("click", () => {
+      if (btn.dataset.lang === getCurrentLang()) return;
+      applyTranslations(btn.dataset.lang);
+      if (typeof updateLangValue === "function") updateLangValue();
+      if (typeof renderPremiumBanner === "function") renderPremiumBanner();
+    }));
 });
 
 // ===== Tayyorlanish vaqtini formatlash (barcha sahifalarda ishlatiladi) =====
