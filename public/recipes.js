@@ -63,6 +63,7 @@ function renderRecipes(list) {
 
   document.querySelectorAll(".recipe-card").forEach(card => {
     card.addEventListener("click", () => {
+      saveListState(); // orqaga qaytganda kategoriya, qidiruv va skroll joyi tiklanishi uchun
       window.location.href = `recipe-detail.html?id=${card.getAttribute("data-id")}`;
     });
   });
@@ -137,9 +138,47 @@ if (qFromUrl) {
   searchInput.value = qFromUrl;
 }
 
+// ===== Retseptdan orqaga qaytganda filtr, saralash, qidiruv va skroll joyini tiklash =====
+const LIST_STATE_KEY = "ovqaty_recipes_state_v1";
+let savedScrollY = null;
+
+function saveListState() {
+  try {
+    sessionStorage.setItem(LIST_STATE_KEY, JSON.stringify({
+      search: window.location.search, filter: currentFilter, sort: currentSort,
+      q: searchInput.value, y: window.scrollY, t: Date.now()
+    }));
+  } catch { /* sessionStorage yo'q bo'lsa ham sahifa ishlayveradi */ }
+}
+
+function cameBackToList() {
+  const nav = performance.getEntriesByType?.("navigation")?.[0];
+  return nav?.type === "back_forward" || /recipe-detail\.html/.test(document.referrer || "");
+}
+
+(function restoreListState() {
+  if (!cameBackToList()) return;
+  try {
+    const s = JSON.parse(sessionStorage.getItem(LIST_STATE_KEY) || "null");
+    // Faqat shu sahifaga (bir xil URL parametrlari) tegishli, yaqinda saqlangan holat
+    if (!s || s.search !== window.location.search || Date.now() - s.t > 30 * 60 * 1000) return;
+    currentFilter = s.filter || "all";
+    currentSort = s.sort || "default";
+    searchInput.value = s.q || "";
+    filterRow.querySelectorAll(".filter-chip").forEach(c => c.classList.toggle("active", c.getAttribute("data-cat") === currentFilter));
+    sortRow.querySelectorAll(".filter-chip").forEach(c => c.classList.toggle("active", c.getAttribute("data-sort") === currentSort));
+    savedScrollY = s.y || 0;
+  } catch { /* buzilgan holat e'tiborsiz qoldiriladi */ }
+})();
+
 // Firestore'dan retseptlarni yuklash (kesh orqali — tezroq)
 loadRecipesWithCache((recipes) => {
   allRecipes = recipes;
   applyFilters();
+  if (savedScrollY !== null) { // skrollni faqat birinchi chizilishdan keyin tiklaymiz
+    const y = savedScrollY;
+    savedScrollY = null;
+    requestAnimationFrame(() => window.scrollTo(0, y));
+  }
 });
                                
