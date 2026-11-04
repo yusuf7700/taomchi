@@ -239,6 +239,9 @@ const TRANSLATIONS = {
     ai_guest_title: "Mehmon kutaman",
     ai_guest_desc: "Bayram uchun taklif",
     ai_title: "AI oshpaz",
+    weekly_share_btn: "Menyuni ulashish",
+    weekly_share_title: "Mening haftalik menyum",
+    share_aria: "Ulashish",
     ai_today: "Bugun",
     ai_follow_more: "Yana variant",
     ai_follow_faster: "Tezroq",
@@ -483,6 +486,9 @@ const TRANSLATIONS = {
     ai_guest_title: "Меҳмон кутаман",
     ai_guest_desc: "Байрам учун таклиф",
     ai_title: "АИ ошпаз",
+    weekly_share_btn: "Менюни улашиш",
+    weekly_share_title: "Менинг ҳафталик менюм",
+    share_aria: "Улашиш",
     ai_today: "Бугун",
     ai_follow_more: "Яна вариант",
     ai_follow_faster: "Тезроқ",
@@ -592,7 +598,7 @@ function i18nText(key, fallback) {
 
 // ===== Ulashish: rasmli, tugmali xabar (WebApp.shareMessage); bo'lmasa oddiy t.me/share/url =====
 // kind: "recipe" | "referral". Server /api/referral prepare_share xabarni tayyorlaydi.
-async function shareWithPreview(kind, recipeId, fallbackShareUrl) {
+async function shareWithPreview(kind, recipeId, fallbackShareUrl, extra) {
   const tgApp = window.Telegram?.WebApp;
   const openFallback = () => {
     if (tgApp?.openTelegramLink) tgApp.openTelegramLink(fallbackShareUrl);
@@ -604,7 +610,7 @@ async function shareWithPreview(kind, recipeId, fallbackShareUrl) {
     const res = await fetch("/api/referral", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: tgApp.initData, action: "prepare_share", kind, recipeId, lang: getCurrentLang() })
+      body: JSON.stringify({ initData: tgApp.initData, action: "prepare_share", kind, recipeId, lang: getCurrentLang(), ...(extra || {}) })
     });
     if (!res.ok) return openFallback();
     const { id } = await res.json();
@@ -615,4 +621,15 @@ async function shareWithPreview(kind, recipeId, fallbackShareUrl) {
   } catch {
     openFallback();
   }
+}
+
+// Eski usuldagi (rasmsiz) ulashish havolasi — shareWithPreview ishlamasa zaxira sifatida
+const SHARE_BOT_USERNAME = "ovqaty_bot";
+function recipeShareFallbackUrl(id, title, category) {
+  const deepLink = `https://t.me/${SHARE_BOT_USERNAME}?start=recipe_${id}`;
+  const text = `${categoryEmoji(category)} ${title}\n\n${i18nText("share_recipe_text", "To'liq retsept, masalliqlar va tayyorlash usuli — Ovqaty'da 👇")}`;
+  return `https://t.me/share/url?url=${encodeURIComponent(deepLink)}&text=${encodeURIComponent(text)}`;
+}
+function shareRecipeCard(r) {
+  shareWithPreview("recipe", r.id, recipeShareFallbackUrl(r.id, displayTitle(r), r.category));
 }

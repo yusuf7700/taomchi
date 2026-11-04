@@ -382,7 +382,7 @@ function renderAdminList(recipes) {
       ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" class="admin-recipe-item-thumb">` : `<div class="admin-recipe-item-thumb admin-recipe-item-thumb--placeholder">🍽️</div>`}
       <div class="admin-recipe-item-info">
         <p class="admin-recipe-item-title">${r.isPremium ? "⭐ " : ""}${escapeHtml(r.title || "(nomsiz)")}</p>
-        <p class="admin-recipe-item-meta">${escapeHtml(CATEGORY_LABELS[r.category] || r.category || "-")} · ⏱ ${r.cookTimeUnit === "nomalum" ? "Noma'lum" : `${escapeHtml(r.cookTime || "-")} ${r.cookTimeUnit === "soat" ? "soat" : "daq"}`}</p>
+        <p class="admin-recipe-item-meta">${escapeHtml(CATEGORY_LABELS[r.category] || r.category || "-")} · ⏱ ${r.cookTimeUnit === "nomalum" ? "Noma'lum" : `${escapeHtml(r.cookTime || "-")} ${r.cookTimeUnit === "soat" ? "soat" : "daq"}`}${r.shareCount ? ` · ${Number(r.shareCount)} ulashish` : ""}</p>
       </div>
       <div class="admin-recipe-item-actions">
         <button class="admin-icon-btn" data-notify="${r.id}" title="Xabar yuborish">📣</button>

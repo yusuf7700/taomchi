@@ -3,7 +3,7 @@
 // POST /api/referral  body: { initData, action: "redeem_recipe",
 //                              recipeId }                             -> ball evaziga retseptni ochish
 // POST /api/referral  body: { initData, action: "prepare_share",
-//                              kind: "recipe"|"referral", recipeId, lang } -> { id } (WebApp.shareMessage uchun)
+//                              kind: "recipe"|"referral"|"menu", recipeId, menu, lang } -> { id } (WebApp.shareMessage uchun)
 
 const { getDb } = require("../lib/firebaseAdmin");
 const { verifyTelegramInitData } = require("../lib/verifyTelegramInitData");
@@ -47,16 +47,16 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
-      const { initData, action, recipeId, rewardType, kind, lang } = req.body || {};
+      const { initData, action, recipeId, rewardType, kind, lang, menu } = req.body || {};
       const tgUser = verifyTelegramInitData(initData, process.env.BOT_TOKEN);
       if (!tgUser) return res.status(401).json({ error: "Noto'g'ri yoki eskirgan initData" });
       await ensureUserIdentity(db, tgUser);
 
       if (action === "prepare_share") {
-        if (kind !== "recipe" && kind !== "referral") return res.status(400).json({ error: "kind noto'g'ri" });
+        if (kind !== "recipe" && kind !== "referral" && kind !== "menu") return res.status(400).json({ error: "kind noto'g'ri" });
         try {
           const botUsername = await getBotUsername();
-          const id = await prepareShareMessage({ db, userId: tgUser.id, kind, lang, recipeId, botUsername });
+          const id = await prepareShareMessage({ db, userId: tgUser.id, kind, lang, recipeId, botUsername, menu });
           return res.status(200).json({ id });
         } catch (err) {
           // Klient oddiy t.me/share/url ga qaytadi

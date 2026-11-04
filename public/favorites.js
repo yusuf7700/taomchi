@@ -25,6 +25,7 @@ function renderFavorites(recipes) {
         ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}">` : placeholderImg(r)}
         ${premiumRibbon(r)}
         <button class="card-fav-btn" data-fav-id="${escapeHtml(r.id)}">❤️</button>
+        <button class="card-share-btn" data-share-id="${escapeHtml(r.id)}" aria-label="${escapeHtml(i18nText("share_aria", "Ulashish"))}">${ovqIcon("plane", "ico ico--share")}</button>
       </div>
       <div class="recipe-info">
         <p class="recipe-title">${escapeHtml(displayTitle(r))}</p>
@@ -39,6 +40,14 @@ function renderFavorites(recipes) {
   document.querySelectorAll(".recipe-card").forEach(card => {
     card.addEventListener("click", () => {
       window.location.href = `recipe-detail.html?id=${card.getAttribute("data-id")}`;
+    });
+  });
+
+  document.querySelectorAll(".card-share-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const r = recipes.find(x => x.id === btn.getAttribute("data-share-id"));
+      if (r) shareRecipeCard(r);
     });
   });
 

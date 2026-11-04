@@ -129,6 +129,36 @@ function updateCopyButtonVisibility() {
   weeklyCopyBtn.classList.toggle("screen-hidden", !weekHasAnyData(prevKeys));
 }
 
+// ===== Menyuni ulashish (matnli variant: rasm + kunlar ro'yxati) =====
+const weeklyShareBtn = document.getElementById("weeklyShareBtn");
+const WEEK_DAY_ORDER = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+function updateShareButtonVisibility() {
+  if (!weeklyShareBtn) return;
+  weeklyShareBtn.classList.toggle("screen-hidden", !weekHasAnyData(getWeekDateKeys(weekOffset)));
+}
+
+function shareWeeklyMenu() {
+  const keys = getWeekDateKeys(weekOffset);
+  const menu = {};
+  const lines = [];
+  keys.forEach((key, i) => {
+    const day = currentMenu[key];
+    if (!day || (!day.lunch && !day.dinner)) return;
+    menu[key] = { lunch: day.lunch || null, dinner: day.dinner || null };
+    const names = [day.lunch, day.dinner].map(id => id && findRecipe(id)).filter(Boolean).map(r => displayTitle(r));
+    if (names.length) lines.push(`${t(DAY_SHORT_KEYS[WEEK_DAY_ORDER[i]])}  ${names.join(" · ")}`);
+  });
+  if (Object.keys(menu).length === 0) return;
+  // Zaxira (rasmsiz) variant: matn + referal havola
+  const uid = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+  const link = `https://t.me/${SHARE_BOT_USERNAME}${uid ? `?start=ref_${uid}` : ""}`;
+  const text = `${t("weekly_share_title", "Mening haftalik menyum")}\n\n${lines.join("\n")}`;
+  const fallbackUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
+  shareWithPreview("menu", null, fallbackUrl, { menu });
+}
+if (weeklyShareBtn) weeklyShareBtn.addEventListener("click", shareWeeklyMenu);
+
 // O'tgan haftadagi barcha tanlovlarni joriy ko'rsatilayotgan haftaga
 // (bir xil hafta kuniga mos ravishda) nusxalaydi.
 async function copyPreviousWeek() {
@@ -215,7 +245,7 @@ async function generateAiMenu() {
       renderDayTabs();
       renderDayPanel({ animate: false });
       updateProgress();
-      updateCopyButtonVisibility();
+      updateCopyButtonVisibility(); updateShareButtonVisibility();
     } else if (res.status === 403 && data.error === "premium_required") {
       if (confirm(t("weekly_ai_premium_needed", "AI menyu faqat Premium foydalanuvchilar uchun. Profilga o'tib Premium'ni ko'rasizmi?"))) {
         window.location.href = "profile.html";
@@ -298,7 +328,7 @@ function renderWeekNav() {
   }
   weekPrevBtn.disabled = weekOffset <= MIN_WEEK_OFFSET;
   weekNextBtn.disabled = weekOffset >= MAX_WEEK_OFFSET;
-  updateCopyButtonVisibility();
+  updateCopyButtonVisibility(); updateShareButtonVisibility();
   updateAiButtonVisibility();
 }
 

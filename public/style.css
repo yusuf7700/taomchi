@@ -3602,3 +3602,19 @@ img.ico.ico--ph {
 .recipe-thumb .premium-ribbon .ico--crumb,
 .premium-ribbon .ico--crumb,
 .premium-lock-mini-badge .ico--crumb { width: 13px; height: 13px; object-fit: contain; }
+
+/* ===== Ulashish tugmalari: AI retsept kartasi, saqlanganlar, haftalik menyu ===== */
+.ico--share { width: 20px; height: 20px; filter: none; }
+.ai-recipe-row { display: flex; align-items: stretch; gap: 6px; }
+.ai-recipe-row .ai-recipe-card { flex: 1; min-width: 0; }
+.ai-recipe-share {
+  flex-shrink: 0; width: 40px; border: none; border-radius: var(--radius-sm);
+  background: var(--warm-50); display: flex; align-items: center; justify-content: center;
+}
+.card-share-btn {
+  position: absolute; right: 6px; bottom: 6px; width: 30px; height: 30px;
+  border: none; border-radius: 50%; background: var(--white);
+  box-shadow: var(--shadow-warm-sm); display: flex; align-items: center; justify-content: center;
+}
+.card-share-btn .ico--share { width: 18px; height: 18px; }
+.weekly-share-btn { margin-top: 8px; }

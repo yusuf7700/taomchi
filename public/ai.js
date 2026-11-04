@@ -129,14 +129,17 @@ function scrollToBottom() {
 
 function recipeCardsHtml(recipes) {
   return `<div class="ai-recipe-list">${recipes.map((r) => `
-    <button class="ai-recipe-card" data-recipe-id="${escapeHtml(r.id)}">
-      <span class="ai-recipe-thumb">${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="">` : placeholderImg(r)}</span>
-      <span class="ai-recipe-info">
-        <span class="ai-recipe-title">${escapeHtml(displayTitle(r))}</span>
-        <span class="ai-recipe-meta">${[hasCookTime(r) ? ovqIcon("clock", "ico ico--inline") + " " + escapeHtml(formatCookTime(r)) : "", DIFFICULTY_TEXT[r.difficulty] ? escapeHtml(DIFFICULTY_TEXT[r.difficulty]()) : ""].filter(Boolean).join(" · ")}</span>
-      </span>
-      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
-    </button>`).join("")}</div>`;
+    <div class="ai-recipe-row">
+      <button class="ai-recipe-card" data-recipe-id="${escapeHtml(r.id)}">
+        <span class="ai-recipe-thumb">${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="">` : placeholderImg(r)}</span>
+        <span class="ai-recipe-info">
+          <span class="ai-recipe-title">${escapeHtml(displayTitle(r))}</span>
+          <span class="ai-recipe-meta">${[hasCookTime(r) ? ovqIcon("clock", "ico ico--inline") + " " + escapeHtml(formatCookTime(r)) : "", DIFFICULTY_TEXT[r.difficulty] ? escapeHtml(DIFFICULTY_TEXT[r.difficulty]()) : ""].filter(Boolean).join(" · ")}</span>
+        </span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      <button class="ai-recipe-share" data-share-id="${escapeHtml(r.id)}" aria-label="${escapeHtml(t("share_aria", "Ulashish"))}">${ovqIcon("plane", "ico ico--share")}</button>
+    </div>`).join("")}</div>`;
 }
 
 // Qiyinchilik nomi (emojisiz) — i18n.js dagi DIFFICULTY_LABELS dan emoji olib tashlanadi
@@ -170,6 +173,14 @@ function addBubble(role, text, extraClass = "", images = [], recipes = []) {
 
 // Retsept kartasi bosilganda — retsept sahifasiga o'tish
 aiChatMessages.addEventListener("click", (e) => {
+  const shareBtn = e.target.closest(".ai-recipe-share");
+  if (shareBtn) {
+    const id = shareBtn.getAttribute("data-share-id");
+    // Retsept ma'lumoti suhbat tarixidan olinadi (server nomni bazadan o'zi oladi)
+    const r = (activeConversation?.messages || []).flatMap((m) => m.recipes || []).find((x) => x.id === id);
+    if (r) shareRecipeCard(r);
+    return;
+  }
   const card = e.target.closest(".ai-recipe-card");
   if (card) window.location.href = `recipe-detail.html?id=${encodeURIComponent(card.getAttribute("data-recipe-id"))}`;
 });
