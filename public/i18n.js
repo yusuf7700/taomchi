@@ -14,6 +14,38 @@ function categoryIconName(cat) { return CATEGORY_ICONS[cat] || "pot"; }
 // Rasmsiz retsept uchun placeholder: kategoriyasiga mos ikonka
 function placeholderImg(r) { return ovqIcon(categoryIconName(r && r.category), "ico ico--ph"); }
 
+// Retsept rasmi yuklanmasa: 1 marta qayta urinamiz, bo'lmasa kategoriya ikonkasiga almashtiramiz
+document.addEventListener("error", function (e) {
+  const img = e.target;
+  if (!img || img.tagName !== "IMG" || img.classList.contains("ico")) return;
+  if (!img.closest(".recipe-thumb, .ai-recipe-thumb, #randomModalThumb") && !img.classList.contains("detail-image")) return;
+
+  if (!img.dataset.retried) {
+    img.dataset.retried = "1";
+    const src = img.getAttribute("src");
+    setTimeout(function () { img.src = src; }, 1500);
+    return;
+  }
+
+  let cat = "";
+  try {
+    const id = (img.closest("[data-id]") || {}).dataset && img.closest("[data-id]").dataset.id;
+    const cached = typeof getCachedRecipes === "function" ? getCachedRecipes() : null;
+    const found = id && cached && Array.isArray(cached.data) ? cached.data.find(function (x) { return x.id === id; }) : null;
+    cat = found ? found.category : "";
+  } catch (err) {}
+
+  const ph = placeholderImg({ category: cat });
+  if (img.classList.contains("detail-image")) {
+    const box = document.createElement("div");
+    box.className = "detail-image detail-image--placeholder";
+    box.innerHTML = ph;
+    img.replaceWith(box);
+  } else {
+    img.outerHTML = ph;
+  }
+}, true);
+
 // ===== Taomchi til tizimi (Lotin / Kirill) =====
 // Yangi matn qo'shish uchun: HTML'da data-i18n="kalit" qo'ying,
 // keyin shu kalitni ikkala tilga ham qo'shing.
