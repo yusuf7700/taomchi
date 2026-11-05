@@ -1,9 +1,12 @@
-// ===== Taomchi — internet holati (sust / yo'q / tiklandi) =====
-// recipes-cache.js shu obyekt orqali holatni xabar qiladi:
-//   NetStatus.start(hasCache)  — so'rov boshlandi
+// ===== Taomchi — umumiy internet holati (sust / yo'q / tiklandi) =====
+// Hamma sahifada o'zi ishlaydi:
+//   • brauzerning online/offline hodisalari
+//   • fetch() so'rovlari: tarmoq xatosi -> "aloqa yo'q", 8 soniyadan uzoq GET -> "sust"
+// Sahifa asosiy ma'lumotini yuklay olmasa (masalan retseptlar), qo'shimcha xabar beradi:
+//   NetStatus.start()          — asosiy so'rov boshlandi
 //   NetStatus.ok()             — ma'lumot keldi
 //   NetStatus.fail(hasCache)   — xato (kesh bor bo'lsa banner, yo'q bo'lsa to'liq ekran)
-//   NetStatus.register(fn)     — "Qayta urinish" bosilganda chaqiriladigan funksiya
+//   NetStatus.register(k, fn)  — "Qayta urinish" bosilganda chaqiriladigan funksiya
 (function () {
   const SLOW_MS = 8000;      // shuncha vaqt javob bo'lmasa "sust" banneri chiqadi
   const RESTORED_MS = 2200;  // "Aloqa tiklandi" necha ms ko'rinadi
@@ -12,6 +15,7 @@
     uz: {
       net_slow: "Internet sust ishlayapti",
       net_offline_cache: "Aloqa yo'q — saqlangan ma'lumotlar ko'rsatilmoqda",
+      net_offline_banner: "Internet bilan aloqa yo'q",
       net_offline_title: "Internet bilan aloqa yo'q",
       net_offline_text: "Ulanishni tekshirib, qayta urinib ko'ring.",
       net_retry: "Qayta urinish", net_refresh: "Yangilash",
@@ -20,6 +24,7 @@
     uzk: {
       net_slow: "Интернет секин ишлаяпти",
       net_offline_cache: "Алоқа йўқ — сақланган маълумотлар кўрсатилмоқда",
+      net_offline_banner: "Интернет билан алоқа йўқ",
       net_offline_title: "Интернет билан алоқа йўқ",
       net_offline_text: "Уланишни текшириб, қайта уриниб кўринг.",
       net_retry: "Қайта уриниш", net_refresh: "Янгилаш",
@@ -38,6 +43,7 @@
   let slowTimer = null, restoredTimer = null;
   const retryFns = new Map();
   let banner = null, overlay = null;
+  let offlineKey = "net_offline_banner"; // kesh bor bo'lsa "saqlangan ma'lumotlar" matni
 
   function ico(name, size) {
     return '<img src="icons/' + name + '-128.webp" srcset="icons/' + name + '-128.webp 1x, icons/' + name + '-256.webp 2x" alt="" width="' + size + '" height="' + size + '" decoding="async">';
@@ -67,7 +73,7 @@
       btn.textContent = t("net_retry");
     } else if (kind === "offline") {
       icoEl.innerHTML = ico("offline", 40);
-      textEl.textContent = t("net_offline_cache");
+      textEl.textContent = t(offlineKey);
       btn.textContent = t("net_refresh");
     } else {
       icoEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 3 3 5-6"/></svg>';
@@ -139,7 +145,33 @@
   function retry() {
     setLoadingUI(true);
     clearTimeout(restoredTimer);
-    retryFns.forEach(function (fn) { try { fn(); } catch (e) {} });
+    if (retryFns.size) {
+      retryFns.forEach(function (fn) { try { fn(); } catch (e) {} });
+    } else {
+      location.reload();
+    }
+  }
+
+  function isBad() { return state === "slow" || state === "offline" || state === "overlay"; }
+
+  // Aloqa yaxshilandi: banner/ekranni yopib, "Aloqa tiklandi" ko'rsatamiz
+  function recovered() {
+    if (!isBad()) return;
+    clearTimers();
+    setLoadingUI(false);
+    hideOverlay();
+    state = "restored";
+    showBanner("restored");
+    clearTimeout(restoredTimer);
+    restoredTimer = setTimeout(function () { hideBanner(); state = "idle"; }, RESTORED_MS);
+  }
+
+  function enterOffline(cacheText) {
+    if (state === "overlay") return;
+    offlineKey = cacheText ? "net_offline_cache" : "net_offline_banner";
+    clearTimeout(restoredTimer);
+    state = "offline";
+    showBanner("offline");
   }
 
   window.NetStatus = {
@@ -159,17 +191,8 @@
       if (pending > 0) return;
       clearTimers();
       setLoadingUI(false);
-      const wasBad = state === "slow" || state === "offline" || state === "overlay";
-      hideOverlay();
-      if (wasBad) {
-        state = "restored";
-        showBanner("restored");
-        clearTimeout(restoredTimer);
-        restoredTimer = setTimeout(function () { hideBanner(); state = "idle"; }, RESTORED_MS);
-      } else {
-        hideBanner();
-        state = "idle";
-      }
+      if (isBad()) recovered();
+      else if (state !== "restored") { hideBanner(); state = "idle"; }
     },
 
     fail: function (hasCache) {
@@ -180,8 +203,7 @@
       clearTimeout(restoredTimer);
       if (hasCache) {
         hideOverlay();
-        state = "offline";
-        showBanner("offline");
+        enterOffline(true);
       } else {
         hideBanner();
         state = "overlay";
@@ -190,12 +212,66 @@
     }
   };
 
-  // Aloqa qaytsa — o'zi qayta yuklaydi
+  // ===== Brauzer hodisalari =====
   window.addEventListener("online", function () {
-    if (state === "slow" || state === "offline" || state === "overlay") retry();
+    if (!isBad()) return;
+    if (retryFns.size) retry(); // ma'lumot yuklovchi sahifa: o'zi qayta yuklaydi
+    else recovered();           // boshqa sahifalar: foydalanuvchi ishini buzmaymiz (reload yo'q)
   });
-  // Aloqa uzilsa — ma'lumot allaqachon ko'rinib turgan bo'lsa banner chiqaramiz
   window.addEventListener("offline", function () {
-    if (state === "idle") { state = "offline"; showBanner("offline"); }
+    if (state === "idle" || state === "restored") enterOffline(false);
   });
+  function initialCheck() {
+    if (navigator.onLine === false && state === "idle") enterOffline(false);
+  }
+  if (document.body) initialCheck();
+  else document.addEventListener("DOMContentLoaded", initialCheck);
+
+  // ===== fetch() kuzatuvi =====
+  // Firestore/Google/Telegram so'rovlari hisobga olinmaydi (ular uzoq ochiq turadi),
+  // AI va menyu generatsiyasi uzoq davom etishi mumkin, shuning uchun "sust" deb hisoblanmaydi.
+  const SKIP = /googleapis\.com|gstatic\.com|telegram\.org|cloudinary\.com/i;
+  const LONG = /\/api\/(ai-|weekly-menu|create-ai|broadcast)/i;
+  let slowCount = 0;
+
+  if (typeof window.fetch === "function") {
+    const origFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      let url = "", method = "GET";
+      try {
+        url = typeof input === "string" ? input : (input && input.url) || String(input);
+        method = ((init && init.method) || (input && input.method) || "GET").toUpperCase();
+      } catch (e) {}
+      if (SKIP.test(url)) return origFetch(input, init);
+
+      let sameOrigin = true;
+      try { sameOrigin = new URL(url, location.href).origin === location.origin; } catch (e) {}
+      const watchSlow = method === "GET" && !LONG.test(url);
+      let flaggedSlow = false, timer = null;
+
+      if (watchSlow) {
+        timer = setTimeout(function () {
+          flaggedSlow = true;
+          slowCount++;
+          if (state === "idle" || state === "restored") { state = "slow"; showBanner("slow"); }
+        }, SLOW_MS);
+      }
+      function settle() {
+        clearTimeout(timer);
+        if (flaggedSlow) { flaggedSlow = false; slowCount = Math.max(0, slowCount - 1); }
+      }
+
+      return origFetch(input, init).then(function (res) {
+        settle();
+        if (isBad() && slowCount === 0 && pending === 0) recovered();
+        return res;
+      }, function (err) {
+        settle();
+        if (err && err.name !== "AbortError" && (navigator.onLine === false || sameOrigin)) {
+          if (state === "idle" || state === "restored" || state === "slow") enterOffline(false);
+        }
+        throw err;
+      });
+    };
+  }
 })();
