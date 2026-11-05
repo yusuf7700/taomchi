@@ -26,12 +26,19 @@ function setCachedRecipes(data) {
 }
 
 // onUpdate(recipes) — kesh yoki server'dan har safar yangi ma'lumot kelganda chaqiriladi
-function loadRecipesWithCache(onUpdate) {
+// force=true — "Qayta urinish" bosilganda: kesh yangi bo'lsa ham server'dan qayta oladi
+function loadRecipesWithCache(onUpdate, force) {
   const cached = getCachedRecipes();
 
   if (cached) {
     onUpdate(cached.data, /* fromCache */ true);
-    if (cached.isFresh) return; // kesh hali yangi, server'ga murojaat shart emas
+    if (cached.isFresh && !force) return; // kesh hali yangi, server'ga murojaat shart emas
+  }
+
+  const net = window.NetStatus;
+  if (net) {
+    net.register(onUpdate, () => loadRecipesWithCache(onUpdate, true));
+    net.start();
   }
 
   db.collection("recipes").get()
@@ -39,9 +46,11 @@ function loadRecipesWithCache(onUpdate) {
       const recipes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCachedRecipes(recipes);
       onUpdate(recipes, /* fromCache */ false);
+      if (net) net.ok();
     })
     .catch(err => {
       console.error("Retseptlarni yuklashda xato:", err);
       if (!cached) onUpdate([], false); // kesh ham yo'q bo'lsa, bo'sh ro'yxat
+      if (net) net.fail(!!cached);
     });
 }
