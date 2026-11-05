@@ -3695,12 +3695,12 @@ html, body { overscroll-behavior-y: contain; }
 
 /* ===== Internet holati: banner (sust / aloqa yo'q / tiklandi) va to'liq ekran ===== */
 html { transition: padding-top 0.3s ease; }
-html.has-net-banner { padding-top: 56px; }
+html.has-net-banner { padding-top: 60px; }
 
 .net-banner {
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 56px;
+  height: 60px;
   padding: env(safe-area-inset-top) 12px 0 10px;
   box-sizing: content-box;
   display: flex;
@@ -3714,19 +3714,35 @@ html.has-net-banner { padding-top: 56px; }
   z-index: 60;
 }
 .net-banner--show { transform: none; }
-.net-banner--restored { background: var(--sage-700); }
+.net-banner--restored { background: linear-gradient(135deg, #71835a 0%, var(--sage-700) 100%); }
+.net-banner--restored .net-banner-ico img { animation: netPop 0.5s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes netPop { from { transform: scale(0.4) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* "Aloqa tiklandi" banneri o'zi yopilishini ko'rsatuvchi ingichka chiziq */
+.net-banner-bar {
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 3px; width: 100%;
+  background: rgba(255,255,255,0.55);
+  transform-origin: left;
+  display: none;
+}
+.net-banner--restored.net-banner--show .net-banner-bar {
+  display: block;
+  animation: netBar var(--net-restored-ms, 2200ms) linear forwards;
+}
+@keyframes netBar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 
 .net-banner-ico {
-  width: 40px; height: 40px;
+  width: 46px; height: 46px;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.net-banner-ico img { width: 40px; height: 40px; object-fit: contain; }
-.net-banner-ico svg { width: 26px; height: 26px; }
+.net-banner-ico img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25)); }
 .net-banner-text {
   flex: 1;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   line-height: 1.25;
 }
 .net-banner-btn {
