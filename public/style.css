@@ -3667,3 +3667,28 @@ img.ico.ico--ph {
 }
 .card-share-btn .ico--share { width: 18px; height: 18px; }
 .weekly-share-btn { margin-top: 8px; }
+
+/* ===== Pastga surib yangilash ===== */
+html, body { overscroll-behavior-y: contain; }
+
+.ptr {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 8px);
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 9px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text-muted);
+  box-shadow: 0 6px 18px rgba(42,33,28,0.18);
+  opacity: 0;
+  transform: translate(-50%, -56px);
+  pointer-events: none;
+  z-index: 50;
+}
+.ptr svg { width: 100%; height: 100%; display: block; }
+.ptr--ready { color: var(--maroon-500); }
+.ptr--loading svg { animation: ptrSpin 0.7s linear infinite; }
+@keyframes ptrSpin { to { transform: rotate(360deg); } }
