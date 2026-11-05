@@ -2124,9 +2124,9 @@ html.no-splash .splash {
   left: 0;
   right: 0;
   margin: 0 12px calc(14px + env(safe-area-inset-bottom));
-  background: var(--maroon-700);
+  background: var(--white);
   border-radius: 999px;
-  box-shadow: 0 12px 30px rgba(46,3,2,0.38);
+  box-shadow: 0 10px 28px rgba(42,33,28,0.16);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2142,7 +2142,7 @@ html.no-splash .splash {
   height: 48px;
   min-width: 48px;
   padding: 0 12px;
-  color: #C9AB98;
+  color: var(--text-muted);
   border-radius: 999px;
   -webkit-tap-highlight-color: transparent;
   transition: background 0.25s ease, color 0.25s ease, padding 0.25s ease, transform 0.1s ease;
@@ -2167,7 +2167,7 @@ html.no-splash .splash {
 
 .nav-item.active {
   color: #fff;
-  background: var(--orange-deep);
+  background: var(--maroon-500);
   padding: 0 20px;
 }
 
