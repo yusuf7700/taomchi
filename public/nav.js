@@ -1,15 +1,7 @@
 // ===== Taomchi — sahifalar orasidagi navigatsiya =====
 // Bu fayl index.html, recipes.html va boshqa asosiy sahifalarda ishlatiladi.
 
-// Telegram header va fonni brend rangiga moslash (sovuq to'q-ko'k o'rniga)
-try {
-  const _tg = window.Telegram?.WebApp;
-  if (_tg) {
-    _tg.setHeaderColor?.("#6A0806");
-    _tg.setBackgroundColor?.("#FDF2EB");
-    _tg.setBottomBarColor?.("#FDF2EB");
-  }
-} catch (e) {}
+// Telegram header/fon ranglari tg-theme.js da (barcha sahifalarda <head> ichida)
 
 const ROUTES = {
   home: "index.html",
