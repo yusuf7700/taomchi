@@ -96,11 +96,11 @@ module.exports = async (req, res) => {
         if (recipe.imageUrl) {
           await bot.telegram.sendPhoto(userId, recipe.imageUrl, {
             caption: tt[meal](recipe.title || ""),
-            reply_markup: { inline_keyboard: [[{ text: tt.viewBtn, web_app: { url } }]] }
+            reply_markup: { inline_keyboard: [[{ text: tt.viewBtn, style: "danger", web_app: { url } }]] }
           });
         } else {
           await bot.telegram.sendMessage(userId, tt[meal](recipe.title || ""), {
-            reply_markup: { inline_keyboard: [[{ text: tt.viewBtn, web_app: { url } }]] }
+            reply_markup: { inline_keyboard: [[{ text: tt.viewBtn, style: "danger", web_app: { url } }]] }
           });
         }
         sent++;

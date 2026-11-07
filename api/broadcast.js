@@ -43,11 +43,11 @@ async function sendRecipeNotification(db, recipeId) {
       if (recipe.imageUrl) {
         await bot.telegram.sendPhoto(userDoc.id, recipe.imageUrl, {
           caption: t.title(recipe.title || ""),
-          reply_markup: { inline_keyboard: [[{ text: t.viewBtn, web_app: { url } }]] }
+          reply_markup: { inline_keyboard: [[{ text: t.viewBtn, style: "danger", web_app: { url } }]] }
         });
       } else {
         await bot.telegram.sendMessage(userDoc.id, t.title(recipe.title || ""), {
-          reply_markup: { inline_keyboard: [[{ text: t.viewBtn, web_app: { url } }]] }
+          reply_markup: { inline_keyboard: [[{ text: t.viewBtn, style: "danger", web_app: { url } }]] }
         });
       }
       sent++;

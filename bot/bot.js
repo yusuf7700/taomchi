@@ -257,7 +257,7 @@ async function sendWelcome(ctx, lang) {
   await ctx.reply(t.welcome, {
     reply_markup: {
       inline_keyboard: [[
-        { text: t.openApp, web_app: { url: process.env.MINI_APP_URL } }
+        { text: t.openApp, style: "danger", web_app: { url: process.env.MINI_APP_URL } }
       ]]
     }
   });
@@ -345,7 +345,7 @@ bot.start(async (ctx) => {
           {
             reply_markup: {
               inline_keyboard: [[
-                { text: t.viewRecipe, web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${recipeId}` } }
+                { text: t.viewRecipe, style: "danger", web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${recipeId}` } }
               ]]
             }
           }
@@ -473,7 +473,7 @@ async function sendRandomRecipe(ctx, t) {
     {
       reply_markup: {
         inline_keyboard: [[
-          { text: t.viewRecipe, web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${r.id}` } }
+          { text: t.viewRecipe, style: "danger", web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${r.id}` } }
         ]]
       }
     }
@@ -565,7 +565,7 @@ async function sendReferralInfo(ctx, lang) {
       reply_markup: {
         inline_keyboard: [
           [{ text: t.referralShareBtn, url: shareUrl }],
-          [{ text: t.referralShopRecipeBtn, web_app: { url: `${process.env.MINI_APP_URL}/recipes.html` } }],
+          [{ text: t.referralShopRecipeBtn, style: "danger", web_app: { url: `${process.env.MINI_APP_URL}/recipes.html` } }],
           [{ text: t.referralShopAiBtn, callback_data: "redeem_ai_bonus" }],
           [{ text: t.referralShopPremium3dBtn, callback_data: "redeem_premium_3d" }],
           [{ text: t.referralShopPremium30dBtn, callback_data: "redeem_premium_30d" }]
@@ -797,7 +797,7 @@ bot.command("qidir", async (ctx) => {
         {
           reply_markup: {
             inline_keyboard: [[
-              { text: t.viewShort, web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${r.id}` } }
+              { text: t.viewShort, style: "danger", web_app: { url: `${process.env.MINI_APP_URL}/recipe-detail.html?id=${r.id}` } }
             ]]
           }
         }
