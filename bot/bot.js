@@ -6,6 +6,7 @@ const { checkAndConsumeAiQuota, grantBonusQuestion, askFoodAssistant, EXTRA_QUES
 const { activatePremiumSubscription, claimPremiumTrial, getPremiumStatus, MONTHLY_STARS_PRICE, YEARLY_STARS_PRICE } = require("../lib/premium");
 const { creditReferral, getReferralStatus, redeemAiBonus, redeemPremiumDays, AI_BONUS_COST, PREMIUM_3D_COST, PREMIUM_3D_DAYS, PREMIUM_30D_COST, PREMIUM_30D_DAYS } = require("../lib/referral");
 const { getActiveChannels } = require("../lib/requiredChannels");
+const { buildInviteInlineResult } = require("../lib/sharePrepare");
 
 const ADMIN_CHAT_ID = "7603550866";
 
@@ -549,6 +550,19 @@ bot.on("text", async (ctx, next) => {
   }
 });
 
+// ===== Inline rejim: "Ulashish" tugmasi — rasm + matn + tugma bilan taklif xabari =====
+bot.on("inline_query", async (ctx) => {
+  try {
+    const lang = await getUserLang(ctx);
+    const botUsername = await getBotUsername();
+    const result = buildInviteInlineResult({ lang, userId: String(ctx.from.id), botUsername });
+    await ctx.answerInlineQuery([result], { cache_time: 0, is_personal: true });
+  } catch (err) {
+    console.error("Inline query xatosi:", err);
+    await ctx.answerInlineQuery([], { cache_time: 0 }).catch(() => {});
+  }
+});
+
 // ===== Referal (bot chatda) =====
 async function sendReferralInfo(ctx, lang) {
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
@@ -559,12 +573,11 @@ async function sendReferralInfo(ctx, lang) {
     const status = await getReferralStatus(db, userId);
     const username = await getBotUsername();
     const link = `https://t.me/${username}?start=ref_${userId}`;
-    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(t.referralShareText)}`;
 
     await ctx.reply(t.referralIntro(status.points, link), {
       reply_markup: {
         inline_keyboard: [
-          [{ text: t.referralShareBtn, style: "danger", url: shareUrl }],
+          [{ text: t.referralShareBtn, style: "danger", switch_inline_query: "" }],
           [{ text: t.referralShopRecipeBtn, style: "danger", web_app: { url: `${process.env.MINI_APP_URL}/recipes.html` } }],
           [{ text: t.referralShopAiBtn, style: "danger", callback_data: "redeem_ai_bonus" }],
           [{ text: t.referralShopPremium3dBtn, style: "danger", callback_data: "redeem_premium_3d" }],
