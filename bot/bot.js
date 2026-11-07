@@ -71,7 +71,7 @@ async function sendSubscriptionRequired(ctx, lang, missingChannels) {
 // ===== Bot matnlari (Lotin / Kirill) =====
 const BOT_TEXT = {
   uz: {
-    welcome: "Assalomu alaykum! Ovqaty'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
+    welcome: "Ovqaty'ga xush kelibsiz 🍲\n\n\"Bugun nima pishiraman?\" degan savolga endi hech qachon o'ylanib qolmaysiz.\n\nQuyidagi tugmalardan foydalaning, yoki to'liq ilovani oching:",
     openApp: "🍲 Ovqatyni ochish",
     quickCommands: "Tezkor buyruqlar:\n🍽️ Tasodifiy taom — pastdagi tugma\n🧺 Uyda nima bor? — pastdagi tugma\n🗓 Haftalik menyu — pastdagi tugma\n🤖 AI'dan so'rash — pastdagi tugma\n⭐ Premium — pastdagi tugma\n🎁 Do'stlarni taklif qilish — pastdagi tugma\n🍲 Taom qidirish — /qidir osh (masalan)\n🌐 Tilni almashtirish — /til",
     randomBtnLabel: "🍽️ Tasodifiy taom",
@@ -127,7 +127,7 @@ const BOT_TEXT = {
     difficulty: { oson: "🟢 Oson", orta: "🟡 O'rta", qiyin: "🔴 Qiyin" }
   },
   uzk: {
-    welcome: "Ассалому алайкум! Ovqaty'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
+    welcome: "Ovqaty'га хуш келибсиз 🍲\n\n\"Бугун нима пиширaман?\" деган саволга энди ҳеч қачон ўйланиб қолмайсиз.\n\nҚуйидаги тугмалардан фойдаланинг, ёки тўлиқ иловани очинг:",
     openApp: "🍲 Ovqatyni очиш",
     quickCommands: "Тезкор буйруқлар:\n🍽️ Тасодифий таом — пастдаги тугма\n🧺 Уйда нима бор? — пастдаги тугма\n🗓 Ҳафталик менюси — пастдаги тугма\n🤖 AI'дан сўраш — пастдаги тугма\n⭐ Premium — пастдаги тугма\n🎁 Дўстларни таклиф қилиш — пастдаги тугма\n🍲 Таом қидириш — /qidir ош (масалан)\n🌐 Тилни алмаштириш — /til",
     randomBtnLabel: "🍽️ Тасодифий таом",
@@ -258,7 +258,13 @@ async function sendWelcomeSticker(ctx) {
   const id = process.env.WELCOME_STICKER_ID;
   if (!id) return;
   try {
+    // Kuniga bir marta (Toshkent vaqti bilan) — har /start da takrorlanmasin
+    const today = new Date(Date.now() + 5 * 3600 * 1000).toISOString().slice(0, 10);
+    const ref = getDb().collection("users").doc(String(ctx.from.id));
+    const snap = await ref.get();
+    if (snap.exists && snap.data().welcomeStickerDay === today) return;
     await ctx.replyWithSticker(id);
+    await ref.set({ welcomeStickerDay: today }, { merge: true });
   } catch (err) {
     console.error("Salomlashuv stikerini yuborishda xato:", err.message);
   }
@@ -275,7 +281,9 @@ async function sendWelcome(ctx, lang) {
   await sendWelcomeSticker(ctx);
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
 
-  await ctx.reply(t.welcome, {
+  // Ism bilan murojaat: "Yusuf, Ovqaty'ga xush kelibsiz"
+  const firstName = (ctx.from && ctx.from.first_name || "").trim();
+  await ctx.reply(firstName ? `${firstName}, ${t.welcome}` : t.welcome, {
     reply_markup: {
       inline_keyboard: [[
         { text: t.openApp, style: "danger", web_app: { url: process.env.MINI_APP_URL } }
