@@ -62,7 +62,7 @@ async function sendSubscriptionRequired(ctx, lang, missingChannels) {
 
   await ctx.reply(t.subscribeRequired, {
     reply_markup: {
-      inline_keyboard: [...channelButtons, [{ text: t.subscribeCheckBtn, callback_data: "check_subscription" }]]
+      inline_keyboard: [...channelButtons, [{ text: t.subscribeCheckBtn, style: "danger", callback_data: "check_subscription" }]]
     }
   });
 }
@@ -524,8 +524,8 @@ bot.on("text", async (ctx, next) => {
       await ctx.telegram.editMessageText(ctx.chat.id, thinkingMsg.message_id, undefined, t.aiLimitReached, {
         reply_markup: {
           inline_keyboard: [[
-            { text: t.premiumMonthlyBtn(MONTHLY_STARS_PRICE), callback_data: "premium_buy_monthly" },
-            { text: t.premiumYearlyBtn(YEARLY_STARS_PRICE), callback_data: "premium_buy_yearly" }
+            { text: t.premiumMonthlyBtn(MONTHLY_STARS_PRICE), style: "danger", callback_data: "premium_buy_monthly" },
+            { text: t.premiumYearlyBtn(YEARLY_STARS_PRICE), style: "danger", callback_data: "premium_buy_yearly" }
           ]]
         }
       });
@@ -537,7 +537,7 @@ bot.on("text", async (ctx, next) => {
         currency: "XTR",
         prices: [{ label: t.aiInvoiceTitle, amount: EXTRA_QUESTION_STARS_PRICE }]
       });
-      await ctx.reply(t.starsBuyPrompt, { reply_markup: { inline_keyboard: [[{ text: t.starsBuyBtn, url: STARS_BOT_URL }]] } });
+      await ctx.reply(t.starsBuyPrompt, { reply_markup: { inline_keyboard: [[{ text: t.starsBuyBtn, style: "danger", url: STARS_BOT_URL }]] } });
       return;
     }
 
@@ -564,11 +564,11 @@ async function sendReferralInfo(ctx, lang) {
     await ctx.reply(t.referralIntro(status.points, link), {
       reply_markup: {
         inline_keyboard: [
-          [{ text: t.referralShareBtn, url: shareUrl }],
+          [{ text: t.referralShareBtn, style: "danger", url: shareUrl }],
           [{ text: t.referralShopRecipeBtn, style: "danger", web_app: { url: `${process.env.MINI_APP_URL}/recipes.html` } }],
-          [{ text: t.referralShopAiBtn, callback_data: "redeem_ai_bonus" }],
-          [{ text: t.referralShopPremium3dBtn, callback_data: "redeem_premium_3d" }],
-          [{ text: t.referralShopPremium30dBtn, callback_data: "redeem_premium_30d" }]
+          [{ text: t.referralShopAiBtn, style: "danger", callback_data: "redeem_ai_bonus" }],
+          [{ text: t.referralShopPremium3dBtn, style: "danger", callback_data: "redeem_premium_3d" }],
+          [{ text: t.referralShopPremium30dBtn, style: "danger", callback_data: "redeem_premium_30d" }]
         ]
       }
     });
@@ -652,13 +652,13 @@ async function sendPremiumInfo(ctx, lang) {
 
     const buttons = [];
     if (status.trialAvailable) {
-      buttons.push([{ text: t.premiumTrialBtn(status.trialDays), callback_data: "premium_trial" }]);
+      buttons.push([{ text: t.premiumTrialBtn(status.trialDays), style: "danger", callback_data: "premium_trial" }]);
     }
     buttons.push([
-      { text: t.premiumMonthlyBtn(status.monthlyStarsPrice), callback_data: "premium_buy_monthly" },
-      { text: t.premiumYearlyBtn(status.yearlyStarsPrice), callback_data: "premium_buy_yearly" }
+      { text: t.premiumMonthlyBtn(status.monthlyStarsPrice), style: "danger", callback_data: "premium_buy_monthly" },
+      { text: t.premiumYearlyBtn(status.yearlyStarsPrice), style: "danger", callback_data: "premium_buy_yearly" }
     ]);
-    buttons.push([{ text: t.starsBuyBtn, url: STARS_BOT_URL }]);
+    buttons.push([{ text: t.starsBuyBtn, style: "danger", url: STARS_BOT_URL }]);
 
     const introText = status.trialAvailable
       ? t.premiumGiftPrompt(status.trialDays) + "\n\n" + t.premiumBuyPrompt
