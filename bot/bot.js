@@ -252,7 +252,27 @@ async function getUserLang(ctx) {
   }
 }
 
+// Salomlashuvdagi birinchi "Assalomu alaykum" stikeri (o'zimizning stiker to'plamidan).
+// WELCOME_STICKER_ID o'rnatilmagan bo'lsa yoki xato bersa — jimgina o'tkazib yuboriladi.
+async function sendWelcomeSticker(ctx) {
+  const id = process.env.WELCOME_STICKER_ID;
+  if (!id) return;
+  try {
+    await ctx.replyWithSticker(id);
+  } catch (err) {
+    console.error("Salomlashuv stikerini yuborishda xato:", err.message);
+  }
+}
+
+// Admin botga stiker yuborsa — uning file_id sini qaytaradi (WELCOME_STICKER_ID uchun)
+bot.on("sticker", async (ctx) => {
+  if (String(ctx.from.id) !== ADMIN_CHAT_ID) return;
+  const st = ctx.message.sticker;
+  await ctx.reply(`file_id:\n${st.file_id}\n\nset: ${st.set_name || "-"}`);
+});
+
 async function sendWelcome(ctx, lang) {
+  await sendWelcomeSticker(ctx);
   const t = BOT_TEXT[lang] || BOT_TEXT.uz;
 
   await ctx.reply(t.welcome, {
